@@ -1,0 +1,69 @@
+# Secrets and credentials
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+*.pub
+id_rsa
+id_ed25519
+id_ecdsa
+*.secret
+*.secrets
+secrets.yml
+secrets.yaml
+secret.yml
+secret.yaml
+.env
+.env.*
+!.env.example
+!.env.template
+
+# 1Password CLI artifacts
+.op
+
+# Kubernetes secrets (unless using SOPS/sealed-secrets)
+*-secret.yaml
+*-secret.yml
+*.secret.yaml
+*.secret.yml
+
+# Terraform/Tofu secrets
+*.tfvars
+!example.tfvars
+!*.example.tfvars
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+
+# Ansible vault files (unless properly encrypted)
+vault.yml
+vault.yaml
+*-vault.yml
+*-vault.yaml
+
+# Common credential files
+credentials
+credentials.json
+credentials.yaml
+credentials.yml
+token
+token.json
+token.yaml
+token.yml
+
+# OS and editor artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/settings.json
+.idea/
+
+# Build artifacts
+dist/
+build/
+target/
+*.log
