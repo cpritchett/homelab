@@ -1,0 +1,87 @@
+name: "Propose a Policy Change"
+description: "Change constitution/contracts/requirements (normative governance)."
+title: "Policy change: <short description>"
+labels: ["contracts"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This template is for **normative governance changes** (constitution/contracts/requirements).
+        If you're changing implementation only, use a regular issue.
+
+  - type: dropdown
+    id: authority
+    attributes:
+      label: Authority level impacted
+      options:
+        - constitution/
+        - contracts/
+        - requirements/
+      description: "Which authoritative layer will change?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: invariant
+    attributes:
+      label: Invariant touched (required)
+      description: "If this changes an invariant, paste the exact bullet/section from contracts/invariants.md. If none, say 'None'."
+      placeholder: |
+        e.g. contracts/invariants.md -> Access Invariants -> "Management network has no Internet egress by default"
+    validations:
+      required: true
+
+  - type: input
+    id: adr
+    attributes:
+      label: ADR required (required)
+      description: "Provide the ADR ID that will be created/updated (e.g., ADR-0004). CI will require an ADR reference for canonical changes."
+      placeholder: "ADR-0004"
+    validations:
+      required: true
+
+  - type: textarea
+    id: change
+    attributes:
+      label: Proposed change
+      description: "What exactly is changing? Use MUST/MUST NOT wording where relevant."
+      placeholder: |
+        - Change: ...
+        - Reason: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Rollback plan (required)
+      description: "How do we revert safely if this causes issues? Include timebox if it's an exception."
+      placeholder: |
+        - Timebox: (e.g., 30 minutes / until firmware update completes)
+        - Rollback steps: ...
+        - Verification: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks / mitigations
+      description: "Any new risks? If yes, add/update docs/risk/risk-register.md."
+      placeholder: |
+        - Risk: ...
+        - Mitigation: ...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Submission checklist
+      options:
+        - label: "I understand canonical changes require an ADR reference in the PR."
+          required: true
+        - label: "If an ADR is added/changed, I will link it from the relevant requirements/**/spec.md."
+          required: true
+        - label: "If this is break-glass, I will timebox it and document restoration."
+          required: false

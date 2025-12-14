@@ -1,0 +1,11 @@
+{
+  "project_id": "hypyr-homelab",
+  "description": "Homelab infrastructure governance with strict agent contracts",
+  "context_files": [
+    "constitution/constitution.md",
+    "contracts/agents.md",
+    "contracts/hard-stops.md",
+    "contracts/invariants.md"
+  ],
+  "style_guide": ".gemini/styleguide.md"
+}

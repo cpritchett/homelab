@@ -1,0 +1,18 @@
+name: guardrails
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  no_invariant_drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: No invariant drift in router/tool files
+        run: ./scripts/no-invariant-drift.sh

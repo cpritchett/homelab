@@ -1,0 +1,47 @@
+# Auto-label PRs by changed paths
+
+constitution:
+  - changed-files:
+      - any-glob-to-any-file: "constitution/**"
+
+contracts:
+  - changed-files:
+      - any-glob-to-any-file: "contracts/**"
+
+requirements:
+  - changed-files:
+      - any-glob-to-any-file: "requirements/**"
+
+adr:
+  - changed-files:
+      - any-glob-to-any-file: "docs/adr/**"
+
+risk:
+  - changed-files:
+      - any-glob-to-any-file: "docs/risk/**"
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file: "docs/**"
+
+infra:
+  - changed-files:
+      - any-glob-to-any-file: "infra/**"
+
+ops:
+  - changed-files:
+      - any-glob-to-any-file: "ops/**"
+
+guardrails:
+  - changed-files:
+      - any-glob-to-any-file: ".github/workflows/**"
+      - any-glob-to-any-file: "scripts/**"
+      - any-glob-to-any-file: ".github/labeler.yml"
+
+ai-config:
+  - changed-files:
+      - any-glob-to-any-file: ".gemini/**"
+      - any-glob-to-any-file: ".specify/**"
+      - any-glob-to-any-file: ".vscode/**"
+      - any-glob-to-any-file: ".github/copilot-instructions.md"
+      - any-glob-to-any-file: "CLAUDE.md"

@@ -1,0 +1,14 @@
+# Sole-owner governance: require explicit review even for yourself
+# Purpose: prevent silent changes to law (constitution/contracts/requirements)
+
+# Highest authority
+/constitution/                  @cpritchett
+/contracts/                     @cpritchett
+
+# Normative domain specs
+/requirements/                  @cpritchett
+
+# Guardrails protect themselves
+/.github/workflows/              @cpritchett
+/.github/CODEOWNERS              @cpritchett
+/scripts/                        @cpritchett
