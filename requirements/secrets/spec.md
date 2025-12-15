@@ -52,7 +52,7 @@ Secrets MAY be stored in the following locations, in order of preference:
    - Use BFG Repo-Cleaner or similar if secrets are accidentally committed
 
 3. **Long-lived static secrets are DISCOURAGED**
-   - Prefer short-lived tokens and credentials rotation
+   - Prefer short-lived tokens and credential rotation
    - Document rotation procedures for all secrets
 
 ## CI/CD requirements
