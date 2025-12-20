@@ -23,6 +23,7 @@ Conflicts are resolved by precedence (highest first):
 - Ingress spec: [`requirements/ingress/spec.md`](requirements/ingress/spec.md)
 - Management spec: [`requirements/management/spec.md`](requirements/management/spec.md)
 - Overlay spec: [`requirements/overlay/spec.md`](requirements/overlay/spec.md)
+- Secrets spec: [`requirements/secrets/spec.md`](requirements/secrets/spec.md)
 
 ### Explanatory (why)
 - Rationale: [`docs/rationale.md`](docs/rationale.md)

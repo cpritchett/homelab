@@ -15,6 +15,9 @@ This folder contains **normative domain requirements**. These are enforceable co
 - `overlay/`
   - `spec.md` — overlay networking requirements
   - `checks.md` — validation criteria
+- `secrets/`
+  - `spec.md` — secrets management requirements
+  - `checks.md` — validation criteria
 
 ## Authority
 If anything conflicts, precedence is:
