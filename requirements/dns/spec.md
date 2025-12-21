@@ -39,4 +39,4 @@ DNS encodes intent and trust boundaries. Mixing zones or adding alternative suff
 
 See: 
 - [ADR-0001: DNS Intent Domains](../../docs/adr/ADR-0001-dns-intent.md)
-- [ADR-0005: ExternalDNS Kubernetes Annotations](../../docs/adr/ADR-0005-externaldns-k8s-annotations.md)
+- [ADR-0015: ExternalDNS Kubernetes Annotations](../../docs/adr/ADR-0015-externaldns-k8s-annotations.md)
