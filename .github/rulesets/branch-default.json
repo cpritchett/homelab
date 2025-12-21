@@ -27,7 +27,7 @@
         "required_status_checks": [
           { "context": "guardrails / no_invariant_drift" },
           { "context": "adr-guard / require_adr_for_canonical_changes" },
-          { "context": "adr-linked / adr_must_be_linked_from_spec" }
+          { "context": "adr-linked / adr-must-be-linked-from-spec" }
         ]
       }
     },

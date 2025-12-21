@@ -80,3 +80,7 @@ Secrets management is critical for infrastructure security. Centralizing secrets
 Prohibiting plaintext secrets in repositories prevents accidental exposure and credential leakage through git history.
 
 See: [ADR-0004](../../docs/adr/ADR-0004-secrets-management.md)
+
+## Agent Governance
+
+For agent procedures on governance and compliance, see: [ADR-0005](../../docs/adr/ADR-0005-agent-governance-procedures.md)
