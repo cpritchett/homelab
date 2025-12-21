@@ -8,6 +8,8 @@ on:
 
 jobs:
   require_adr_for_canonical_changes:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
