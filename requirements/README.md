@@ -3,6 +3,9 @@
 This folder contains **normative domain requirements**. These are enforceable constraints.
 
 ## Domains
+- `compute/`
+  - `spec.md` — hardware and compute infrastructure requirements
+  - `checks.md` — validation criteria
 - `dns/`
   - `spec.md` — DNS intent requirements
   - `checks.md` — validation criteria
@@ -17,6 +20,15 @@ This folder contains **normative domain requirements**. These are enforceable co
   - `checks.md` — validation criteria
 - `secrets/`
   - `spec.md` — secrets management requirements
+  - `checks.md` — validation criteria
+- `storage/`
+  - `spec.md` — persistent storage requirements (Longhorn, TrueNAS, S3)
+  - `checks.md` — validation criteria
+- `tooling/`
+  - `spec.md` — developer tooling stack requirements
+  - `checks.md` — validation criteria
+- `workflow/`
+  - `spec.md` — git workflow and commit convention requirements
   - `checks.md` — validation criteria
 
 ## Authority

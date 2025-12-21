@@ -1,0 +1,109 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: deny-database-on-longhorn
+  annotations:
+    policies.kyverno.io/title: Deny Database Workloads on Longhorn Storage
+    policies.kyverno.io/category: Storage
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: PersistentVolumeClaim, StatefulSet
+    policies.kyverno.io/description: >-
+      Prevents database workloads from binding PVCs using Longhorn storage classes.
+      Longhorn is not suitable for database workloads due to eventual consistency
+      and lack of strong POSIX guarantees. Databases must use TrueNAS iSCSI/NFS.
+    hypyr.space/rationale: "https://github.com/cpritchett/homelab/blob/main/docs/adr/ADR-0010-longhorn-storage.md"
+    hypyr.space/requirement: "requirements/storage/spec.md"
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    # Rule 1: Detect StatefulSets with database labels binding Longhorn PVCs
+    - name: deny-database-statefulset-longhorn
+      match:
+        any:
+          - resources:
+              kinds:
+                - StatefulSet
+      preconditions:
+        all:
+          # Match common database labels
+          - key: "{{ request.object.metadata.labels.\"app.kubernetes.io/name\" || '' }}"
+            operator: AnyIn
+            value:
+              - postgres
+              - postgresql
+              - mysql
+              - mariadb
+              - mongodb
+              - mongo
+              - redis
+              - cassandra
+              - cockroachdb
+              - etcd
+              - influxdb
+              - timescaledb
+      validate:
+        message: >-
+          Database workload "{{ request.object.metadata.name }}" is prohibited from using
+          Longhorn storage. Longhorn does not provide database-grade consistency guarantees.
+          Use TrueNAS iSCSI/NFS storage instead. See ADR-0010 for rationale.
+        deny:
+          conditions:
+            any:
+              # Check if any volumeClaimTemplate uses Longhorn storage class
+              - key: "{{ request.object.spec.volumeClaimTemplates[].spec.storageClassName }}"
+                operator: AnyIn
+                value:
+                  - longhorn
+                  - longhorn-static
+                  - longhorn-rwx  # Also block RWX even though it's already restricted
+
+    # Rule 2: Block PVCs with database-related names/labels on Longhorn
+    - name: deny-database-pvc-longhorn
+      match:
+        any:
+          - resources:
+              kinds:
+                - PersistentVolumeClaim
+      preconditions:
+        all:
+          # Match PVCs with database-indicating labels or names
+          - key: "{{ request.object.metadata.labels.\"app.kubernetes.io/component\" || '' }}"
+            operator: AnyIn
+            value:
+              - database
+              - db
+              - datastore
+      validate:
+        message: >-
+          PVC "{{ request.object.metadata.name }}" with database-related labels is prohibited
+          from using Longhorn storage class. Use TrueNAS-backed storage classes instead.
+        deny:
+          conditions:
+            any:
+              - key: "{{ request.object.spec.storageClassName }}"
+                operator: AnyIn
+                value:
+                  - longhorn
+                  - longhorn-static
+                  - longhorn-rwx
+
+    # Rule 3: Allow override via explicit approval annotation (break-glass)
+    - name: allow-database-longhorn-with-approval
+      match:
+        any:
+          - resources:
+              kinds:
+                - StatefulSet
+                - PersistentVolumeClaim
+              annotations:
+                storage.hypyr.space/database-on-longhorn-approved: "true"
+      validate:
+        message: >-
+          Database on Longhorn explicitly approved via annotation. This should be
+          documented in an ADR and is only for exceptional circumstances.
+        pattern:
+          metadata:
+            annotations:
+              storage.hypyr.space/database-on-longhorn-approved: "true"
+              storage.hypyr.space/approval-adr: "ADR-*"  # Must reference an ADR

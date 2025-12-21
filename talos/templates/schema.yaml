@@ -1,0 +1,43 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+#! ============================================================================
+#! Schema for Talos Node Configuration Values
+#! ============================================================================
+#! This file defines the expected structure and validation for node data values.
+#! Each node (home01, home02, etc.) provides a values file matching this schema.
+#!
+#! See: ADR-0013 (ytt data values for Talos templating)
+#! ============================================================================
+
+#@data/values-schema
+---
+#! Node Identity
+#@schema/desc "Fully qualified domain name for the node"
+hostname: ""
+
+#@schema/desc "IP address with CIDR notation (e.g., 10.0.5.215/24)"
+ip_address: ""
+
+#@schema/desc "Default gateway IP address"
+gateway: "10.0.5.1"
+
+#! Hardware Selection
+#@schema/desc "Hardware type: eq12, p520, or itx"
+#@schema/validation one_of=["eq12", "p520", "itx"]
+hardware_type: ""
+
+#! Install Configuration
+#@schema/desc "Boot disk path (e.g., /dev/sda or /dev/disk/by-id/...)"
+install_disk: ""
+
+#! Workload Labels
+#@schema/desc "PostgreSQL scheduling priority: preferred or fallback"
+#@schema/validation one_of=["preferred", "fallback"]
+postgres_priority: "fallback"
+
+#@schema/desc "Kubernetes topology zone"
+topology_zone: "main-smc"
+
+#@schema/desc "Kubernetes topology region"
+topology_region: "k8s"

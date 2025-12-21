@@ -9,8 +9,48 @@ These conditions must **always be true**. Any change that would violate an invar
 |----------|-------|-------|
 | Management VLAN | 100 | Fixed |
 | Management CIDR | `10.0.100.0/24` | Fixed |
+| K8s Cluster VLAN | 5 | Fixed |
+| K8s Cluster CIDR | `10.0.5.0/24` | Fixed |
+| IoT secondary network VLAN | 10 | For Multus workloads |
+| LoadBalancer pool VLAN | 48 | For Cilium L2-announced IPs |
 | Public zone | `hypyr.space` | Cloudflare-managed |
 | Internal zone | `in.hypyr.space` | Local DNS only |
+
+## WAN Constraints
+
+| Resource | Capacity | Stability | Notes |
+|----------|----------|-----------|-------|
+| Primary WAN (DOCSIS) Upload | 20-30 Mbps | Frequent instability | Residential cable |
+| Primary WAN (DOCSIS) Download | 1 Gbps | Frequent instability | Residential cable |
+| Secondary WAN (5G) | Variable | Variable | Failover only |
+
+## Storage Configuration Invariants
+
+**Storage System:** Longhorn CSI (see ADR-0010)
+
+All Talos nodes MUST include:
+- Kernel modules: `nbd`, `iscsi_tcp`, `dm_multipath`
+- System extension: `siderolabs/open-iscsi` (iSCSI initiator)
+- Containerd config: `discard_unpacked_layers = false` (for image caching)
+
+Rationale:
+- **NBD:** Block device replication (Longhorn volumes)
+- **iSCSI:** Data path between replicas in cluster
+- **dm_multipath:** Path redundancy for storage reliability
+- **open-iscsi:** Daemon for initiating iSCSI connections
+
+These are non-negotiable for Longhorn functionality. Violations break storage.
+
+## Hardware Constraints
+
+| Resource | Quantity | Notes |
+|----------|----------|-------|
+| Talos k8s nodes | 4 | Commodity/repurposed consumer hardware |
+| Total cluster RAM | 352GB | Heterogeneous (32-128GB per node) |
+| QuickSync nodes | 2 | Beelink EQ12 units |
+| GPU nodes | 1 | Lenovo P520 with NVIDIA P2000 |
+| Primary NAS | 1 | 45Drives HL15 (TrueNAS, ~100TB, brownfield) |
+| Secondary NAS | 1 | Synology DS918+ (DSM, S3 via Garage, brownfield) |
 
 ## Access Invariants
 
@@ -28,6 +68,11 @@ These conditions must **always be true**. Any change that would violate an invar
 4. **Overlay agents are prohibited on Management VLAN devices**
    - Overlay is transport for trusted humans, not management infrastructure
 
+5. **Secondary networks (IoT, LoadBalancer) must not bypass primary cluster network**
+   - VLAN 10 (IoT) provides Multus attachment only; pods remain primarily on K8s network
+   - VLAN 48 (LoadBalancer IPs) is L2-announced only; no cluster management traffic
+   - No management infrastructure operates on secondary networks
+
 ## DNS Invariants
 
 1. **No additional internal suffixes** (`.lan`, `.local`, `.home` are prohibited)
@@ -37,3 +82,20 @@ These conditions must **always be true**. Any change that would violate an invar
 3. **Zone dependency boundaries**:
    - Internal-only services MUST NOT depend on `hypyr.space` resolution
    - Public services MUST NOT depend on `in.hypyr.space` resolution
+
+## Repository Structure Invariants
+
+1. **Root-level files are exhaustively enumerated**
+   - Only files explicitly listed in `scripts/enforce-root-structure.sh` may exist in repository root
+   - No arbitrary documentation, summaries, or scratch files in root
+
+2. **Documentation must be properly located**:
+   - Architecture decisions → `docs/adr/`
+   - General documentation → `docs/`
+   - Operational documentation → `ops/runbooks/`
+   - Change logs → `ops/CHANGELOG.md` (single file, append-only)
+   - Implementation → `infra/<domain>/`
+
+3. **CI enforcement is mandatory**
+   - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
+   - PRs violating structure MUST be blocked

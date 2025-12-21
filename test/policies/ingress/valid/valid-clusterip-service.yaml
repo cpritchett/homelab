@@ -1,0 +1,19 @@
+# Test case: ClusterIP Service (ALLOWED)
+# Expected: PASS
+# Policy: All ingress policies
+# Reason: ClusterIP services are internal-only and safe
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app
+  namespace: apps
+spec:
+  type: ClusterIP  # ✓ ClusterIP is safe (internal only)
+  selector:
+    app: web-app
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP

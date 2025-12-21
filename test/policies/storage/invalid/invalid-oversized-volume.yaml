@@ -1,0 +1,17 @@
+# Test case: Oversized Longhorn PVC (PROHIBITED)
+# Expected: FAIL
+# Policy: limit-volume-size.yaml
+# Reason: Volumes >1TB should use TrueNAS, not distributed block storage
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: large-media-cache
+  namespace: media
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Ti  # ❌ PROHIBITED: >1TB on Longhorn

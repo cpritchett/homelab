@@ -1,0 +1,98 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: enforce-longhorn-replicas
+  annotations:
+    policies.kyverno.io/title: Enforce Longhorn Replica Configuration
+    policies.kyverno.io/category: Storage
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: StorageClass
+    policies.kyverno.io/description: >-
+      Ensures all Longhorn StorageClass definitions explicitly declare numberOfReplicas
+      parameter with minimum of 2 replicas (single-node failure tolerance).
+      Single-replica volumes must have explicit approval annotation.
+    hypyr.space/rationale: "https://github.com/cpritchett/homelab/blob/main/requirements/storage/spec.md"
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    # Rule 1: StorageClass must declare numberOfReplicas
+    - name: require-explicit-replica-count
+      match:
+        any:
+          - resources:
+              kinds:
+                - StorageClass
+      preconditions:
+        all:
+          # Only apply to Longhorn provisioner
+          - key: "{{ request.object.provisioner }}"
+            operator: Equals
+            value: driver.longhorn.io
+      validate:
+        message: >-
+          StorageClass "{{ request.object.metadata.name }}" with Longhorn provisioner
+          must explicitly declare 'numberOfReplicas' parameter. Implicit defaults are
+          not allowed to prevent misconfiguration.
+        pattern:
+          parameters:
+            numberOfReplicas: "?*"  # Must exist and be non-empty
+
+    # Rule 2: Replica count must be >= 2 (single-node failure tolerance)
+    - name: enforce-minimum-replicas
+      match:
+        any:
+          - resources:
+              kinds:
+                - StorageClass
+      preconditions:
+        all:
+          - key: "{{ request.object.provisioner }}"
+            operator: Equals
+            value: driver.longhorn.io
+          # Only apply if numberOfReplicas is declared
+          - key: "{{ request.object.parameters.numberOfReplicas || '0' }}"
+            operator: GreaterThanOrEquals
+            value: "0"
+      validate:
+        message: >-
+          StorageClass "{{ request.object.metadata.name }}" declares
+          numberOfReplicas={{ request.object.parameters.numberOfReplicas }}.
+          Minimum is 2 for single-node failure tolerance. Use annotation
+          storage.hypyr.space/single-replica-approved="true" if this is intentional.
+        deny:
+          conditions:
+            all:
+              # Block if numberOfReplicas < 2
+              - key: "{{ request.object.parameters.numberOfReplicas }}"
+                operator: LessThan
+                value: "2"
+              # Unless approval annotation is present
+              - key: "{{ request.object.metadata.annotations.\"storage.hypyr.space/single-replica-approved\" || 'false' }}"
+                operator: NotEquals
+                value: "true"
+
+    # Rule 3: Replica count must not exceed node count (max 3 for 4-node cluster)
+    - name: limit-maximum-replicas
+      match:
+        any:
+          - resources:
+              kinds:
+                - StorageClass
+      preconditions:
+        all:
+          - key: "{{ request.object.provisioner }}"
+            operator: Equals
+            value: driver.longhorn.io
+      validate:
+        message: >-
+          StorageClass "{{ request.object.metadata.name }}" declares
+          numberOfReplicas={{ request.object.parameters.numberOfReplicas }}.
+          Maximum is 3 (constrained by 4-node cluster with 1 control-plane-only).
+        deny:
+          conditions:
+            any:
+              # Block if numberOfReplicas > 3
+              - key: "{{ request.object.parameters.numberOfReplicas }}"
+                operator: GreaterThan
+                value: "3"
