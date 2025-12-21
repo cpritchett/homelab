@@ -15,6 +15,7 @@ Architectural Decision Records explain *why* decisions were made.
 - [ADR-0011](ADR-0011-talos-ytt-templating.md): ytt overlays for Talos *(superseded)*
 - [ADR-0012](ADR-0012-talos-native-patching.md): talosctl patch *(superseded)*
 - [ADR-0013](ADR-0013-ytt-data-values.md): ytt data values for Talos templating ✓
+- [ADR-0014](ADR-0014-governance-framework.md): Governance framework and policy enforcement ✓
 
 ## Status values
 - Proposed
