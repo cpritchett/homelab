@@ -37,3 +37,8 @@ If anything conflicts, precedence is:
 2. `contracts/`
 3. `requirements/`
 4. `docs/` (explanatory only)
+
+## Agent Compliance
+Agents must follow governance procedures when making changes to any domain.
+
+See: [ADR-0005](../docs/adr/ADR-0005-agent-governance-procedures.md)
