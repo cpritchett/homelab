@@ -9,7 +9,7 @@ Per `.github/rulesets/branch-default.json`, these checks are **required** and bl
 
 1. `guardrails / no_invariant_drift`
 2. `adr-guard / require_adr_for_canonical_changes`
-3. `adr-linked / adr_must_be_linked_from_spec`
+3. `adr-linked / adr-must-be-linked-from-spec`
 
 ## Gate 1: no_invariant_drift
 
@@ -109,10 +109,10 @@ export PR_BODY="Your PR description"
 
 ---
 
-## Gate 3: adr_must_be_linked_from_spec
+## Gate 3: adr-must-be-linked-from-spec
 
 **Workflow:** `.github/workflows/adr-linked.yml` *(to be created)*  
-**Job:** `adr_must_be_linked_from_spec`  
+**Job:** `adr-must-be-linked-from-spec`  
 **Script:** `./scripts/adr-must-be-linked-from-spec.sh`
 
 ### Purpose
@@ -267,7 +267,7 @@ export PR_BODY="${2:-}"
 ./scripts/require-adr-on-canonical-changes.sh
 echo
 
-echo "==> Gate 3: adr_must_be_linked_from_spec"
+echo "==> Gate 3: adr-must-be-linked-from-spec"
 ./scripts/adr-must-be-linked-from-spec.sh
 echo
 

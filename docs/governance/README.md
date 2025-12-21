@@ -48,7 +48,7 @@ docs/
 ├── workflows/               [CI ENFORCEMENT]
 │   ├── guardrails.yml      [no_invariant_drift]
 │   ├── adr-guard.yml       [require_adr_for_canonical_changes]
-│   ├── adr-linked.yml      [adr_must_be_linked_from_spec]
+│   ├── adr-linked.yml      [adr-must-be-linked-from-spec]
 │   └── secret-scanning.yml [gitleaks + trufflehog]
 ├── rulesets/
 │   └── branch-default.json [Required status checks & review rules]
@@ -144,7 +144,7 @@ Current ADRs:
 Four required checks:
 1. `guardrails / no_invariant_drift`
 2. `adr-guard / require_adr_for_canonical_changes`
-3. `adr-linked / adr_must_be_linked_from_spec`
+3. `adr-linked / adr-must-be-linked-from-spec`
 4. `secret-scanning / gitleaks` and `secret-scanning / trufflehog`
 
 ### Gate 1: no_invariant_drift
@@ -161,7 +161,7 @@ Four required checks:
 **Trigger:** All PRs, pushes to main  
 **Local:** `./scripts/require-adr-on-canonical-changes.sh` (with env vars)
 
-### Gate 3: adr_must_be_linked_from_spec
+### Gate 3: adr-must-be-linked-from-spec
 **Workflow:** `.github/workflows/adr-linked.yml`  
 **Script:** `scripts/adr-must-be-linked-from-spec.sh`  
 **Purpose:** Ensure ADRs are linked from requirement specs  
@@ -239,7 +239,7 @@ canonical_changes:
   required_checks:
     - no_invariant_drift
     - require_adr_for_canonical_changes
-    - adr_must_be_linked_from_spec
+    - adr-must-be-linked-from-spec
     - secret_scanning
   required_artifacts:
     - adr:

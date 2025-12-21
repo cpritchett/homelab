@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# NOTE: Ensure this script is committed as executable:
+#   git update-index --chmod=+x scripts/run-all-gates.sh
 set -e
 
 echo "Running all CI gates locally..."
@@ -15,7 +17,7 @@ export PR_BODY="${2:-}"
 ./scripts/require-adr-on-canonical-changes.sh
 echo
 
-echo "==> Gate 3: adr_must_be_linked_from_spec"
+echo "==> Gate 3: adr-must-be-linked-from-spec"
 ./scripts/adr-must-be-linked-from-spec.sh
 echo
 

@@ -105,7 +105,7 @@ ADR-NNNN (if canonical)
 ## Gate Results
 ✅ no_invariant_drift
 ✅ require_adr_for_canonical_changes  
-✅ adr_must_be_linked_from_spec
+✅ adr-must-be-linked-from-spec
 ✅ secret-scanning
 
 ## Constitution Compliance
@@ -143,7 +143,7 @@ A change is NOT done until:
 1. **All gates pass locally:**
    - [ ] `no_invariant_drift` passes
    - [ ] `require_adr_for_canonical_changes` passes
-   - [ ] `adr_must_be_linked_from_spec` passes
+   - [ ] `adr-must-be-linked-from-spec` passes
    - [ ] Secret scanning passes (if tools available)
 
 2. **Required artifacts created:**
@@ -291,7 +291,7 @@ Copy this checklist for every change:
 4. **Add** `ADR-NNNN` to PR title or body
 5. **Re-run** gate to confirm fix
 
-### If `adr_must_be_linked_from_spec` fails:
+### If `adr-must-be-linked-from-spec` fails:
 
 1. **Identify** which ADR changed: `git diff origin/main -- docs/adr/`
 2. **Find** relevant domain in `requirements/`

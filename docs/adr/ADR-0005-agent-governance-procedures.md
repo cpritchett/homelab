@@ -49,7 +49,7 @@ We create comprehensive governance documentation and update agent instructions t
 
 4. **scripts/run-all-gates.sh** - Convenience script to run all gates locally
 
-5. **.github/workflows/adr-linked.yml** - Missing workflow for `adr_must_be_linked_from_spec` gate
+5. **.github/workflows/adr-linked.yml** - Missing workflow for `adr-must-be-linked-from-spec` gate
 
 ### Updated Files
 

@@ -229,7 +229,7 @@ Based on change type, complete relevant sections of PR template.
 1. **Verify all CI gates pass:**
    - ✅ `guardrails / no_invariant_drift`
    - ✅ `adr-guard / require_adr_for_canonical_changes`
-   - ✅ `adr-linked / adr_must_be_linked_from_spec`
+   - ✅ `adr-linked / adr-must-be-linked-from-spec`
    - ✅ `secret-scanning / gitleaks`
    - ✅ `secret-scanning / trufflehog`
 
@@ -397,7 +397,7 @@ For each change, PR description should include:
    ```
    ✅ no_invariant_drift
    ✅ require_adr_for_canonical_changes
-   ✅ adr_must_be_linked_from_spec
+   ✅ adr-must-be-linked-from-spec
    ✅ secret-scanning
    ```
 4. **Domain checks passed:** (if applicable)
