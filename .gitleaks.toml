@@ -1,0 +1,44 @@
+title = "hypyr homelab gitleaks"
+description = "High-confidence secret/PII detection for hooks and CI"
+redact = true
+builtinRules = true
+
+[allowlist]
+paths = [
+  "^tests/security/fixtures/", # synthetic fixtures (scanned separately in security:test)
+]
+
+[[rules]]
+id = "fake-github-pat"
+description = "GitHub personal access token pattern"
+regex = '''ghp_[0-9A-Za-z]{36}'''
+secretGroup = 0
+keywords = ["ghp_"]
+
+[[rules]]
+id = "fake-aws-access-key"
+description = "AWS access key id format"
+regex = '''AKIA[0-9A-Z]{16}'''
+secretGroup = 0
+keywords = ["AKIA"]
+
+[[rules]]
+id = "fake-aws-secret-key"
+description = "AWS secret access key format"
+regex = '''(?i)aws(.{0,20})?(secret)?(.{0,20})?key(.{0,20})?=[0-9a-zA-Z/+]{40}'''
+secretGroup = 0
+keywords = ["aws", "secret", "key"]
+
+[[rules]]
+id = "pem-private-key-block"
+description = "PEM private key block"
+regex = '''-----BEGIN (RSA |DSA |EC |OPENSSH )?PRIVATE KEY-----'''
+secretGroup = 0
+keywords = ["PRIVATE KEY"]
+
+[[rules]]
+id = "kubeconfig-client-key-data"
+description = "Kubeconfig client-key-data should never be committed"
+regex = '''client-key-data:\s*[A-Za-z0-9+/=]{32,}'''
+secretGroup = 0
+keywords = ["client-key-data"]

@@ -1,0 +1,2 @@
+# SYNTHETIC TEST FIXTURE — NOT A REAL SECRET
+ghp_FAKE1234567890abcdefghijklmnopqrst

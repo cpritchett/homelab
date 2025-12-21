@@ -14,6 +14,10 @@ secrets.yml
 secrets.yaml
 secret.yml
 secret.yaml
+.secrets.baseline
+.gitleaks.allowlist
+.gitleaks-cache/
+.gitleaks-report.json
 .env
 .env.*
 !.env.example
@@ -27,6 +31,13 @@ secret.yaml
 *-secret.yml
 *.secret.yaml
 *.secret.yml
+
+# Kubernetes configs
+kubeconfig
+kubeconfig.*
+*.kubeconfig
+*.kubeconfig.*
+*.kube
 
 # Terraform/Tofu secrets
 *.tfvars
@@ -51,6 +62,26 @@ token
 token.json
 token.yaml
 token.yml
+*.bak
+*.backup
+*.dump
+*.sql
+*.sqlite
+*.db
+*.mdb
+*.accdb
+*.tar.gz
+*.tgz
+*.zip
+*.gz
+*.7z
+
+# Helm values and plans
+values.yaml
+values.yml
+values-*.yaml
+values-*.yml
+*.tfplan
 
 # OS and editor artifacts
 .DS_Store

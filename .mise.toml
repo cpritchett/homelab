@@ -15,3 +15,23 @@ ytt = "0.52.2"
 [env]
 # Environment variables
 PROJECT_ROOT = "{{cwd}}"
+
+[tasks."hooks:install"]
+description = "Configure git hooks to use .githooks/"
+run = "git config core.hooksPath .githooks && find .githooks -type f -maxdepth 1 -exec chmod +x {} +"
+
+[tasks."security:scan:staged"]
+description = "Scan staged changes for secrets/PII (same as pre-commit hook)"
+run = "gitleaks protect --staged --redact --config .gitleaks.toml"
+
+[tasks."security:scan:repo"]
+description = "Full repo scan for secrets/PII"
+run = "gitleaks detect --source . --redact --config .gitleaks.toml"
+
+[tasks."security:test"]
+description = "Validate gitleaks catches synthetic fixtures and ignores safe content"
+run = "bash scripts/security-test.sh"
+
+[tasks."security:scan:test"]
+description = "Alias for security:test"
+run = "bash scripts/security-test.sh"
