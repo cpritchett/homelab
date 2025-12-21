@@ -23,7 +23,12 @@ echo "==> Gate 4: Secret scanning (gitleaks)"
 if command -v gitleaks &> /dev/null; then
   gitleaks detect --source . --verbose
 else
-  echo "⚠️  gitleaks not installed, skipping"
+  if [ -n "${CI:-}" ]; then
+    echo "ERROR: gitleaks is required in CI but is not installed. Please install gitleaks in the CI environment." >&2
+    exit 1
+  else
+    echo "⚠️  gitleaks not installed, skipping"
+  fi
 fi
 echo
 
