@@ -17,7 +17,7 @@ fi
 echo "Validating repository root structure..."
 
 # Create temporary JSON input for conftest
-temp_input=$(mktemp)
+temp_input=$(mktemp --suffix=.json)
 trap 'rm -f "$temp_input"' EXIT
 
 # Build JSON input with all root-level files and directories
