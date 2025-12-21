@@ -26,6 +26,12 @@ Validation checklist for storage compliance.
 - [ ] Longhorn PVCs >1TB rejected (redirect to TrueNAS)
 - [ ] Volume size expectations documented per application
 
+### Storage class selection
+- [ ] Databases (SQL/NoSQL) use NAS-backed StorageClass (e.g., `rwx-db`), not Longhorn
+- [ ] Node-local StorageClass (`node-local`) exists and is scoped to scratch/temp only
+- [ ] Node-local class uses `WaitForFirstConsumer`, `Delete` reclaim policy, and ext4
+- [ ] Application manifests avoid databases on node-local/Longhorn classes
+
 ### Backup compliance
 - [ ] VolSync ReplicationSource configured for persistent Longhorn volumes
 - [ ] Restic repository configured (S3 via Garage on Synology)

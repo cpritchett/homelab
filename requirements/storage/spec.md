@@ -23,6 +23,20 @@ This homelab infrastructure uses **separate storage planes** for different workl
 - Latency-sensitive databases requiring strong consistency
 - Any workload requiring strict POSIX guarantees
 
+### NAS-backed database storage (NFS/iSCSI)
+
+**Scope:** SQL/NoSQL databases requiring stronger consistency and RWX support
+
+**StorageClass:** `rwx-db` (generic NAS-backed NFS/iSCSI class)
+
+**Use cases:**
+- PostgreSQL, MySQL, MongoDB, etc.
+- Applications that require RWX access or shared DB mounts
+
+**Constraints:**
+- Must not use Longhorn
+- Backups via database-native tooling to S3 (Garage)
+
 ### TrueNAS (external NFS/iSCSI/SMB)
 
 **Scope:** Large media storage, databases requiring strong consistency
@@ -41,6 +55,28 @@ This homelab infrastructure uses **separate storage planes** for different workl
 - VolSync replication targets
 - Restic backup repositories
 - Application object storage (where S3 API is native)
+
+### Node-local scratch (consumer SATA/NVMe per node)
+
+**StorageClass:** `node-local`
+
+**Provisioner:** Prefer `rancher.io/local-path`; `openebs.io/local` acceptable if OpenEBS is present.
+
+**Configuration:**
+- `path: /var/lib/local-path` (dedicated mount on each node)
+- `volumeBindingMode: WaitForFirstConsumer`
+- `reclaimPolicy: Delete`
+- `allowVolumeExpansion: false`
+- `fsType: ext4`
+- Mount options: `noatime,nodiratime`
+
+**Use cases:**
+- Download caches, transcode scratch, temp working dirs
+- Embedded SQLite only when application tolerates node loss
+
+**Prohibited:**
+- Stateful databases requiring durability
+- Any workload needing failover/replication
 
 ## Longhorn design constraints
 
