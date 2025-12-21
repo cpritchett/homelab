@@ -1,0 +1,80 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: limit-longhorn-volume-size
+  annotations:
+    policies.kyverno.io/title: Limit Longhorn Volume Size
+    policies.kyverno.io/category: Storage
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: PersistentVolumeClaim
+    policies.kyverno.io/description: >-
+      Prevents creation of oversized PVCs on Longhorn storage. Large volumes
+      (>500GB) should use TrueNAS NFS/iSCSI. Volumes >1TB are hard-blocked.
+      This prevents cluster capacity exhaustion and aligns with Longhorn's design
+      intent for smaller, distributed volumes.
+    hypyr.space/rationale: "https://github.com/cpritchett/homelab/blob/main/requirements/storage/spec.md"
+spec:
+  validationFailureAction: Enforce
+  background: false  # Only validate on CREATE, not UPDATE
+  rules:
+    # Rule 1: Hard block volumes >1TB on Longhorn
+    - name: deny-oversized-longhorn-volume
+      match:
+        any:
+          - resources:
+              kinds:
+                - PersistentVolumeClaim
+              operations:
+                - CREATE
+      preconditions:
+        all:
+          # Only apply to Longhorn storage classes
+          - key: "{{ request.object.spec.storageClassName }}"
+            operator: AnyIn
+            value:
+              - longhorn
+              - longhorn-static
+              - longhorn-rwx
+      validate:
+        message: >-
+          PVC "{{ request.object.metadata.name }}" requests
+          {{ request.object.spec.resources.requests.storage }} which exceeds
+          the 1TB limit for Longhorn storage. Use TrueNAS NFS/iSCSI for large volumes.
+        deny:
+          conditions:
+            any:
+              # Block if storage request > 1Ti (1099511627776 bytes)
+              - key: "{{ request.object.spec.resources.requests.storage }}"
+                operator: GreaterThan
+                value: 1Ti
+
+    # Rule 2: Warn for volumes >500GB (audit mode - log but don't block)
+    - name: warn-large-longhorn-volume
+      match:
+        any:
+          - resources:
+              kinds:
+                - PersistentVolumeClaim
+              operations:
+                - CREATE
+      preconditions:
+        all:
+          - key: "{{ request.object.spec.storageClassName }}"
+            operator: AnyIn
+            value:
+              - longhorn
+              - longhorn-static
+              - longhorn-rwx
+      validate:
+        validationFailureAction: Audit  # Log but don't block
+        message: >-
+          PVC "{{ request.object.metadata.name }}" requests
+          {{ request.object.spec.resources.requests.storage }} which is >500GB.
+          Consider whether this workload should use TrueNAS instead of Longhorn.
+        deny:
+          conditions:
+            any:
+              # Warn if storage request > 500Gi but <= 1Ti
+              - key: "{{ request.object.spec.resources.requests.storage }}"
+                operator: GreaterThan
+                value: 500Gi

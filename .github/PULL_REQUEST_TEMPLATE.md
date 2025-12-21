@@ -1,6 +1,11 @@
 ## Summary
 What does this change do?
 
+**Commit message (if single change):**
+```
+<type>(<scope>): <subject>
+```
+
 ## Specs impact
 - [ ] Updates `requirements/` (domain specs)
 - [ ] Updates `contracts/` (agent rules or invariants)

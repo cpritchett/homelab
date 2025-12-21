@@ -1,0 +1,100 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: deny-loadbalancer-external-ips
+  annotations:
+    policies.kyverno.io/title: Deny LoadBalancer Services with External IPs
+    policies.kyverno.io/category: Ingress
+    policies.kyverno.io/severity: critical
+    policies.kyverno.io/subject: Service
+    policies.kyverno.io/description: >-
+      Prevents Services of type LoadBalancer with externalIPs from being created.
+      All external ingress must be via Cloudflare Tunnel. Direct WAN exposure
+      bypasses Cloudflare Access and violates the constitutional requirement for
+      identity-gated access.
+    hypyr.space/rationale: "https://github.com/cpritchett/homelab/blob/main/docs/adr/ADR-0002-tunnel-only-ingress.md"
+    hypyr.space/constitution: "External Access is Identity-Gated"
+    hypyr.space/hard-stop: "Expose services directly to WAN"
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    # Rule 1: Block LoadBalancer type services entirely (unless internal-only annotation)
+    - name: deny-loadbalancer-type
+      match:
+        any:
+          - resources:
+              kinds:
+                - Service
+      preconditions:
+        all:
+          # Only trigger if type is LoadBalancer
+          - key: "{{ request.object.spec.type }}"
+            operator: Equals
+            value: LoadBalancer
+      validate:
+        message: >-
+          Service "{{ request.object.metadata.name }}" with type LoadBalancer is prohibited.
+          All external ingress must be via Cloudflare Tunnel (Ingress or Gateway API).
+          For internal load balancing, use ClusterIP with MetalLB internal annotation:
+          metallb.universe.tf/loadBalancerIPs="10.x.x.x"
+        deny:
+          conditions:
+            all:
+              # Block unless explicitly approved for internal use
+              - key: "{{ request.object.metadata.annotations.\"ingress.hypyr.space/internal-loadbalancer\" || 'false' }}"
+                operator: NotEquals
+                value: "true"
+
+    # Rule 2: Block any Service with externalIPs (regardless of type)
+    - name: deny-external-ips
+      match:
+        any:
+          - resources:
+              kinds:
+                - Service
+      preconditions:
+        all:
+          # Only trigger if externalIPs is defined
+          - key: "{{ request.object.spec.externalIPs || [] }}"
+            operator: NotEquals
+            value: []
+      validate:
+        message: >-
+          Service "{{ request.object.metadata.name }}" declares externalIPs which is
+          prohibited. This would expose the service directly to the WAN, bypassing
+          Cloudflare Access. Use Cloudflare Tunnel for external access.
+        deny:
+          conditions:
+            all:
+              # Always block externalIPs (no exceptions)
+              - key: "{{ length(request.object.spec.externalIPs) }}"
+                operator: GreaterThan
+                value: 0
+
+    # Rule 3: Require documentation for internal LoadBalancers
+    - name: require-internal-loadbalancer-justification
+      match:
+        any:
+          - resources:
+              kinds:
+                - Service
+              annotations:
+                ingress.hypyr.space/internal-loadbalancer: "true"
+      preconditions:
+        all:
+          - key: "{{ request.object.spec.type }}"
+            operator: Equals
+            value: LoadBalancer
+      validate:
+        message: >-
+          Service "{{ request.object.metadata.name }}" is approved for internal
+          LoadBalancer but missing required annotations:
+          - ingress.hypyr.space/internal-network: "<VLAN name>"
+          - ingress.hypyr.space/justification: "<reason>"
+        pattern:
+          metadata:
+            annotations:
+              ingress.hypyr.space/internal-loadbalancer: "true"
+              ingress.hypyr.space/internal-network: "?*"
+              ingress.hypyr.space/justification: "?*"

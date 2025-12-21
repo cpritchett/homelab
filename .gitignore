@@ -66,3 +66,6 @@ dist/
 build/
 target/
 *.log
+
+# Talos rendered configs (generated from templates)
+talos/rendered/

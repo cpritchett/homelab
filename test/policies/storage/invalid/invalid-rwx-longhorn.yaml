@@ -1,0 +1,17 @@
+# Test case: RWX PVC on Longhorn without approval (PROHIBITED)
+# Expected: FAIL
+# Policy: restrict-rwx-access-mode.yaml
+# Reason: RWX not natively supported on Longhorn, requires explicit approval
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-config
+  namespace: apps
+spec:
+  accessModes:
+    - ReadWriteMany  # ❌ PROHIBITED: RWX on Longhorn without approval
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Gi

@@ -1,0 +1,180 @@
+name: policy-enforcement
+
+permissions:
+  contents: read
+  pull-requests: write  # For posting policy violation comments
+
+on:
+  pull_request:
+    paths:
+      - 'infra/**/*.yaml'
+      - 'infra/**/*.yml'
+      - 'policies/**/*.yaml'
+      - 'policies/**/*.yml'
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'infra/**/*.yaml'
+      - 'infra/**/*.yml'
+      - 'policies/**/*.yaml'
+      - 'policies/**/*.yml'
+
+jobs:
+  validate_policies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        with:
+          install: true
+
+      - name: Verify Kyverno CLI installed
+        run: |
+          kyverno version
+          echo "✓ Kyverno CLI installed via mise"
+
+      - name: Validate policy syntax
+        run: |
+          echo "Validating Kyverno policy YAML syntax..."
+          # Check that all policy files are valid Kyverno resources
+          for policy in policies/**/*.yaml; do
+            echo "Checking $policy..."
+            kyverno validate $policy || exit 1
+          done
+          echo "✓ All policies have valid syntax"
+
+      - name: Find Kubernetes manifests
+        id: find_manifests
+        run: |
+          # Find all YAML files under infra/ that might be Kubernetes resources
+          # Exclude non-resource files (README, kustomization.yaml, etc.)
+          find infra -type f \( -name "*.yaml" -o -name "*.yml" \) \
+            ! -name "kustomization.yaml" \
+            ! -name "README.md" \
+            > manifest_files.txt || true
+          
+          if [ -s manifest_files.txt ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "Found manifests:"
+            cat manifest_files.txt
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "No manifest files found in infra/ (this is expected during bootstrap)"
+          fi
+
+      - name: Apply policies to manifests
+        if: steps.find_manifests.outputs.found == 'true'
+        id: apply_policies
+        continue-on-error: true
+        run: |
+          echo "Applying Kyverno policies to manifests..."
+          
+          # Create a combined results file
+          > policy_results.txt
+          
+          failed=0
+          while IFS= read -r manifest; do
+            echo "=== Checking $manifest ===" | tee -a policy_results.txt
+            
+            # Apply all storage policies
+            for policy in policies/storage/*.yaml; do
+              if kyverno apply "$policy" --resource "$manifest" > /tmp/result.txt 2>&1; then
+                echo "✓ $policy: PASS" | tee -a policy_results.txt
+              else
+                echo "✗ $policy: FAIL" | tee -a policy_results.txt
+                cat /tmp/result.txt | tee -a policy_results.txt
+                failed=1
+              fi
+            done
+            
+            # Apply all ingress policies
+            for policy in policies/ingress/*.yaml; do
+              if kyverno apply "$policy" --resource "$manifest" > /tmp/result.txt 2>&1; then
+                echo "✓ $policy: PASS" | tee -a policy_results.txt
+              else
+                echo "✗ $policy: FAIL" | tee -a policy_results.txt
+                cat /tmp/result.txt | tee -a policy_results.txt
+                failed=1
+              fi
+            done
+            
+            # Apply all secrets policies
+            for policy in policies/secrets/*.yaml; do
+              if kyverno apply "$policy" --resource "$manifest" > /tmp/result.txt 2>&1; then
+                echo "✓ $policy: PASS" | tee -a policy_results.txt
+              else
+                echo "✗ $policy: FAIL" | tee -a policy_results.txt
+                cat /tmp/result.txt | tee -a policy_results.txt
+                failed=1
+              fi
+            done
+            
+            echo "" | tee -a policy_results.txt
+          done < manifest_files.txt
+          
+          if [ $failed -eq 1 ]; then
+            echo "policy_failures=true" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "policy_failures=false" >> $GITHUB_OUTPUT
+            echo "✓ All policy checks passed" | tee -a policy_results.txt
+          fi
+
+      - name: Post policy results to PR
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let results = '';
+            try {
+              results = fs.readFileSync('policy_results.txt', 'utf8');
+            } catch (err) {
+              results = 'Policy validation failed but no results file found.';
+            }
+            
+            const body = `## 🚨 Policy Enforcement Failures
+            
+            One or more Kyverno policies failed validation. Please review the failures below:
+            
+            <details>
+            <summary>Policy Validation Results</summary>
+            
+            \`\`\`
+            ${results}
+            \`\`\`
+            
+            </details>
+            
+            ### How to Fix
+            
+            1. Review the policy violations above
+            2. Modify your manifests to comply with the policies
+            3. If you need an exception, add the required approval annotations (see policy YAML for details)
+            4. If a policy is incorrect, open an issue to discuss changes to the policy
+            
+            **Policy locations:** \`policies/\`  
+            **Governance docs:** \`constitution/\`, \`contracts/\`, \`requirements/\`
+            `;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Fail job if policies violated
+        if: steps.apply_policies.outputs.policy_failures == 'true'
+        run: |
+          echo "❌ Policy violations detected. Review the output above."
+          exit 1
+
+      - name: Success message
+        if: steps.find_manifests.outputs.found == 'true' && steps.apply_policies.outputs.policy_failures != 'true'
+        run: |
+          echo "✓ All Kyverno policy checks passed!"
+          echo "✓ Manifests comply with governance constraints"

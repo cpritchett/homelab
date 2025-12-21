@@ -5,3 +5,4 @@ customization:
       - siderolabs/intel-ucode
       - siderolabs/nfsd
       - siderolabs/mei
+      - siderolabs/open-iscsi  #! Longhorn CSI iSCSI initiator

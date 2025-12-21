@@ -1,0 +1,140 @@
+# Taskfile for hypyr homelab
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  PROJECT_NAME: hypyr-homelab
+
+tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+  bootstrap:
+    desc: Bootstrap local development environment
+    cmds:
+      - echo "Installing mise tools..."
+      - mise install
+      - echo "✓ Tools installed: conftest, kyverno"
+      - echo "Bootstrap complete. Run 'task validate' to verify."
+
+  validate:
+    desc: Run all validation checks
+    deps:
+      - validate:governance
+      - validate:tools
+      - validate:policies
+      - validate:structure
+
+  validate:governance:
+    desc: Validate governance compliance
+    cmds:
+      - echo "Checking governance structure..."
+      - test -f constitution/constitution.md
+      - test -f contracts/hard-stops.md
+      - test -f contracts/invariants.md
+      - echo "✓ Governance files present"
+
+  validate:tools:
+    desc: Validate required tools are available
+    cmds:
+      - mise doctor
+      - echo "✓ Tools validated"
+
+  validate:policies:
+    desc: Validate Kyverno policies and test manifests
+    cmds:
+      - echo "Validating Kyverno policies..."
+      - task: validate:policies:syntax
+      - task: validate:policies:test
+
+  validate:policies:syntax:
+    desc: Validate Kyverno policy YAML syntax
+    cmds:
+      - |
+        if ! command -v kyverno &> /dev/null; then
+          echo "⚠️  Kyverno CLI not found. Run: task bootstrap"
+          echo "   (Kyverno installed via mise, not brew/curl)"
+          exit 1
+        fi
+      - |
+        echo "Checking policy syntax..."
+        for policy in policies/**/*.yaml; do
+          echo "  Validating $policy..."
+          kyverno validate "$policy"
+        done
+        echo "✓ All policies have valid syntax"
+
+  validate:policies:test:
+    desc: Test policies against invalid test manifests (should fail)
+    cmds:
+      - |
+        if ! command -v kyverno &> /dev/null; then
+          echo "⚠️  Kyverno CLI not found. Run: task bootstrap"
+          exit 1
+        fi
+      - |
+        echo "Testing policies against invalid manifests (expecting failures)..."
+        failed=0
+        for manifest in test/policies/*/invalid/*.yaml; do
+          echo "  Testing $manifest..."
+          policy_domain=$(echo "$manifest" | cut -d'/' -f3)
+          if kyverno apply policies/"$policy_domain"/*.yaml --resource "$manifest" > /dev/null 2>&1; then
+            echo "    ❌ FAIL: Policy did not block invalid manifest: $manifest"
+            failed=1
+          else
+            echo "    ✓ PASS: Policy correctly blocked: $manifest"
+          fi
+        done
+        
+        echo ""
+        echo "Testing policies against valid manifests (expecting success)..."
+        for manifest in test/policies/*/valid/*.yaml; do
+          echo "  Testing $manifest..."
+          policy_domain=$(echo "$manifest" | cut -d'/' -f3)
+          if kyverno apply policies/"$policy_domain"/*.yaml --resource "$manifest" > /dev/null 2>&1; then
+            echo "    ✓ PASS: Policy allowed valid manifest: $manifest"
+          else
+            echo "    ❌ FAIL: Policy incorrectly blocked valid manifest: $manifest"
+            failed=1
+          fi
+        done
+        
+        if [ $failed -eq 1 ]; then
+          echo ""
+          echo "❌ Policy tests failed. Review output above."
+          exit 1
+        else
+          echo ""
+          echo "✓ All policy tests passed"
+        fi
+
+  test:policies:
+    desc: Alias for validate:policies:test
+    cmds:
+      - task: validate:policies:test
+
+  validate:structure:
+    desc: Validate repository root structure
+    cmds:
+      - |
+        if ! command -v conftest &> /dev/null; then
+          echo "⚠️  Conftest not found. Run: task bootstrap"
+          echo "   (Conftest installed via mise, not brew/curl)"
+          exit 1
+        fi
+      - ./scripts/enforce-root-structure.sh
+
+  docs:
+    desc: Generate/update documentation
+    cmds:
+      - echo "Documentation tasks TBD"
+
+  clean:
+    desc: Clean temporary files
+    cmds:
+      - echo "Cleaning temporary files..."
+      - rm -rf .task/
+      - echo "✓ Clean complete"

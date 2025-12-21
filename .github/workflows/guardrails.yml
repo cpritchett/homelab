@@ -14,8 +14,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        with:
+          install: true
+
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
 
       - name: No invariant drift in router/tool files
         run: ./scripts/no-invariant-drift.sh
+
+      - name: Enforce repository root structure
+        run: ./scripts/enforce-root-structure.sh

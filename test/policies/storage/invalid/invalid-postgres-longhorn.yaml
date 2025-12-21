@@ -1,0 +1,44 @@
+# Test case: PostgreSQL StatefulSet with Longhorn storage (PROHIBITED)
+# Expected: FAIL
+# Policy: deny-database-on-longhorn.yaml
+# Reason: Databases on Longhorn violate storage requirements (eventual consistency, no POSIX guarantees)
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: database
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: mydb
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: longhorn  # ❌ PROHIBITED: Database on Longhorn
+      resources:
+        requests:
+          storage: 50Gi
