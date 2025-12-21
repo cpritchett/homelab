@@ -39,12 +39,14 @@ jobs:
       - name: Validate policy syntax
         run: |
           echo "Validating Kyverno policy YAML syntax..."
-          # Check that all policy files are valid Kyverno resources
+          # Check that all policy files are valid YAML
+          # Note: kyverno CLI v1.16+ removed the 'validate' command
+          # Use yq to validate YAML syntax instead
           for policy in policies/**/*.yaml; do
             echo "Checking $policy..."
-            kyverno validate $policy || exit 1
+            yq eval '.' "$policy" > /dev/null || exit 1
           done
-          echo "✓ All policies have valid syntax"
+          echo "✓ All policies have valid YAML syntax"
 
       - name: Find Kubernetes manifests
         id: find_manifests
