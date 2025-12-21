@@ -33,6 +33,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 | `ops/` | Operational docs (runbooks, changelogs) | Operations |
 | `policies/` | Kyverno admission policies | Policy |
 | `scripts/` | CI/validation scripts | Tooling |
+| `talos/` | Talos node configuration templates and values | Infrastructure |
 | `test/` | Test manifests for policies | Testing |
 | `.github/` | GitHub Actions, templates | Tooling |
 | `.claude/` | Claude Code configuration | Tooling |

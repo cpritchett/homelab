@@ -30,6 +30,7 @@ allowed_root_dirs := {
     "policies",
     "requirements",
     "scripts",
+    "talos",
     "test",
 }
 
@@ -47,19 +48,19 @@ prohibited_patterns := [
 ]
 
 # Check if file matches prohibited pattern
-matches_prohibited_pattern(filename) {
-    some pattern
-    prohibited_patterns[pattern]
+matches_prohibited_pattern(filename) if {
+    some i
+    pattern := prohibited_patterns[i]
     regex.match(pattern, filename)
 }
 
 # Deny unauthorized root files
-deny[msg] {
+deny contains msg if {
     # Get the file path from input
     filename := input.filename
     
     # Check if it's a root-level file (no directory separator)
-    not contains(filename, "/")
+    not str_contains(filename, "/")
     
     # Skip hidden files (start with .)
     not startswith(filename, ".")
@@ -71,18 +72,18 @@ deny[msg] {
 }
 
 # Deny files matching prohibited patterns
-deny[msg] {
+deny contains msg if {
     filename := input.filename
-    not contains(filename, "/")
+    not str_contains(filename, "/")
     matches_prohibited_pattern(filename)
     
     msg := sprintf("Prohibited file pattern in root: %s\nFiles matching *-improvements.md, *-summary.md, etc. are not allowed.\nMove to docs/ or ops/runbooks/ instead.", [filename])
 }
 
 # Deny unauthorized root directories
-deny[msg] {
+deny contains msg if {
     dirname := input.dirname
-    not contains(dirname, "/")
+    not str_contains(dirname, "/")
     not startswith(dirname, ".")
     not allowed_root_dirs[dirname]
     
@@ -90,6 +91,6 @@ deny[msg] {
 }
 
 # Helper: Check if string contains substring
-contains(str, substr) {
+str_contains(str, substr) if {
     indexof(str, substr) != -1
 }
