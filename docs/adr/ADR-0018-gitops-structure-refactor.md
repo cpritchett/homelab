@@ -1,6 +1,6 @@
 # ADR-0018: GitOps Structure Refactor for home-ops
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2025-12-21  
 **Authors:** Codex (proposal for review)  
 

@@ -1,6 +1,6 @@
 # ADR-0016: Kube-vip for Control-Plane VIP only
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2025-12-21  
 **Author:** Codex (LLM agent)
 

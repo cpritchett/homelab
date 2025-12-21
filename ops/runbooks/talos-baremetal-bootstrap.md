@@ -48,11 +48,20 @@ kubectl get nodes
 for n in <all-ips>; do talosctl -n $n read /proc/modules | grep -E 'nbd|iscsi_tcp|dm_multipath'; done
 ```
 
-7) App bootstrap
+7) Bootstrap prerequisites (secrets + CRDs) — see ADR-0019
+```bash
+# seed namespaces and 1Password bootstrap secret (op inject to avoid committing secret material)
+op inject -i bootstrap/resources.yaml | kubectl apply -f -
+
+# pre-seed CRDs for workloads that will land later; skip envoy-gateway (not used here)
+helmfile -f bootstrap/helmfile.d/00-crds.yaml template --selector name!=envoy-gateway | kubectl apply -f -
+```
+
+8) App bootstrap (ordered per ADR-0019)
 ```bash
 task bootstrap:apps
 ```
-(Helmfile applies Cilium → CoreDNS → Spegel → kube-vip apply → Flux Operator → Flux Instance.)
+(Helmfile applies Cilium → CoreDNS → Spegel → cert-manager → External Secrets Operator → 1Password store/ClusterSecretStore → kube-vip apply → Flux Operator → Flux Instance. kube-vip remains control-plane-only.)
 
 ## Notes
 - kube-vip is control-plane VIP only; service LB stays with Cilium (ADR-0016).

@@ -1,6 +1,6 @@
 # ADR-0017: Talos Bare-Metal Bootstrap Procedure
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2025-12-21  
 **Author:** Codex (LLM agent)
 

@@ -116,3 +116,4 @@ Conventional commits enable automation (changelog, semantic versioning) and prov
 
 See: [ADR-0009: Git Workflow and Commit Conventions](../../docs/adr/ADR-0009-git-workflow-conventions.md)
 See: [ADR-0017: Talos Bare-Metal Bootstrap Procedure](../../docs/adr/ADR-0017-talos-baremetal-bootstrap.md)
+See: [ADR-0018: GitOps Structure Refactor for home-ops](../../docs/adr/ADR-0018-gitops-structure-refactor.md)
