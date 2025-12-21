@@ -1,4 +1,4 @@
-# ADR-0005: ExternalDNS Kubernetes Annotations
+# ADR-0015: ExternalDNS Kubernetes Annotations
 
 ## Status
 Accepted

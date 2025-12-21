@@ -6,7 +6,8 @@ Architectural Decision Records explain *why* decisions were made.
 - [ADR-0002](ADR-0002-tunnel-only-ingress.md): Cloudflare Tunnel for external ingress
 - [ADR-0003](ADR-0003-management-network.md): Management network isolation
 - [ADR-0004](ADR-0004-secrets-management.md): 1Password for secrets
-- [ADR-0005](ADR-0005-externaldns-k8s-annotations.md): ExternalDNS K8s annotations
+- [ADR-0005](ADR-0005-agent-governance-procedures.md): Agent governance procedures
+- [ADR-0015](ADR-0015-externaldns-k8s-annotations.md): ExternalDNS K8s annotations
 - [ADR-0006](ADR-0006-wan-bandwidth-constraints.md): WAN bandwidth constraints
 - [ADR-0007](ADR-0007-commodity-hardware-constraints.md): Commodity hardware constraints
 - [ADR-0008](ADR-0008-developer-tooling-stack.md): Developer tooling stack
