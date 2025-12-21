@@ -95,3 +95,4 @@ Agents and developers MUST NOT:
 Standardized tooling reduces friction and "works on my machine" issues. Task provides better UX than Make, mise pins tool versions, and Socket.dev provides free supply chain visibility.
 
 See: [ADR-0008: Developer Tooling Stack](../../docs/adr/ADR-0008-developer-tooling-stack.md)
+- See: [ADR-0016: Kube-vip Control-Plane Only](../../docs/adr/ADR-0016-kube-vip-control-plane-only.md)

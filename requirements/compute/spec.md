@@ -43,6 +43,10 @@ All compute infrastructure is **commodity/repurposed consumer hardware**.
 - Declarative configuration management via FluxCD GitOps
 - Control plane HA considerations with 4-node cluster
 
+**Talos bare-metal bootstrap (canonical):**
+- See: [ADR-0017](../../docs/adr/ADR-0017-talos-baremetal-bootstrap.md)
+- Render and validate Talos configs via `./talos/render.sh`; install Talos on all control-plane nodes; run single `talosctl bootstrap`; fetch kubeconfig; join remaining nodes; then trigger app bootstrap (`task bootstrap:apps`).
+
 **See:** [ADR-0013](../docs/adr/ADR-0013-ytt-data-values.md), [talos/README.md](../talos/README.md)
 
 ### NAS systems
