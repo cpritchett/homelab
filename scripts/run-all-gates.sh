@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -e
+
+echo "Running all CI gates locally..."
+echo
+
+echo "==> Gate 1: no_invariant_drift"
+./scripts/no-invariant-drift.sh
+echo
+
+echo "==> Gate 2: require_adr_for_canonical_changes"
+export GITHUB_BASE_REF=main
+export PR_TITLE="${1:-Update}"
+export PR_BODY="${2:-}"
+./scripts/require-adr-on-canonical-changes.sh
+echo
+
+echo "==> Gate 3: adr_must_be_linked_from_spec"
+./scripts/adr-must-be-linked-from-spec.sh
+echo
+
+echo "==> Gate 4: Secret scanning (gitleaks)"
+if command -v gitleaks &> /dev/null; then
+  gitleaks detect --source . --verbose
+else
+  echo "⚠️  gitleaks not installed, skipping"
+fi
+echo
+
+echo "✅ All gates passed!"

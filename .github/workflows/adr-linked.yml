@@ -1,0 +1,25 @@
+name: adr-linked
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  adr_must_be_linked_from_spec:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Require ADR files to be linked from specs
+        env:
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: ./scripts/adr-must-be-linked-from-spec.sh
