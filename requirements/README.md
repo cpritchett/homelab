@@ -24,6 +24,9 @@ This folder contains **normative domain requirements**. These are enforceable co
 - `storage/`
   - `spec.md` — persistent storage requirements (Longhorn, TrueNAS, S3)
   - `checks.md` — validation criteria
+- `bootstrap/`
+  - `spec.md` — bare-metal and GitOps bootstrap requirements
+  - `checks.md` — validation criteria
 - `tooling/`
   - `spec.md` — developer tooling stack requirements
   - `checks.md` — validation criteria

@@ -20,6 +20,30 @@ tasks:
       - echo "✓ Tools installed: conftest, kyverno"
       - echo "Bootstrap complete. Run 'task validate' to verify."
 
+  bootstrap:prereqs:
+    desc: Apply bootstrap prerequisites (namespaces/secret seed + CRD pre-seed) per ADR-0019
+    cmds:
+      - |
+        if ! command -v op >/dev/null 2>&1; then
+          echo "❌ op CLI not found. Login to 1Password and retry."
+          exit 1
+        fi
+      - |
+        echo "Applying bootstrap resources (namespaces + 1Password seed) via op inject..."
+        op inject -i bootstrap/resources.yaml | kubectl apply -f -
+      - |
+        echo "Applying bootstrap CRDs (envoy-gateway excluded)..."
+        helmfile -f bootstrap/helmfile.d/00-crds.yaml template --selector name!=envoy-gateway | kubectl apply -f -
+
+  bootstrap:apps:
+    desc: Apply bootstrap app stack in ADR-0019 order (requires prereqs & values)
+    deps:
+      - bootstrap:prereqs
+    cmds:
+      - |
+        echo "Applying bootstrap app stack (Cilium → CoreDNS → Spegel → cert-manager → ESO → 1Password store → kube-vip → Flux Operator → Flux Instance)..."
+        helmfile -f bootstrap/helmfile.d/01-apps.yaml apply
+
   validate:
     desc: Run all validation checks
     deps:

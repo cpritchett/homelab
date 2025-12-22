@@ -26,7 +26,9 @@ policies/
 │   └── require-cloudflare-tunnel.yaml
 ├── secrets/
 │   ├── deny-inline-secrets.yaml
-│   └── require-external-secrets-operator.yaml
+│   ├── require-external-secrets-operator.yaml
+│   ├── require-allowed-secret-store.yaml
+│   └── guard-onepassword-bootstrap-secret.yaml
 ├── dns/
 │   ├── validate-zone-separation.yaml
 │   └── prevent-split-horizon.yaml
@@ -93,6 +95,8 @@ task validate:policies
 | deny-database-on-longhorn | Data loss on node failure | Longhorn not suitable for database workloads ([ADR-0010](../docs/adr/ADR-0010-longhorn-storage.md)) |
 | deny-loadbalancer-external-ips | WAN exposure bypass | Violates Cloudflare Tunnel-only ingress ([ADR-0002](../docs/adr/ADR-0002-tunnel-only-ingress.md)) |
 | deny-inline-secrets | Secret leakage in git | Violates 1Password/ESO secrets model ([ADR-0004](../docs/adr/ADR-0004-secrets-management.md)) |
+| require-allowed-secret-store | Mis-targeted ExternalSecret store breaks bootstrap | Bootstrap relies on ClusterSecretStore `onepassword` (ADR-0019) |
+| guard-onepassword-bootstrap-secret | Misplaced bootstrap secret blocks ESO | Bootstrap secret must live only in `external-secrets` |
 | validate-zone-separation | Split-horizon DNS | Bypasses Cloudflare Access ([ADR-0001](../docs/adr/ADR-0001-dns-intent.md)) |
 | deny-overlay-agents-management-vlan | Management network compromise | Violates management isolation ([ADR-0003](../docs/adr/ADR-0003-management-network.md)) |
 

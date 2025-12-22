@@ -55,6 +55,8 @@ op inject -i bootstrap/resources.yaml | kubectl apply -f -
 
 # pre-seed CRDs for workloads that will land later; skip envoy-gateway (not used here)
 helmfile -f bootstrap/helmfile.d/00-crds.yaml template --selector name!=envoy-gateway | kubectl apply -f -
+
+# shortcut: task bootstrap:prereqs
 ```
 
 8) App bootstrap (ordered per ADR-0019)
