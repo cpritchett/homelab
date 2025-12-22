@@ -1,0 +1,34 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: kube-vip
+  namespace: kube-system
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: ghcr.io/kube-vip/helm-charts/kube-vip
+      version: 0.6.4
+      reconcileStrategy: ChartVersion
+  values:
+    config:
+      address: 10.0.48.55
+      interface: bond0.48
+      vip_leaderelection: true
+      arp:
+        enabled: true
+      bgp:
+        enabled: false
+    daemonset:
+      enabled: true
+      env:
+        - name: vip_arp
+          value: "true"
+        - name: cp_enable
+          value: "true"
+        - name: svc_enable
+          value: "false"
+        - name: bgp_enable
+          value: "false"
+        - name: vip_leaderelection
+          value: "true"
