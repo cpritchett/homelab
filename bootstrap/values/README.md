@@ -12,6 +12,6 @@ Typical files:
 - `external-secrets.yaml`
 - `onepassword-store.yaml` (requires connect credentials, keep `installed: false` until provided)
 - `kube-vip.yaml` (control-plane VIP only)
-- `flux-operator.yaml`, `flux-instance.yaml`
+- `flux-operator.yaml`, `flux-instance.yaml` (Flux repo now `https://github.com/cpritchett/homelab`, path placeholder `./kubernetes/clusters/homelab/flux`)
 
 Missing files will warn (helmfile `missingFileHandler: Warn`), but some releases will fail without required values.

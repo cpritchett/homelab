@@ -1,0 +1,13 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: homelab-root
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://github.com/cpritchett/homelab
+  ref:
+    branch: main
+  ignore: |
+    # Exclude CI/ops-only files if desired; keep blank for now
+    #!/bin/sh
