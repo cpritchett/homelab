@@ -31,6 +31,8 @@ Validation checklist for storage compliance.
 - [ ] Node-local StorageClass (`node-local`) exists and is scoped to scratch/temp only
 - [ ] Node-local class uses `WaitForFirstConsumer`, `Delete` reclaim policy, and ext4
 - [ ] Application manifests avoid databases on node-local/Longhorn classes
+- [ ] NFS classes configured with servers/paths (`nfs-media`, `nfs-backup`, `rwx-db`)
+- [ ] `s3-snapshot` VolumeSnapshotClass configured for VolSync/Restic (no credentials committed)
 
 ### Backup compliance
 - [ ] VolSync ReplicationSource configured for persistent Longhorn volumes

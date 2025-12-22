@@ -151,6 +151,30 @@ tasks:
         fi
       - ./scripts/enforce-root-structure.sh
 
+  flux:build:
+    desc: Build Flux kustomizations (platform + apps) for homelab cluster
+    cmds:
+      - |
+        flux build kustomization platform \
+          --namespace flux-system \
+          --path ./kubernetes/clusters/homelab/flux
+      - |
+        flux build kustomization apps \
+          --namespace flux-system \
+          --path ./kubernetes/clusters/homelab/flux
+
+  flux:reconcile:
+    desc: Reconcile Flux kustomizations (platform + apps) for homelab cluster
+    cmds:
+      - |
+        flux reconcile kustomization platform \
+          --namespace flux-system \
+          --path ./kubernetes/clusters/homelab/flux
+      - |
+        flux reconcile kustomization apps \
+          --namespace flux-system \
+          --path ./kubernetes/clusters/homelab/flux
+
   docs:
     desc: Generate/update documentation
     cmds:

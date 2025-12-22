@@ -1,0 +1,21 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: rwx-db
+  annotations:
+    storage.hypyr.space/role: "database-nas-rwx"
+    storage.hypyr.space/notes: "Use only for databases that require shared POSIX and can tolerate NAS latency; prefer RWO iSCSI if available."
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: ${NFS_DB_SERVER:?set NFS_DB_SERVER}
+  share: ${NFS_DB_PATH:?set NFS_DB_PATH}
+mountOptions:
+  - nfsvers=4.1
+  - hard
+  - sync
+  - noatime
+  - rsize=1048576
+  - wsize=1048576
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true

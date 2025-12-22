@@ -20,6 +20,7 @@ policies/
 │   ├── enforce-longhorn-replicas.yaml
 │   ├── restrict-rwx-access-mode.yaml
 │   └── limit-volume-size.yaml
+│   └── deny-node-local-for-critical-data.yaml
 ├── ingress/
 │   ├── deny-loadbalancer-external-ips.yaml
 │   ├── deny-nodeport-services.yaml
@@ -97,6 +98,7 @@ task validate:policies
 | deny-inline-secrets | Secret leakage in git | Violates 1Password/ESO secrets model ([ADR-0004](../docs/adr/ADR-0004-secrets-management.md)) |
 | require-allowed-secret-store | Mis-targeted ExternalSecret store breaks bootstrap | Bootstrap relies on ClusterSecretStore `onepassword` (ADR-0019) |
 | guard-onepassword-bootstrap-secret | Misplaced bootstrap secret blocks ESO | Bootstrap secret must live only in `external-secrets` |
+| deny-node-local-for-critical-data | Prevents node-local use for persistent data | node-local is ephemeral-only per ADR-0010 |
 | validate-zone-separation | Split-horizon DNS | Bypasses Cloudflare Access ([ADR-0001](../docs/adr/ADR-0001-dns-intent.md)) |
 | deny-overlay-agents-management-vlan | Management network compromise | Violates management isolation ([ADR-0003](../docs/adr/ADR-0003-management-network.md)) |
 

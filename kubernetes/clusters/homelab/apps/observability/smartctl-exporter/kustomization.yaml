@@ -3,6 +3,4 @@ kind: Kustomization
 namespace: observability
 resources:
   - ocirepo.yaml
-  - externalsecret.yaml
-  - prometheusrule.yaml
   - helmrelease.yaml

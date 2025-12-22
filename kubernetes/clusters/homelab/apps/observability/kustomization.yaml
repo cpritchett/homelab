@@ -7,3 +7,11 @@ resources:
   - loki
   - grafana
   - blackbox-exporter
+  - gatus
+  - karma
+  - smartctl-exporter
+  - unpoller
+  - alloy
+  - snmp-exporter
+  - silence-operator
+  - kromgo

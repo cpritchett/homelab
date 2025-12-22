@@ -1,0 +1,14 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: s3-snapshot
+driver: driver.longhorn.io
+deletionPolicy: Delete
+parameters:
+  type: s3
+  s3endpoint: ${S3_SNAPSHOT_ENDPOINT:?set S3_SNAPSHOT_ENDPOINT}
+  s3region: ${S3_SNAPSHOT_REGION:?set S3_SNAPSHOT_REGION}
+  s3bucket: ${S3_SNAPSHOT_BUCKET:?set S3_SNAPSHOT_BUCKET}
+  s3accesskey: ${S3_SNAPSHOT_ACCESS_KEY:?set S3_SNAPSHOT_ACCESS_KEY}
+  s3secretkey: ${S3_SNAPSHOT_SECRET_KEY:?set S3_SNAPSHOT_SECRET_KEY}
+  s3secure: "true"

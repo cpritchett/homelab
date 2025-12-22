@@ -5,6 +5,20 @@
 
 This homelab infrastructure uses **separate storage planes** for different workload classes.
 
+### Required StorageClasses (defined under `kubernetes/components/storage-classes/`)
+- `longhorn-replicated` — RWO replicated (default for configs/metadata)
+- `node-local` — node-pinned scratch (ephemeral-only, no expansion)
+- `nfs-media` — RWX NAS for media/large POSIX data
+- `nfs-backup` — RWX NAS for backup staging
+- `rwx-db` — RWX NAS for databases requiring shared POSIX
+- `s3-snapshot` — VolumeSnapshotClass for Longhorn backups to S3 (VolSync/Restic)
+
+**Value sourcing:**
+- NFS classes require env inputs: `NFS_MEDIA_SERVER/PATH`, `NFS_BACKUP_SERVER/PATH`, `NFS_DB_SERVER/PATH`.
+- `s3-snapshot` requires `S3_SNAPSHOT_ENDPOINT/REGION/BUCKET/ACCESS_KEY/SECRET_KEY` (supply via ExternalSecret/ksops, not committed).
+
+**Node-local guardrail:** Node-local is for ephemeral/scratch only; Kyverno policy `deny-node-local-for-critical-data` enforces this unless annotated `storage.hypyr.space/ephemeral: "true"`.
+
 ### Longhorn (in-cluster distributed block storage)
 
 **Scope:** Non-database, non-media workloads requiring node-failure tolerance

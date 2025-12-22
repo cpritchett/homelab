@@ -8,4 +8,5 @@ resources:
   - ../../components/external-secrets
   - ../../components/onepassword-store
   - ../../components/kube-vip
+  - ../../components/storage-classes
 patches: []

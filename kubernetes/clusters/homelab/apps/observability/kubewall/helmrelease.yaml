@@ -1,0 +1,96 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kubewall
+  namespace: observability
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      kubewall:
+        containers:
+          app:
+            image:
+              repository: ghcr.io/kubewall/kubewall
+              tag: 0.0.15
+            args:
+              - --no-open-browser
+              - --listen=0.0.0.0:8443
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8443
+                    scheme: HTTP
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                cpu: 200m
+                memory: 512Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              runAsNonRoot: true
+              runAsUser: 65534
+              capabilities: { drop: [ALL] }
+        serviceAccount:
+          name: kubewall
+    defaultPodOptions:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
+    persistence:
+      data:
+        size: 100Mi
+        storageClass: longhorn-replicated
+        accessMode: ReadWriteOnce
+        advancedMounts:
+          kubewall:
+            app:
+              - path: /.kubewall
+    route:
+      app:
+        hostnames:
+          - "{{ .Release.Name }}.hypyr.space"
+        parentRefs:
+          - name: internal
+            namespace: kube-system
+            sectionName: https
+        rules:
+          - backendRefs:
+              - identifier: app
+                port: *port
+    service:
+      app:
+        ports:
+          https:
+            port: *port
+    serviceMonitor:
+      app:
+        endpoints:
+          - port: https
+            path: /
