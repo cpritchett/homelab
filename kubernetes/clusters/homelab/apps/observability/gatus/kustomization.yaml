@@ -6,6 +6,8 @@ resources:
   - rbac.yaml
   - prometheusrule.yaml
   - helmrelease.yaml
+components:
+  - ../../../../../components/gatus
 configMapGenerator:
   - name: gatus-configmap
     files:

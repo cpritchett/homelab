@@ -6,3 +6,8 @@ resources:
   - externalsecret.yaml
   - prometheusrule.yaml
   - helmrelease.yaml
+  - longhorn.rules.yaml
+  - volsync.rules.yaml
+  - servicemonitor-longhorn.yaml
+  - servicemonitor-volsync.yaml
+  - volsync.yaml

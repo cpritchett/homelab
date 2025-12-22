@@ -46,6 +46,8 @@ spec:
               resources:
                 requests:
                   storage: 1Gi
+            metadata:
+              name: alertmanager-data
     kubeEtcd:
       service:
         selector:
@@ -93,6 +95,8 @@ spec:
               resources:
                 requests:
                   storage: 50Gi
+            metadata:
+              name: prometheus-data
     prometheus-node-exporter:
       fullnameOverride: node-exporter
       prometheus:

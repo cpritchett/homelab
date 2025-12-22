@@ -6,4 +6,11 @@ resources:
   - kube-system/descheduler
   - observability
   - networking
+  - default
+  - actions-runner-system
+  - system-upgrade
+  - volsync-system
+  - cert-manager
+  - databases
+  - media
 patches: []

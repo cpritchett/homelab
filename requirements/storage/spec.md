@@ -61,9 +61,9 @@ This homelab infrastructure uses **separate storage planes** for different workl
 - Large file storage
 - SMB shares for legacy apps
 
-### S3-compatible storage (Garage on Synology)
+### S3-compatible storage (Garage/Synology or equivalent)
 
-**Scope:** Object storage, backup targets
+**Scope:** Object storage, backup targets via any S3-compatible endpoint (Garage on Synology is current implementation, but any compatible S3 service is acceptable).
 
 **Use cases:**
 - VolSync replication targets

@@ -3,3 +3,8 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - external-dns
+  - cloudflared
+  - tailscale
+  - smtp-relay
+  - echo-server
+  - multus

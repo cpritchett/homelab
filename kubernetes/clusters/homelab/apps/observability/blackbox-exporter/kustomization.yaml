@@ -4,3 +4,4 @@ namespace: observability
 resources:
   - ocirepo.yaml
   - helmrelease.yaml
+  - probes

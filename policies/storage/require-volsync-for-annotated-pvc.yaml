@@ -1,0 +1,58 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-volsync-for-annotated-pvc
+  annotations:
+    policies.kyverno.io/title: Require VolSync for Auto-Backup/Restore PVCs
+    policies.kyverno.io/category: Storage
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: PersistentVolumeClaim
+    policies.kyverno.io/description: >-
+      PVCs annotated for auto-backup/restore must have corresponding VolSync
+      ReplicationSource/ReplicationDestination. Ensures S3 backups restore on bootstrap.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-replicationsource
+      match:
+        any:
+          - resources:
+              kinds:
+                - PersistentVolumeClaim
+              annotations:
+                backup.hypyr.space/auto-backup: "true"
+      context:
+        - name: rsList
+          apiCall:
+            url: "https://kubernetes.default.svc/apis/volsync.backube/v1alpha1/namespaces/{{request.object.metadata.namespace}}/replicationsources?fieldSelector=spec.sourcePVC={{request.object.metadata.name}}"
+            jmesPath: "items[].metadata.name"
+      validate:
+        message: "PVC annotated for auto-backup must have a VolSync ReplicationSource targeting this PVC."
+        deny:
+          conditions:
+            any:
+              - key: "{{ len(rsList) }}"
+                operator: Equals
+                value: 0
+    - name: require-replicationdestination
+      match:
+        any:
+          - resources:
+              kinds:
+                - PersistentVolumeClaim
+              annotations:
+                backup.hypyr.space/auto-restore: "true"
+      context:
+        - name: rdList
+          apiCall:
+            url: "https://kubernetes.default.svc/apis/volsync.backube/v1alpha1/namespaces/{{request.object.metadata.namespace}}/replicationdestinations?fieldSelector=spec.restic.repository={{request.object.metadata.name}}"
+            jmesPath: "items[].metadata.name"
+      validate:
+        message: "PVC annotated for auto-restore must have a VolSync ReplicationDestination configured to restore from S3."
+        deny:
+          conditions:
+            any:
+              - key: "{{ len(rdList) }}"
+                operator: Equals
+                value: 0

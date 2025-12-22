@@ -19,8 +19,9 @@ policies/
 │   ├── deny-database-on-longhorn.yaml
 │   ├── enforce-longhorn-replicas.yaml
 │   ├── restrict-rwx-access-mode.yaml
-│   └── limit-volume-size.yaml
-│   └── deny-node-local-for-critical-data.yaml
+│   ├── limit-volume-size.yaml
+│   ├── deny-node-local-for-critical-data.yaml
+│   └── require-volsync-for-annotated-pvc.yaml
 ├── ingress/
 │   ├── deny-loadbalancer-external-ips.yaml
 │   ├── deny-nodeport-services.yaml

@@ -88,17 +88,17 @@ spec:
           gnetId: 7587
           revision: 3
           datasource: Prometheus
-        ceph-cluster:
-          gnetId: 2842
-          revision: 18
+        longhorn:
+          gnetId: 13935
+          revision: 5
           datasource: Prometheus
-        ceph-osd:
-          gnetId: 5336
-          revision: 9
+        volsync:
+          gnetId: 21356
+          revision: 3
           datasource: Prometheus
-        ceph-pools:
-          gnetId: 5342
-          revision: 9
+        node-exporter-full:
+          gnetId: 1860
+          revision: 34
           datasource: Prometheus
     plugins:
       - grafana-clock-panel

@@ -3,3 +3,10 @@ kind: Kustomization
 namespace: observability
 resources:
   - helmrelease.yaml
+  - httproute-override.yaml
+configMapGenerator:
+  - name: kromgo-configmap
+    files:
+      - ./resources/config.yaml
+generatorOptions:
+  disableNameSuffixHash: true
