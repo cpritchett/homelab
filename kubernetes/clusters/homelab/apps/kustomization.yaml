@@ -4,8 +4,6 @@ resources:
   - kube-system/metrics-server
   - kube-system/reloader
   - kube-system/descheduler
-  - observability/keda
-  - networking/external-dns
-  - observability/kube-prometheus-stack
-  - observability/loki
+  - observability
+  - networking
 patches: []
