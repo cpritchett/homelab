@@ -17,6 +17,7 @@ Architectural Decision Records explain *why* decisions were made.
 - [ADR-0012](ADR-0012-talos-native-patching.md): talosctl patch *(superseded)*
 - [ADR-0013](ADR-0013-ytt-data-values.md): ytt data values for Talos templating ✓
 - [ADR-0014](ADR-0014-governance-framework.md): Governance framework and policy enforcement ✓
+- [ADR-0020](ADR-0020-bootstrap-storage-governance-codification.md): Bootstrap, storage, and repository governance codification
 
 ## Status values
 - Proposed

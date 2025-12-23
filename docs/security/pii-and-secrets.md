@@ -59,7 +59,7 @@ All contributors must prevent committing secrets, credentials, private keys, kub
 ### Configuration
 - Gitleaks config: `.gitleaks.toml` (extends pinned upstream defaults + kubeconfig client-key rule).
 - Allowlist file: `.gitleaks.allowlist` (paths only, with comments).
-- Fixtures: `tests/security/fixtures/` (fake PEM, AWS key, GitHub token, kubeconfig); safe sample in `tests/security/safe/`.
+- Fixtures: `test/security/fixtures/` (fake PEM, AWS key, GitHub token, kubeconfig); safe sample in `test/security/safe/`.
 - Git hook: `.githooks/pre-commit` (uses `gitleaks protect --staged`).
 
 ### References

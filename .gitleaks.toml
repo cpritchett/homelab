@@ -5,7 +5,7 @@ builtinRules = true
 
 [allowlist]
 paths = [
-  "^tests/security/fixtures/", # synthetic fixtures (scanned separately in security:test)
+  "^test/security/fixtures/", # synthetic fixtures (scanned separately in security:test)
 ]
 
 [[rules]]

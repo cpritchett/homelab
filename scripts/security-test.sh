@@ -9,7 +9,7 @@ if ! command -v gitleaks >/dev/null 2>&1; then
   exit 1
 fi
 
-FIXTURE_DIR=tests/security/fixtures
+FIXTURE_DIR=test/security/fixtures
 
 # Expect failures on synthetic secret fixtures (using built-in rules + custom)
 if gitleaks detect --no-git --source "$FIXTURE_DIR" --redact --config .gitleaks.toml >/tmp/gitleaks-fixtures.log 2>&1; then
@@ -21,7 +21,7 @@ fi
 echo "✅ Gitleaks correctly flags synthetic secret fixtures."
 
 # Optional: ensure a safe sample passes
-SAFE_DIR=tests/security/safe
+SAFE_DIR=test/security/safe
 if [[ -d "$SAFE_DIR" ]]; then
   if ! gitleaks detect --no-git --source "$SAFE_DIR" --redact --config .gitleaks.toml >/tmp/gitleaks-safe.log 2>&1; then
     echo "❌ Expected safe fixtures to pass, but gitleaks reported findings."

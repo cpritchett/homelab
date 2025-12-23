@@ -1,7 +1,7 @@
 # Bootstrap Requirements
 **Effective:** 2025-12-22  
 **Scope:** Bare-metal cluster bootstrap through Flux hand-off  
-**See:** [ADR-0017](../../docs/adr/ADR-0017-talos-baremetal-bootstrap.md), [ADR-0019](../../docs/adr/ADR-0019-bootstrap-sequence-hardening.md)
+**See:** [ADR-0017](../../docs/adr/ADR-0017-talos-baremetal-bootstrap.md), [ADR-0019](../../docs/adr/ADR-0019-bootstrap-sequence-hardening.md), [ADR-0020](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
 
 ## Purpose
 Ensure every new/repaved cluster can reach Flux-managed state deterministically, with secrets and CRDs in place, and without exposing WAN or violating invariants.

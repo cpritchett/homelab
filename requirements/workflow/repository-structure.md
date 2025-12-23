@@ -27,9 +27,11 @@ Repository root structure is **fixed and enumerated** to prevent:
 |-----------|---------|-------|
 | `constitution/` | Immutable principles | Governance |
 | `contracts/` | Hard-stops, invariants, agent rules | Governance |
+| `bootstrap/` | Bootstrap assets and Helmfile scaffolding | Infrastructure |
 | `requirements/` | Domain requirements and checks | Governance |
 | `docs/` | Documentation (including ADRs) | Documentation |
 | `infra/` | Infrastructure as code | Implementation |
+| `kubernetes/` | GitOps manifests and cluster overlays | Implementation |
 | `ops/` | Operational docs (runbooks, changelogs) | Operations |
 | `policies/` | Kyverno admission policies | Policy |
 | `scripts/` | CI/validation scripts | Tooling |
@@ -66,6 +68,8 @@ Repository root structure is **fixed and enumerated** to prevent:
 | Change log | `ops/CHANGELOG.md` | Single file, append-only |
 | Policy definition | `policies/<domain>/*.yaml` | Kyverno ClusterPolicy YAML |
 | Infrastructure config | `infra/<domain>/` | Kubernetes manifests, configs |
+| GitOps manifests | `kubernetes/` | Flux sources, cluster overlays, app stacks |
+| Bootstrap manifests | `bootstrap/` | Bootstrap resources/Helmfile scaffolding |
 | Test case | `test/<domain>/` | Test manifests, fixtures |
 | CI script | `scripts/*.sh` | Validation scripts |
 

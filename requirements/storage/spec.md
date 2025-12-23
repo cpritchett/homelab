@@ -220,3 +220,4 @@ Longhorn in this homelab is NOT:
 Longhorn provides node-failure tolerance for non-critical workloads without the operational overhead of Ceph. The explicit scope limitations (no databases, no media) prevent misuse and align with commodity hardware constraints.
 
 See: [ADR-0010: Longhorn for Non-Database Persistent Storage](../../docs/adr/ADR-0010-longhorn-storage.md)
+See: [ADR-0020: Bootstrap, Storage, and Repository Governance Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
