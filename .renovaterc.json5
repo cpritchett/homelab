@@ -1,0 +1,33 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:recommended",
+    "docker:enableMajor",
+    "helpers:pinGitHubActionDigests",
+    "security:openssf-scorecard",
+    ":automergeBranch",
+    ":dependencyDashboard",
+    ":disableRateLimiting",
+    ":gitSignOff",
+    ":semanticCommits",
+    ":timezone(America/Chicago)"
+  ],
+  dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  dependencyDashboardHeader: "This issue lists Renovate updates and detected dependencies. Read the Dependency Dashboard docs to learn more.",
+  dependencyDashboardLabels: ["renovate/dashboard"],
+  suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
+  vulnerabilityAlerts: { enabled: true },
+  osvVulnerabilityAlerts: true,
+  separateMinorPatch: true,
+  pinDigests: true,
+  prCreation: "immediate",
+  prConcurrentLimit: 10,
+  prHourlyLimit: 0,
+  fetchChangeLogs: "pr",
+  ignorePaths: ["**/resources/**"],
+  commitBody: "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
+  postUpdateOptions: ["gomodTidy", "npmDedupe"],
+  flux: { managerFilePatterns: ["/\\.yaml$/", "/\\.yaml\\.j2$/"] },
+  "helm-values": { managerFilePatterns: ["/\\.yaml$/", "/\\.yaml\\.j2$/"] },
+  kubernetes: { managerFilePatterns: ["/\\.yaml$/", "/\\.yaml\\.j2$/"] }
+}

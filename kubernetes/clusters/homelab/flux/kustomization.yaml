@@ -4,6 +4,10 @@ namespace: flux-system
 resources:
   - app-template-oci.yaml
   - gitrepository.yaml
+  - kustomization-external-secrets.yaml
+  - kustomization-onepassword.yaml
+  - kustomization-kyverno.yaml
+  - kustomization-policies.yaml
   - kustomization-platform.yaml
   - kustomization-apps.yaml
 patches: []

@@ -1,0 +1,3 @@
+{
+  extends: ["github>cpritchett/home-ops//.renovate/labels.json5"]
+}

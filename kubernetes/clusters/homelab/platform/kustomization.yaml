@@ -5,8 +5,6 @@ resources:
   - ../../components/coredns
   - ../../components/spegel
   - ../../components/cert-manager
-  - ../../components/external-secrets
-  - ../../components/onepassword-store
   - ../../components/kube-vip
   - ../../components/storage-classes
   - ../../components/volsync
