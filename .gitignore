@@ -15,7 +15,6 @@ secrets.yaml
 secret.yml
 secret.yaml
 .secrets.baseline
-.gitleaks.allowlist
 .gitleaks-cache/
 .gitleaks-report.json
 .env

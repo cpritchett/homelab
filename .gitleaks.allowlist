@@ -1,0 +1,6 @@
+# Paths to synthetic fixtures (ignored by CI scans)
+test/security/fixtures/
+test/security/fixtures/fake-aws-key.txt
+test/security/fixtures/fake-github-token.txt
+test/security/fixtures/fake-kubeconfig.yaml
+test/security/fixtures/fake-key.pem

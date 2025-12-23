@@ -12,7 +12,7 @@ fi
 FIXTURE_DIR=test/security/fixtures
 
 # Expect failures on synthetic secret fixtures (using built-in rules + custom)
-if gitleaks detect --no-git --source "$FIXTURE_DIR" --redact --config .gitleaks.toml >/tmp/gitleaks-fixtures.log 2>&1; then
+if gitleaks detect --no-git --source "$FIXTURE_DIR" --redact --config .gitleaks.fixtures.toml >/tmp/gitleaks-fixtures.log 2>&1; then
   echo "❌ Expected gitleaks to flag synthetic fixtures, but it passed."
   cat /tmp/gitleaks-fixtures.log
   exit 1
