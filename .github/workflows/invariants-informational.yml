@@ -1,0 +1,56 @@
+name: invariants-informational
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    paths:
+      - 'kubernetes/**'
+      - 'bootstrap/**'
+      - 'talos/**'
+      - 'scripts/**'
+      - '.github/workflows/invariants-informational.yml'
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'kubernetes/**'
+      - 'bootstrap/**'
+      - 'talos/**'
+      - 'scripts/**'
+      - '.github/workflows/invariants-informational.yml'
+
+jobs:
+  invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Kustomize builds (informational)
+        continue-on-error: true
+        run: ./scripts/check-kustomize-build.sh
+
+      - name: HelmRelease references (informational)
+        continue-on-error: true
+        run: ./scripts/check-helmrelease-template.sh
+
+      - name: No plaintext secrets (informational)
+        continue-on-error: true
+        run: ./scripts/check-no-plaintext-secrets.sh
+
+      - name: Deprecated API scan (informational)
+        continue-on-error: true
+        run: ./scripts/check-deprecated-apis.sh
+
+      - name: Talos ytt render (informational)
+        continue-on-error: true
+        run: ./scripts/check-talos-ytt-render.sh
+
+      - name: Cross-environment Flux refs (informational)
+        continue-on-error: true
+        run: ./scripts/check-cross-env-refs.sh
+
+      - name: CRD ordering heuristics (informational)
+        continue-on-error: true
+        run: ./scripts/check-crd-ordering.sh
