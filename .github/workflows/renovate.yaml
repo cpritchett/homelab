@@ -20,7 +20,7 @@ on:
       logLevel:
         description: Log Level
         type: choice
-        default: debug
+        default: info
         options: [debug, info]
         required: true
       version:
@@ -52,7 +52,7 @@ jobs:
       - name: Renovate
         uses: renovatebot/github-action@bdfd950c25796ebf1aa0c127ad55b69a14b04f69
         env:
-          LOG_LEVEL: ${{ inputs.logLevel || 'debug' }}
+          LOG_LEVEL: ${{ inputs.logLevel || 'info' }}
           RENOVATE_AUTODISCOVER: true
           RENOVATE_AUTODISCOVER_FILTER: ${{ github.repository }}
           RENOVATE_DRY_RUN: ${{ inputs.dryRun }}

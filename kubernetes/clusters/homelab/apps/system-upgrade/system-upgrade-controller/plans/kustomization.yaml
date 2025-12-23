@@ -3,3 +3,25 @@ kind: Kustomization
 resources:
   - kubernetes.yaml
   - talos.yaml
+configMapGenerator:
+  - name: cluster-versions
+    namespace: system-upgrade
+    envs:
+      - cluster-versions.yaml
+generatorOptions:
+  disableNameSuffixHash: true
+vars:
+  - name: KUBERNETES_VERSION
+    objref:
+      kind: ConfigMap
+      name: cluster-versions
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.KUBERNETES_VERSION
+  - name: TALOS_VERSION
+    objref:
+      kind: ConfigMap
+      name: cluster-versions
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.TALOS_VERSION

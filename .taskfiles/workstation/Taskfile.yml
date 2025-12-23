@@ -1,0 +1,27 @@
+---
+version: "3"
+
+tasks:
+  krew:
+    desc: Set up Krew plugins for kubectl
+    cmds:
+      - |
+        if ! mise exec -- krew version >/dev/null 2>&1; then
+          echo "❌ krew not found. Please run 'mise install' first to install krew."
+          exit 1
+        fi
+
+        PLUGINS="cert-manager cnpg browse-pvc node-shell"
+
+        for plugin in $PLUGINS; do
+          if mise exec -- krew list | grep -q "^$plugin\s"; then
+            echo "✅ $plugin already installed, skipping"
+          else
+            echo "📦 Installing kubectl plugin: $plugin"
+            mise exec -- krew install "$plugin" || echo "⚠️  Failed to install $plugin, continuing..."
+          fi
+        done
+
+        echo "🎉 Krew plugin installation complete!"
+    preconditions:
+      - which kubectl

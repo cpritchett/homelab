@@ -26,8 +26,7 @@
   fetchChangeLogs: "pr",
   ignorePaths: ["**/resources/**"],
   commitBody: "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
-  postUpdateOptions: ["gomodTidy", "npmDedupe"],
-  flux: { managerFilePatterns: ["/\\.yaml$/", "/\\.yaml\\.j2$/"] },
-  "helm-values": { managerFilePatterns: ["/\\.yaml$/", "/\\.yaml\\.j2$/"] },
-  kubernetes: { managerFilePatterns: ["/\\.yaml$/", "/\\.yaml\\.j2$/"] }
+  flux: { managerFilePatterns: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"] },
+  "helm-values": { managerFilePatterns: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"] },
+  kubernetes: { managerFilePatterns: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"] }
 }
