@@ -4,9 +4,6 @@ set -euo pipefail
 ROOT_DIR=$(git rev-parse --show-toplevel)
 cd "$ROOT_DIR"
 
-# Ensure allowlist file exists so gitleaks flag does not fail
-: > .gitleaks.allowlist
-
 if ! command -v gitleaks >/dev/null 2>&1; then
   echo "❌ gitleaks is not installed. Install via: mise install" >&2
   exit 1
@@ -28,7 +25,7 @@ How to fix:
 - Remove the secret from the commit (or rotate it) and commit only safe values.
 - Move sensitive material to a secret manager; do not store it in git.
 - If the file should never be committed, add it to .gitignore.
-- If this is a justified false positive, add a regex/path entry with a comment to .gitleaks.allowlist, then rerun: mise run security:scan:staged
+- If this is a justified false positive, add a regex/path entry under [allowlist].paths in .gitleaks.toml, then rerun: mise run security:scan:staged
 
 Need help? See docs/security/pii-and-secrets.md.
 EOM
