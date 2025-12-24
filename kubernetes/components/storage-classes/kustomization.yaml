@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - storageclass-longhorn-replicated.yaml
+  - storageclass-node-local.yaml
+  - storageclass-nfs-media.yaml
+  - storageclass-nfs-backup.yaml
+  - storageclass-rwx-db.yaml
+  - volumesnapshotclass-s3-snapshot.yaml

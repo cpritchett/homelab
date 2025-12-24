@@ -99,3 +99,16 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
 3. **CI enforcement is mandatory**
    - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
    - PRs violating structure MUST be blocked
+
+## GitOps Invariants
+
+| ID | Description | Risk | Check Script | Remediation |
+|----|-------------|------|--------------|-------------|
+| `flux-kustomize-builds` | All Flux Kustomization target paths build successfully with kustomize | High | `scripts/check-kustomize-build.sh` | Fix invalid kustomization.yaml, missing resources, or ordering issues |
+| `flux-helmrelease-renders` | All HelmReleases can be templated (best-effort) without contacting a cluster | Medium | `scripts/check-helmrelease-template.sh` | Pin chart versions, ensure values refs exist, stub secrets for offline rendering |
+| `no-plaintext-secrets` | No Kubernetes Secret manifests stored in plaintext (SOPS-encrypted allowed) | High | `scripts/check-no-plaintext-secrets.sh` | Convert to SOPS, ESO, or sealed secret pattern |
+| `deprecated-k8s-apis` | Detect removed/deprecated Kubernetes API versions in manifests | High | `scripts/check-deprecated-apis.sh` | Update manifests to supported apiVersions |
+| `talos-ytt-renders` | Talos machine configs render from ytt without missing values | High | `scripts/check-talos-ytt-render.sh` | Fix ytt schema/data-values, eliminate hidden defaults, document required inputs |
+| `no-cross-env-leakage` | Flux sources and Kustomizations do not reference paths across clusters/environments | High | `scripts/check-cross-env-refs.sh` | Introduce shared bases or per-cluster overlays; avoid path traversal |
+| `crds-before-crs` | CRDs/controllers reconcile before CR instances (ordering validated) | High | `scripts/check-crd-ordering.sh` | Add explicit `dependsOn` and/or split kustomizations into infra/controllers/apps layers |
+

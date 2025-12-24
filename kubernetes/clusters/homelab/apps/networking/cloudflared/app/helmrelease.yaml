@@ -1,0 +1,65 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cloudflared
+  namespace: networking
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    controllers:
+      cloudflared:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: cloudflare/cloudflared
+              tag: 2024.10.1
+            envFrom:
+              - secretRef:
+                  name: cloudflared-secret
+            args:
+              - tunnel
+              - --config=/etc/cloudflared/config/config.yaml
+              - run
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: [ALL]
+        pod:
+          volumes:
+            - name: config
+              configMap:
+                name: cloudflared-config
+    defaultPodOptions:
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+    configMaps:
+      config:
+        name: cloudflared-config
+        data:
+          config.yaml: |
+            tunnel: $(tunnelID)
+            credentials-file: /etc/cloudflared/config/credentials.json
+            metrics: 0.0.0.0:2000
+            ingress:
+              - hostname: "*.hypyr.space"
+                service: https://gateway.external:443
+              - hostname: "*.in.hypyr.space"
+                service: https://gateway.internal:443
+              - service: http_status:404

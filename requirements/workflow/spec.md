@@ -115,3 +115,6 @@ Agents and developers MUST NOT:
 Conventional commits enable automation (changelog, semantic versioning) and provide clear commit history. Branch protection and PR workflow ensure governance compliance and peer review.
 
 See: [ADR-0009: Git Workflow and Commit Conventions](../../docs/adr/ADR-0009-git-workflow-conventions.md)
+See: [ADR-0017: Talos Bare-Metal Bootstrap Procedure](../../docs/adr/ADR-0017-talos-baremetal-bootstrap.md)
+See: [ADR-0018: GitOps Structure Refactor for home-ops](../../docs/adr/ADR-0018-gitops-structure-refactor.md)
+See: [ADR-0020: Bootstrap, Storage, and Repository Governance Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)

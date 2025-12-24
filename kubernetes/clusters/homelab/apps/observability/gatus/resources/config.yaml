@@ -1,0 +1,47 @@
+---
+connectivity:
+  checker:
+    target: 1.1.1.1:53
+    interval: 1m
+
+endpoints:
+  - name: flux-webhook
+    url: https://flux-webhook.hypyr.space
+    interval: 1m
+    client:
+      dns-resolver: tcp://1.1.1.1:53
+    conditions:
+      - "[STATUS] == 404"
+
+  - name: internet-connectivity
+    url: https://1.1.1.1
+    interval: 5m
+    client:
+      timeout: 10s
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: custom
+        enabled: true
+        failure-threshold: 2
+        success-threshold: 1
+        send-on-resolved: true
+        webhook:
+          url: "https://hc-ping.com/85f9d328-9c9c-4d44-8266-5638aa88ce1a"
+          method: GET
+
+metrics: true
+
+ui:
+  title: Status | Gatus
+  header: Status
+  logo: https://avatars.githubusercontent.com/cpritchett
+  link: https://github.com/cpritchett
+  buttons:
+    - name: Github
+      link: https://github.com/cpritchett
+    - name: Homelab
+      link: https://github.com/cpritchett/homelab
+
+web:
+  port: ${GATUS_WEB_PORT}

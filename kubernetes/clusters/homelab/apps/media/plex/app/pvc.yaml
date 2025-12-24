@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-cache
+  namespace: media
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 75Gi
+  storageClassName: longhorn-replicated
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-transcode
+  namespace: media
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: node-local

@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../../components/cilium
+  - ../../../components/coredns
+  - ../../../components/spegel
+  - ../../../components/cert-manager
+  - ../../../components/kube-vip
+  - ../../../components/storage-classes
+  - ../../../components/volsync
+  - ../../../components/common
+patches: []

@@ -26,9 +26,22 @@ Validation checklist for storage compliance.
 - [ ] Longhorn PVCs >1TB rejected (redirect to TrueNAS)
 - [ ] Volume size expectations documented per application
 
+### Storage class selection
+- [ ] Databases (SQL/NoSQL) use NAS-backed StorageClass (e.g., `rwx-db`), not Longhorn
+- [ ] Node-local StorageClass (`node-local`) exists and is scoped to scratch/temp only
+- [ ] Node-local class uses `WaitForFirstConsumer`, `Delete` reclaim policy, and ext4
+- [ ] Application manifests avoid databases on node-local/Longhorn classes
+- [ ] NFS classes configured with servers/paths (`nfs-media`, `nfs-backup`, `rwx-db`)
+- [ ] `s3-snapshot` VolumeSnapshotClass configured for VolSync/Restic (no credentials committed)
+- [ ] PVCs annotated `backup.hypyr.space/auto-backup=true` have matching VolSync ReplicationSource
+- [ ] PVCs annotated `backup.hypyr.space/auto-restore=true` have matching VolSync ReplicationDestination
+- [ ] VolSync operator deployed in `volsync-system`; Restic creds sourced from ExternalSecret `volsync-restic`
+- [ ] VolSync templates use approved classes (`longhorn-replicated`, `node-local`, `s3-snapshot`)
+- [ ] No legacy Ceph references in dashboards/alerts/silences; storage dashboards align to current stack (Longhorn/NFS)
+
 ### Backup compliance
 - [ ] VolSync ReplicationSource configured for persistent Longhorn volumes
-- [ ] Restic repository configured (S3 via Garage on Synology)
+- [ ] Restic repository configured (S3-compatible endpoint; Garage on Synology acceptable but not required)
 - [ ] Backup retention policies defined and enforced
 - [ ] Restore procedures documented and tested
 

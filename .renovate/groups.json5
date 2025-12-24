@@ -1,0 +1,117 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      description: "1Password Connect Group",
+      groupName: "1Password Connect",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/1password/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Actions Runner Controller Group",
+      groupName: "Actions Runner Controller",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/gha-runner-scale-set-controller/", "/gha-runner-scale-set/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Cert-Manager Group",
+      groupName: "Cert-Manager",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/cert-manager/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Cilium Group",
+      groupName: "Cilium",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/cilium/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "CoreDNS Group",
+      groupName: "CoreDNS",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/coredns/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "External Secrets Operator Group",
+      groupName: "External Secrets Operator",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/external-secrets/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Flux Operator Group",
+      groupName: "Flux Operator",
+      matchDatasources: ["docker", "github-releases", "helm"],
+      matchPackageNames: ["/flux-operator/", "/flux-instance/", "fluxcd/flux2"],
+      matchFileNames: [".mise.toml"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Spegel Group",
+      groupName: "Spegel",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/spegel/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Kubernetes and Talos Group",
+      groupName: "Kubernetes and Talos",
+      matchDatasources: ["github-releases", "docker"],
+      matchPackageNames: [
+        "siderolabs/talos",
+        "kubernetes/kubernetes",
+        "ghcr.io/siderolabs/talosctl",
+        "ghcr.io/jfroy/tnu"
+      ],
+      matchFileNames: [".mise.toml"],
+      group: { commitMessageTopic: "{{{groupName}}} group" },
+      minimumReleaseAge: "3 days"
+    },
+    {
+      description: "Kube-Prometheus-Stack Group",
+      groupName: "Kube-Prometheus-Stack",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: [
+        "/kube-prometheus-stack/",
+        "/prometheus-operator/",
+        "/prometheus/",
+        "/alertmanager/",
+        "/grafana/"
+      ],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Cloudflare Group",
+      groupName: "Cloudflare",
+      matchDatasources: ["docker", "helm", "github-releases"],
+      matchPackageNames: ["/cloudflare/", "/cloudflared/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "VolSync Group",
+      groupName: "VolSync",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/volsync/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "PostgreSQL Group",
+      groupName: "PostgreSQL",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/postgresql/", "/postgres/", "/cloudnative-pg/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Home Automation Stack",
+      groupName: "Home Automation",
+      matchDatasources: ["docker", "helm"],
+      matchPackageNames: ["/home-assistant/", "/zigbee2mqtt/", "/mosquitto/"],
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    }
+  ]
+}

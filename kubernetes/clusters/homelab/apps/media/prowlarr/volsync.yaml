@@ -1,0 +1,76 @@
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: prowlarr
+  namespace: media
+spec:
+  sourcePVC: prowlarr-config
+  trigger:
+    schedule: "35 3/11/19 * * *"
+  restic:
+    copyMethod: Snapshot
+    pruneIntervalDays: 14
+    repository: prowlarr-restic-secret
+    volumeSnapshotClassName: s3-snapshot
+    cacheCapacity: 2Gi
+    cacheStorageClassName: node-local
+    cacheAccessModes: ["ReadWriteOnce"]
+    storageClassName: longhorn-replicated
+    accessModes: ["ReadWriteOnce"]
+    moverSecurityContext:
+      runAsUser: 1701
+      runAsGroup: 1702
+      fsGroup: 1702
+    retain:
+      hourly: 24
+      daily: 7
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: prowlarr
+  namespace: media
+spec:
+  trigger:
+    manual: restore-once
+  restic:
+    repository: prowlarr-restic-secret
+    copyMethod: Snapshot
+    volumeSnapshotClassName: s3-snapshot
+    cacheStorageClassName: node-local
+    cacheAccessModes: ["ReadWriteOnce"]
+    cacheCapacity: 2Gi
+    storageClassName: longhorn-replicated
+    accessModes: ["ReadWriteOnce"]
+    capacity: 5Gi
+    moverSecurityContext:
+      runAsUser: 1701
+      runAsGroup: 1702
+      fsGroup: 1702
+    enableFileDeletion: true
+    cleanupCachePVC: true
+    cleanupTempPVC: true
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: prowlarr-restic
+  namespace: media
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: onepassword
+  target:
+    name: prowlarr-restic-secret
+    creationPolicy: Owner
+    template:
+      data:
+        RESTIC_REPOSITORY: "{{ .RESTIC_REPOSITORY }}"
+        RESTIC_PASSWORD: "{{ .RESTIC_PASSWORD }}"
+        AWS_ACCESS_KEY_ID: "{{ .S3_ACCESS_KEY_ID }}"
+        AWS_SECRET_ACCESS_KEY: "{{ .S3_SECRET_ACCESS_KEY }}"
+        AWS_DEFAULT_REGION: "{{ .S3_REGION }}"
+        RESTIC_S3_ENDPOINT: "{{ .S3_ENDPOINT }}"
+  dataFrom:
+    - extract:
+        key: volsync-restic

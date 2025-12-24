@@ -42,3 +42,10 @@ Conflicts are resolved by precedence (highest first):
 - Update `requirements/` or `contracts/` when rules change
 - Add an ADR in `docs/adr/` for major decisions or reversals
 - Constitutional amendments require `constitution/amendments/`
+
+## Security guardrails
+- Install git hooks once: `mise run hooks:install`
+- Scan staged changes locally: `mise run security:scan:staged`
+- Full repo scan: `mise run security:scan:repo`
+- CI required check: `pii_secrets_gate` (see `.github/workflows/security-pii-secrets.yml`)
+- Policy/details: `docs/security/pii-and-secrets.md`

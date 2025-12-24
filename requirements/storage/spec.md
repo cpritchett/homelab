@@ -5,6 +5,20 @@
 
 This homelab infrastructure uses **separate storage planes** for different workload classes.
 
+### Required StorageClasses (defined under `kubernetes/components/storage-classes/`)
+- `longhorn-replicated` — RWO replicated (default for configs/metadata)
+- `node-local` — node-pinned scratch (ephemeral-only, no expansion)
+- `nfs-media` — RWX NAS for media/large POSIX data
+- `nfs-backup` — RWX NAS for backup staging
+- `rwx-db` — RWX NAS for databases requiring shared POSIX
+- `s3-snapshot` — VolumeSnapshotClass for Longhorn backups to S3 (VolSync/Restic)
+
+**Value sourcing:**
+- NFS classes require env inputs: `NFS_MEDIA_SERVER/PATH`, `NFS_BACKUP_SERVER/PATH`, `NFS_DB_SERVER/PATH`.
+- `s3-snapshot` requires `S3_SNAPSHOT_ENDPOINT/REGION/BUCKET/ACCESS_KEY/SECRET_KEY` (supply via ExternalSecret/ksops, not committed).
+
+**Node-local guardrail:** Node-local is for ephemeral/scratch only; Kyverno policy `deny-node-local-for-critical-data` enforces this unless annotated `storage.hypyr.space/ephemeral: "true"`.
+
 ### Longhorn (in-cluster distributed block storage)
 
 **Scope:** Non-database, non-media workloads requiring node-failure tolerance
@@ -23,6 +37,20 @@ This homelab infrastructure uses **separate storage planes** for different workl
 - Latency-sensitive databases requiring strong consistency
 - Any workload requiring strict POSIX guarantees
 
+### NAS-backed database storage (NFS/iSCSI)
+
+**Scope:** SQL/NoSQL databases requiring stronger consistency and RWX support
+
+**StorageClass:** `rwx-db` (generic NAS-backed NFS/iSCSI class)
+
+**Use cases:**
+- PostgreSQL, MySQL, MongoDB, etc.
+- Applications that require RWX access or shared DB mounts
+
+**Constraints:**
+- Must not use Longhorn
+- Backups via database-native tooling to S3 (Garage)
+
 ### TrueNAS (external NFS/iSCSI/SMB)
 
 **Scope:** Large media storage, databases requiring strong consistency
@@ -33,14 +61,36 @@ This homelab infrastructure uses **separate storage planes** for different workl
 - Large file storage
 - SMB shares for legacy apps
 
-### S3-compatible storage (Garage on Synology)
+### S3-compatible storage (Garage/Synology or equivalent)
 
-**Scope:** Object storage, backup targets
+**Scope:** Object storage, backup targets via any S3-compatible endpoint (Garage on Synology is current implementation, but any compatible S3 service is acceptable).
 
 **Use cases:**
 - VolSync replication targets
 - Restic backup repositories
 - Application object storage (where S3 API is native)
+
+### Node-local scratch (consumer SATA/NVMe per node)
+
+**StorageClass:** `node-local`
+
+**Provisioner:** Prefer `rancher.io/local-path`; `openebs.io/local` acceptable if OpenEBS is present.
+
+**Configuration:**
+- `path: /var/lib/local-path` (dedicated mount on each node)
+- `volumeBindingMode: WaitForFirstConsumer`
+- `reclaimPolicy: Delete`
+- `allowVolumeExpansion: false`
+- `fsType: ext4`
+- Mount options: `noatime,nodiratime`
+
+**Use cases:**
+- Download caches, transcode scratch, temp working dirs
+- Embedded SQLite only when application tolerates node loss
+
+**Prohibited:**
+- Stateful databases requiring durability
+- Any workload needing failover/replication
 
 ## Longhorn design constraints
 
@@ -170,3 +220,4 @@ Longhorn in this homelab is NOT:
 Longhorn provides node-failure tolerance for non-critical workloads without the operational overhead of Ceph. The explicit scope limitations (no databases, no media) prevent misuse and align with commodity hardware constraints.
 
 See: [ADR-0010: Longhorn for Non-Database Persistent Storage](../../docs/adr/ADR-0010-longhorn-storage.md)
+See: [ADR-0020: Bootstrap, Storage, and Repository Governance Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)

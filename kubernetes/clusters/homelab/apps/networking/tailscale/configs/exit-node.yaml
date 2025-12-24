@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tailscale-exit-node
+  namespace: networking
+data:
+  enable-exit-node: "true"

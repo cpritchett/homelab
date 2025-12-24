@@ -1,0 +1,3 @@
+# gitleaks ignore fingerprints for synthetic fixtures (generated via gitleaks report)
+ae6dd8e4276ba495b9d69472f8db9b7b731c746c:tests/security/fixtures/fake-kubeconfig.yaml:kubeconfig-client-key-data:13
+ae6dd8e4276ba495b9d69472f8db9b7b731c746c:tests/security/fixtures/fake-aws-key.txt:fake-aws-access-key:2

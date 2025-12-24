@@ -46,3 +46,12 @@ gitleaks detect --source . --verbose
 - Changing `infra/`, `ops/`, scripts → **Non-canonical** (ADR recommended for arch changes)
 - Changing `docs/` only → **Doc-only** (ADR not required)
 - See `docs/governance/procedures.md` for complete rubric
+
+## GitOps Validation
+See `contracts/invariants.md` § GitOps Invariants for:
+- HelmRelease render checks
+- Kustomization build validation
+- Cross-environment leakage prevention
+- CRD ordering requirements
+- Talos ytt rendering rules
+

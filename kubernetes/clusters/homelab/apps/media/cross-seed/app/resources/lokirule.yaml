@@ -1,0 +1,11 @@
+groups:
+  - name: cross-seed
+    rules:
+      - alert: CrossSeedApiFailures
+        expr: |
+          count_over_time({app="cross-seed"} |~ "error"[5m]) > 0
+        for: 5m
+        annotations:
+          summary: cross-seed is logging errors
+        labels:
+          severity: warning

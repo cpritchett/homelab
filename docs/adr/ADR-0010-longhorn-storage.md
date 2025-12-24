@@ -48,6 +48,27 @@ Talos Kubernetes cluster on commodity hardware requires persistent storage that 
 - **Storage backend:** NVMe local disks per node
 - **Network:** Gigabit LAN for replica traffic
 
+### Storage classes and data placement
+- **`longhorn-replicated` (default):** RWO class with `numberOfReplicas=2` and `dataLocality=best-effort` to keep one replica on the scheduling node while still tolerating a single-node failure. Use for non-database configs/metadata and small persistent volumes (<500GB typical).
+- **`nfs-media` (external):** RWX class backed by TrueNAS/other NAS. Use for media libraries, large archives, and any workload that benefits from shared POSIX semantics. Mount options SHOULD prefer NFSv4.1 with hard mounts and appropriate rsize/wsize tuning.
+- **`nfs-backup` (external):** RWX class dedicated to backup/restore workflows (e.g., staging Restic repositories when S3 is unavailable). Backups remain authoritative in object storage.
+- **`s3-snapshot` (object):** VolumeSnapshotClass (not a PVC StorageClass) targeting S3-compatible storage for VolSync/Restic backups and PVC snapshots. Keep retention policies in VolSync, not in Longhorn snapshots.
+- **`node-local` (per-node):** HostPath/Local Path Provisioner class with `volumeBindingMode: WaitForFirstConsumer` for node-pinned scratch (e.g., download caches, transcoding temp). No replica/failover guarantees; workloads must tolerate data loss.
+
+Reference implementation: the `home-ops` repo currently maps most app configs to a replicated block class (`ceph-block`) and uses a node-local class (`openebs-hostpath`) for caches/transcodes; mirror that intent here using Longhorn for replicated RWO and a separate node-local class for ephemeral/locality-sensitive paths.
+
+### Node-local class (consumer SATA SSDs)
+- **Provisioner:** Prefer `rancher.io/local-path` (local-path-provisioner) for minimal footprint on Talos; acceptable alternative is `openebs.io/local` if OpenEBS is already present.
+- **Path:** Dedicated mount per node (e.g., `/var/lib/local-path`) on the consumer SATA SSD.
+- **Binding:** `volumeBindingMode: WaitForFirstConsumer` to pin PVCs to the scheduling node.
+- **Policies:** `reclaimPolicy: Delete`, `allowVolumeExpansion: false`, `fsType: ext4`, mount options `noatime,nodiratime`.
+- **Use scope:** Scratch/cache/transcode/tmp only; NOT for databases or anything needing durability/replication.
+
+### Database workload placement (including SQLite)
+- **SQL/NoSQL databases:** MUST use external NAS-backed StorageClass (NFS/iSCSI) with strong consistency; Longhorn is prohibited for databases per this ADR.
+- **Embedded SQLite:** Allowed only when the application treats the DB as local state and can tolerate node loss; place on `node-local` if loss is acceptable, otherwise on the NAS-backed class (`nfs-db` / `rwx-db`).
+- **Backups:** Database backups go to S3-compatible storage (Garage) via database-native tooling; do NOT rely on Longhorn snapshots.
+
 ### Backup strategy
 - **Primary:** VolSync + Restic to S3 (Garage on Synology)
 - **Frequency:** Per-application (hourly to daily typical)

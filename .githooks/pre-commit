@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR=$(git rev-parse --show-toplevel)
+cd "$ROOT_DIR"
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "❌ gitleaks is not installed. Install via: mise install" >&2
+  exit 1
+fi
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+if [[ -z "$STAGED_FILES" ]]; then
+  exit 0
+fi
+
+echo "🔍 gitleaks: scanning staged changes for secrets/PII..."
+if gitleaks protect --staged --redact --config .gitleaks.toml; then
+  echo "✅ No secrets detected in staged changes."
+else
+  status=$?
+  cat <<'EOM'
+❌ Potential secret or PII detected in staged changes.
+How to fix:
+- Remove the secret from the commit (or rotate it) and commit only safe values.
+- Move sensitive material to a secret manager; do not store it in git.
+- If the file should never be committed, add it to .gitignore.
+- If this is a justified false positive, add a regex/path entry under [allowlist].paths in .gitleaks.toml, then rerun: mise run security:scan:staged
+
+Need help? See docs/security/pii-and-secrets.md.
+EOM
+  exit $status
+fi

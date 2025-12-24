@@ -5,6 +5,18 @@ version: '3'
 
 vars:
   PROJECT_NAME: hypyr-homelab
+  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
+  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
+  TALOS_DIR: "{{.ROOT_DIR}}/talos"
+
+env:
+  KUBECONFIG: "{{.KUBERNETES_DIR}}/kubeconfig"
+  TALOSCONFIG: "{{.TALOS_DIR}}/talosconfig"
+
+includes:
+  k8s: .taskfiles/kubernetes
+  volsync: .taskfiles/volsync
+  workstation: .taskfiles/workstation
 
 tasks:
   default:
@@ -17,8 +29,32 @@ tasks:
     cmds:
       - echo "Installing mise tools..."
       - mise install
-      - echo "✓ Tools installed: conftest, kyverno"
+      - 'echo "OK: Tools installed: conftest, kyverno"'
       - echo "Bootstrap complete. Run 'task validate' to verify."
+
+  bootstrap:prereqs:
+    desc: Apply bootstrap prerequisites (namespaces/secret seed + CRD pre-seed) per ADR-0019
+    cmds:
+      - |
+        if ! command -v op >/dev/null 2>&1; then
+          echo "❌ op CLI not found. Login to 1Password and retry."
+          exit 1
+        fi
+      - |
+        echo "Applying bootstrap resources (namespaces + 1Password seed) via op inject..."
+        op inject -i bootstrap/resources.yaml | kubectl apply -f -
+      - |
+        echo "Applying bootstrap CRDs (envoy-gateway excluded)..."
+        helmfile -f bootstrap/helmfile.d/00-crds.yaml template --selector name!=envoy-gateway | kubectl apply -f -
+
+  bootstrap:apps:
+    desc: Apply bootstrap app stack in ADR-0019 order (requires prereqs & values)
+    deps:
+      - bootstrap:prereqs
+    cmds:
+      - |
+        echo "Applying bootstrap app stack (Cilium → CoreDNS → Spegel → cert-manager → ESO → 1Password store → kube-vip → Flux Operator → Flux Instance)..."
+        helmfile -f bootstrap/helmfile.d/01-apps.yaml apply
 
   validate:
     desc: Run all validation checks
@@ -27,6 +63,7 @@ tasks:
       - validate:tools
       - validate:policies
       - validate:structure
+      - validate:invariants
 
   validate:governance:
     desc: Validate governance compliance
@@ -35,13 +72,13 @@ tasks:
       - test -f constitution/constitution.md
       - test -f contracts/hard-stops.md
       - test -f contracts/invariants.md
-      - echo "✓ Governance files present"
+      - 'echo "OK: Governance files present"'
 
   validate:tools:
     desc: Validate required tools are available
     cmds:
       - mise doctor
-      - echo "✓ Tools validated"
+      - 'echo "OK: Tools validated"'
 
   validate:policies:
     desc: Validate Kyverno policies and test manifests
@@ -65,7 +102,7 @@ tasks:
           echo "  Validating $policy..."
           kyverno validate "$policy"
         done
-        echo "✓ All policies have valid syntax"
+        echo "OK: All policies have valid syntax"
 
   validate:policies:test:
     desc: Test policies against invalid test manifests (should fail)
@@ -85,7 +122,7 @@ tasks:
             echo "    ❌ FAIL: Policy did not block invalid manifest: $manifest"
             failed=1
           else
-            echo "    ✓ PASS: Policy correctly blocked: $manifest"
+            echo "    OK: Policy correctly blocked: $manifest"
           fi
         done
         
@@ -95,7 +132,7 @@ tasks:
           echo "  Testing $manifest..."
           policy_domain=$(echo "$manifest" | cut -d'/' -f3)
           if kyverno apply policies/"$policy_domain"/*.yaml --resource "$manifest" > /dev/null 2>&1; then
-            echo "    ✓ PASS: Policy allowed valid manifest: $manifest"
+            echo "    OK: Policy allowed valid manifest: $manifest"
           else
             echo "    ❌ FAIL: Policy incorrectly blocked valid manifest: $manifest"
             failed=1
@@ -108,7 +145,7 @@ tasks:
           exit 1
         else
           echo ""
-          echo "✓ All policy tests passed"
+          echo "OK: All policy tests passed"
         fi
 
   test:policies:
@@ -126,6 +163,41 @@ tasks:
           exit 1
         fi
       - ./scripts/enforce-root-structure.sh
+
+  validate:invariants:
+    desc: Run GitOps invariant checks (best-effort)
+    cmds:
+      - SKIP_REMOTE=0 ./scripts/check-kustomize-build.sh
+      - ./scripts/check-helmrelease-template.sh
+      - ./scripts/check-no-plaintext-secrets.sh
+      - ./scripts/check-deprecated-apis.sh
+      - ./scripts/check-talos-ytt-render.sh
+      - ./scripts/check-cross-env-refs.sh
+      - ./scripts/check-crd-ordering.sh
+
+  flux:build:
+    desc: Build Flux kustomizations (platform + apps) for homelab cluster
+    cmds:
+      - |
+        flux build kustomization platform \
+          --namespace flux-system \
+          --path ./kubernetes/clusters/homelab/flux
+      - |
+        flux build kustomization apps \
+          --namespace flux-system \
+          --path ./kubernetes/clusters/homelab/flux
+
+  flux:reconcile:
+    desc: Reconcile Flux kustomizations (platform + apps) for homelab cluster
+    cmds:
+      - |
+        flux reconcile kustomization platform \
+          --namespace flux-system \
+          --path ./kubernetes/clusters/homelab/flux
+      - |
+        flux reconcile kustomization apps \
+          --namespace flux-system \
+          --path ./kubernetes/clusters/homelab/flux
 
   docs:
     desc: Generate/update documentation

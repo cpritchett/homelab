@@ -1,0 +1,17 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-media
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: ${NFS_MEDIA_SERVER:?set NFS_MEDIA_SERVER}
+  share: ${NFS_MEDIA_PATH:?set NFS_MEDIA_PATH}
+mountOptions:
+  - nfsvers=4.1
+  - hard
+  - rsize=1048576
+  - wsize=1048576
+  - noatime
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true

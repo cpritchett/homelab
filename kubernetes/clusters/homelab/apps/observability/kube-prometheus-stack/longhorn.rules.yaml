@@ -1,0 +1,33 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: longhorn-rules
+  namespace: observability
+spec:
+  groups:
+    - name: longhorn.volume.health
+      rules:
+        - alert: LonghornVolumeDegraded
+          expr: longhorn_volume_robustness{state!="deleted"} != "healthy"
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Longhorn volume degraded
+            description: Volume {{ $labels.volume }} robustness {{ $labels.longhorn_volume_robustness }}
+        - alert: LonghornReplicaShortage
+          expr: longhorn_volume_replica_count < 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Longhorn replica count below target
+            description: Volume {{ $labels.volume }} has {{ $value }} replicas (expected >=2)
+        - alert: LonghornDiskPressure
+          expr: (longhorn_disk_usage_bytes / longhorn_disk_capacity_bytes) > 0.85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Longhorn disk usage high
+            description: Longhorn disk {{ $labels.disk }} usage >85%

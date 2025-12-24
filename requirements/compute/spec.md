@@ -25,13 +25,13 @@ All compute infrastructure is **commodity/repurposed consumer hardware**.
 | Host | RAM | Storage | Accelerator | Management | Notes |
 |------|-----|---------|-------------|------------|-------|
 | 45Drives HL15 | 128GB | ~100TB | QuickSync GPU | TrueNAS | Primary storage |
-| Synology DS918+ | Variable | Variable | None | Synology DSM | Secondary NAS, volsync target, S3 (Garage) |
+| Synology DS918+ | Variable | Variable | None | Synology DSM | Secondary NAS, volsync target, S3-compatible (Garage today) |
 
 **NAS management:**
 - Brownfield systems with separate management planes
 - Not managed via Talos/k8s
 - TrueNAS provides primary storage (NFS/iSCSI/SMB)
-- Synology provides backup target + S3-compatible storage via [Garage](https://garagehq.deuxfleurs.fr/)
+- Synology provides backup target + S3-compatible storage (Garage today; any compatible endpoint acceptable)
 
 ## Bootstrap requirements
 
@@ -42,6 +42,10 @@ All compute infrastructure is **commodity/repurposed consumer hardware**.
 - Secrets via 1Password references (`op://homelab/talos/*`)
 - Declarative configuration management via FluxCD GitOps
 - Control plane HA considerations with 4-node cluster
+
+**Talos bare-metal bootstrap (canonical):**
+- See: [ADR-0017](../../docs/adr/ADR-0017-talos-baremetal-bootstrap.md), [ADR-0019](../../docs/adr/ADR-0019-bootstrap-sequence-hardening.md)
+- Render and validate Talos configs via `./talos/render.sh`; install Talos on all control-plane nodes; run single `talosctl bootstrap`; fetch kubeconfig; join remaining nodes; apply bootstrap resources/CRDs (envoy-gateway excluded), then trigger app bootstrap (`task bootstrap:apps`) in the order defined by ADR-0019.
 
 **See:** [ADR-0013](../docs/adr/ADR-0013-ytt-data-values.md), [talos/README.md](../talos/README.md)
 
@@ -64,8 +68,8 @@ All compute infrastructure is **commodity/repurposed consumer hardware**.
 **Storage strategy:**
 - Ephemeral: local NVMe per node
 - Persistent (non-DB, non-media): Longhorn (in-cluster distributed block storage, 2-3 replicas)
-- Persistent (databases, media): TrueNAS CSI (primary) or Synology S3/Garage (backup)
-- Backup target: Synology S3/Garage via VolSync + Restic
+- Persistent (databases, media): TrueNAS CSI (primary) or Synology S3-compatible (Garage) (backup)
+- Backup target: S3-compatible endpoint (Garage today) via VolSync + Restic
 
 ## Rationale
 

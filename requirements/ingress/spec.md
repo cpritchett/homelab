@@ -57,3 +57,4 @@ External access is identity-gated via Cloudflare. WAN exposure bypasses this gat
 See: 
 - [ADR-0002: Tunnel-Only Ingress](../../docs/adr/ADR-0002-tunnel-only-ingress.md)
 - [ADR-0006: WAN Bandwidth Constraints](../../docs/adr/ADR-0006-wan-bandwidth-constraints.md)
+- [ADR-0016: Kube-vip Control-Plane Only](../../docs/adr/ADR-0016-kube-vip-control-plane-only.md)

@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: autobrr
+  namespace: media
+spec:
+  groups:
+    - name: autobrr
+      rules:
+        - alert: AutobrrAbsent
+          expr: absent(up{app_kubernetes_io_name="autobrr"})
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: autobrr missing from Prometheus discovery
+        - alert: AutobrrHealthcheckFailing
+          expr: probe_success{job="autobrr-health"} == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: autobrr health probe failing
