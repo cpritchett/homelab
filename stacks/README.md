@@ -8,9 +8,9 @@ NAS nodes in this homelab (TrueNAS, Synology DSM) run containerized services out
 
 ## Organization
 
-Subdirectories should be organized by:
-- **NAS node** (e.g., `truenas/`, `synology/`)
-- **Service type** (e.g., `storage/`, `media/`, `backup/`)
+Subdirectories are organized by NAS node hostname:
+- `barbary/` - 45Drives HL15 (TrueNAS, primary storage)
+- `razzia/` - Synology DS918+ (DSM, secondary NAS, backup target)
 
 ## Deployment Methods
 
