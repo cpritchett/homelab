@@ -32,6 +32,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 | `docs/` | Documentation (including ADRs) | Documentation |
 | `infra/` | Infrastructure as code | Implementation |
 | `kubernetes/` | GitOps manifests and cluster overlays | Implementation |
+| `stacks/` | NAS deployment manifests (Docker Compose, systemd) | Implementation |
 | `ops/` | Operational docs (runbooks, changelogs) | Operations |
 | `policies/` | Kyverno admission policies | Policy |
 | `scripts/` | CI/validation scripts | Tooling |
@@ -69,6 +70,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 | Policy definition | `policies/<domain>/*.yaml` | Kyverno ClusterPolicy YAML |
 | Infrastructure config | `infra/<domain>/` | Kubernetes manifests, configs |
 | GitOps manifests | `kubernetes/` | Flux sources, cluster overlays, app stacks |
+| NAS deployment manifests | `stacks/` | Docker Compose, systemd units for non-K8s nodes |
 | Bootstrap manifests | `bootstrap/` | Bootstrap resources/Helmfile scaffolding |
 | Test case | `test/<domain>/` | Test manifests, fixtures |
 | CI script | `scripts/*.sh` | Validation scripts |
@@ -99,3 +101,4 @@ Repository root structure is **fixed and enumerated** to prevent:
 - **Invariants:** [contracts/invariants.md](../../contracts/invariants.md#repository-structure-invariants)
 - **Agent Rules:** [contracts/agents.md](../../contracts/agents.md#repository-structure-constraints)
 - **Policy Enforcement:** [docs/policy-enforcement.md](../policy-enforcement.md)
+- **ADR-0020:** [Bootstrap, Storage, Repository Governance, and NAS Stacks Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
