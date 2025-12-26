@@ -101,3 +101,4 @@ Repository root structure is **fixed and enumerated** to prevent:
 - **Invariants:** [contracts/invariants.md](../../contracts/invariants.md#repository-structure-invariants)
 - **Agent Rules:** [contracts/agents.md](../../contracts/agents.md#repository-structure-constraints)
 - **Policy Enforcement:** [docs/policy-enforcement.md](../policy-enforcement.md)
+- **ADR-0020:** [Bootstrap, Storage, Repository Governance, and NAS Stacks Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
