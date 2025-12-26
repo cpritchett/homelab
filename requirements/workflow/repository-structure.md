@@ -32,6 +32,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 | `docs/` | Documentation (including ADRs) | Documentation |
 | `infra/` | Infrastructure as code | Implementation |
 | `kubernetes/` | GitOps manifests and cluster overlays | Implementation |
+| `stacks/` | NAS deployment manifests (Docker Compose, systemd) | Implementation |
 | `ops/` | Operational docs (runbooks, changelogs) | Operations |
 | `policies/` | Kyverno admission policies | Policy |
 | `scripts/` | CI/validation scripts | Tooling |
@@ -69,6 +70,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 | Policy definition | `policies/<domain>/*.yaml` | Kyverno ClusterPolicy YAML |
 | Infrastructure config | `infra/<domain>/` | Kubernetes manifests, configs |
 | GitOps manifests | `kubernetes/` | Flux sources, cluster overlays, app stacks |
+| NAS deployment manifests | `stacks/` | Docker Compose, systemd units for non-K8s nodes |
 | Bootstrap manifests | `bootstrap/` | Bootstrap resources/Helmfile scaffolding |
 | Test case | `test/<domain>/` | Test manifests, fixtures |
 | CI script | `scripts/*.sh` | Validation scripts |
