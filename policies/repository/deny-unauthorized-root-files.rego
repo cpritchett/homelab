@@ -32,6 +32,7 @@ allowed_root_dirs := {
     "policies",
     "requirements",
     "scripts",
+    "stacks",
     "talos",
     "test",
 }

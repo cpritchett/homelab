@@ -96,7 +96,12 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - Change logs → `ops/CHANGELOG.md` (single file, append-only)
    - Implementation → `infra/<domain>/`
 
-3. **CI enforcement is mandatory**
+3. **Deployment targets are separated by directory**:
+   - Kubernetes workloads → `kubernetes/`
+   - NAS/non-K8s workloads → `stacks/` (Docker Compose, systemd units)
+   - Infrastructure provisioning → `infra/`
+
+4. **CI enforcement is mandatory**
    - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
    - PRs violating structure MUST be blocked
 
