@@ -1,0 +1,40 @@
+\
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Runs 1Password CLI in a container, but as the *current host user* to avoid TrueNAS permission weirdness.
+# Requires: sudo docker (your user isn't in the docker group)
+# Requires: service account token file readable on host
+
+TOKEN_FILE="/mnt/apps01/appdata/secrets/1password/op_service_account_token"
+[[ -r "$TOKEN_FILE" ]] || { echo "ERROR: token not readable at: $TOKEN_FILE" >&2; exit 1; }
+
+OP_SERVICE_ACCOUNT_TOKEN="$(tr -d '\r\n' < "$TOKEN_FILE")"
+if [[ -z "${OP_SERVICE_ACCOUNT_TOKEN}" || "${OP_SERVICE_ACCOUNT_TOKEN}" == PASTE_* ]]; then
+  echo "ERROR: OP service account token file looks empty or placeholder: $TOKEN_FILE" >&2
+  exit 1
+fi
+
+WORKDIR="$(pwd)"
+CACHE_BASE="${OP_CACHE_BASE:-/mnt/apps01/appdata/secrets/1password/op-cache}"
+UID_GID="$(id -u):$(id -g)"
+CACHE_DIR="${CACHE_BASE}/${UID_GID//:/_}"
+
+mkdir -p "${CACHE_DIR}/config" "${CACHE_DIR}/data" "${CACHE_DIR}/home" "${CACHE_DIR}/tmp"
+chmod 700 "${CACHE_DIR}" "${CACHE_DIR}/config" "${CACHE_DIR}/data" "${CACHE_DIR}/home" "${CACHE_DIR}/tmp" || true
+
+OP_IMAGE="${OP_IMAGE:-1password/op:2}"
+
+exec sudo docker run --rm \
+  --user "$(id -u):$(id -g)" \
+  -e OP_SERVICE_ACCOUNT_TOKEN="${OP_SERVICE_ACCOUNT_TOKEN}" \
+  -e HOME="/home/op" \
+  -e XDG_CONFIG_HOME="/home/op/.config" \
+  -e XDG_DATA_HOME="/home/op/.local/share" \
+  -v "${WORKDIR}:/work" \
+  -w /work \
+  -v "${CACHE_DIR}/home:/home/op" \
+  -v "${CACHE_DIR}/config:/home/op/.config" \
+  -v "${CACHE_DIR}/data:/home/op/.local/share" \
+  -v "${CACHE_DIR}/tmp:/tmp" \
+  "${OP_IMAGE}" op "$@"

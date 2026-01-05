@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+STACK_DIR="${1:-}"
+[[ -n "${STACK_DIR}" ]] || { echo "Usage: deploy-stack <stack-dir>"; exit 2; }
+
+cd "${STACK_DIR}"
+
+if [[ -f ./render-env.sh && -f ./.env.tpl ]]; then
+  ./render-env.sh
+fi
+
+# docker compose must run with sudo on TrueNAS
+sudo docker compose pull
+sudo docker compose up -d --remove-orphans
+sudo docker compose ps
