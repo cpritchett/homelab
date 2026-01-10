@@ -11,9 +11,15 @@ REDIS="${POOL}/appdata/harbor_redis"
 
 sudo zfs list -H -o name "${POOL}" >/dev/null
 
-sudo zfs create -p "${BASE}" 2>/dev/null || true
-sudo zfs create -p "${DB}" 2>/dev/null || true
-sudo zfs create -p "${REDIS}" 2>/dev/null || true
+if ! sudo zfs list -H -o name "${BASE}" >/dev/null 2>&1; then
+  sudo zfs create -p "${BASE}"
+fi
+if ! sudo zfs list -H -o name "${DB}" >/dev/null 2>&1; then
+  sudo zfs create -p "${DB}"
+fi
+if ! sudo zfs list -H -o name "${REDIS}" >/dev/null 2>&1; then
+  sudo zfs create -p "${REDIS}"
+fi
 
 sudo zfs set mountpoint=/mnt/apps01/appdata/harbor/runtime "${BASE}"
 sudo zfs set mountpoint=/mnt/apps01/appdata/harbor/runtime/database "${DB}"

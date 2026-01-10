@@ -7,7 +7,7 @@ services:
     environment:
       CADDY_INGRESS_NETWORKS: proxy_network
       TZ: "${TZ}"
-      CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_TOKEN}"
+      CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}"
       DOCKER_HOST: tcp://docker-socket-proxy:2375
     ports:
       - "80:80"
@@ -28,6 +28,8 @@ services:
       caddy_0.reverse_proxy: "https://10.0.5.121:444"
       caddy_0.reverse_proxy.transport: "http"
       caddy_0.reverse_proxy.transport.tls_server_name: "barbary.in.hypyr.space"
+      # Skip TLS verification because Barbary UI uses a self-signed cert.
+      # This is acceptable for LAN-internal communication within the trusted network.
       caddy_0.reverse_proxy.transport.tls_insecure_skip_verify: ""
 
       # Wildcard cert seeding / fallback
@@ -44,6 +46,14 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
+      # Grant minimal Docker API access needed for Caddy's label-based routing.
+      # CONTAINERS: required to discover container labels for routing rules
+      # SERVICES: required for Docker Swarm service discovery (if used)
+      # NETWORKS: required to identify which networks containers are connected to
+      # TASKS: required for Swarm task information (if used)
+      # INFO: required for basic Docker daemon information
+      # EVENTS: required to watch for container start/stop events for dynamic updates
+      # PING: required for health checks
       CONTAINERS: "1"
       SERVICES: "1"
       NETWORKS: "1"

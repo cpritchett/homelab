@@ -7,11 +7,11 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # - 00-proxy first (caddy)
 # - then stacks that rely on proxy_network
 STACKS=(
-  "${ROOT_DIR}/stacks/00-proxy"
-  "${ROOT_DIR}/stacks/20-harbor"
+  "${ROOT_DIR}/00-proxy"
+  "${ROOT_DIR}/20-harbor"
 )
 
 for s in "${STACKS[@]}"; do
   echo "== Deploying: ${s}"
-  "${ROOT_DIR}/stacks/_bin/deploy-stack" "${s}"
+  "${ROOT_DIR}/_bin/deploy-stack" "${s}"
 done
