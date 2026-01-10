@@ -21,8 +21,14 @@ if [[ ! -d "${DEST}/.git" ]]; then
   git -C "${DEST}" sparse-checkout set stacks docs
 fi
 
-git -C "${DEST}" fetch --depth 1 origin "${BRANCH}"
-git -C "${DEST}" reset --hard "origin/${BRANCH}"
+git -C "${DEST}" fetch --depth 1 origin "${BRANCH}" || {
+  echo "ERROR: git fetch failed" >&2
+  exit 1
+}
+git -C "${DEST}" reset --hard "origin/${BRANCH}" || {
+  echo "ERROR: git reset failed" >&2
+  exit 1
+}
 
 # Ensure our helper binaries are in the expected place
 sudo install -d -m 0775 -o media -g media-users /mnt/apps01/appdata/bin

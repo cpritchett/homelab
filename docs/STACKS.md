@@ -9,10 +9,13 @@
 - Run `./render-env.sh` to render `.env` locally (never commit `.env`).
 
 ## On the NAS
-- The deployment entrypoint is `bin/sync-and-deploy` (uses sparse checkout).
+- The deployment entrypoint is `stacks/_bin/sync-and-deploy` (uses sparse checkout).
 - TrueNAS should run the init/cron script that calls that entrypoint.
 
 ## Notes
 - Harbor expects certain config dirs under `/mnt/apps01/appdata/harbor/runtime/*`.
-  If you came from the Harbor installer tarball, reuse that generated `common/config/*`
-  by copying it into the runtime config paths referenced by the compose.
+  If you previously deployed Harbor using the official installer tarball (offline installer),
+  you can reuse the generated `common/config/*` from that installation by copying it into
+  the runtime config paths mounted by this stack (see the Harbor compose file for the exact
+  volume mappings). For details on obtaining and using the installer, see the official docs:
+  https://goharbor.io/docs/latest/install-config/
