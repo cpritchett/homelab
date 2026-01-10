@@ -74,4 +74,7 @@ services:
 
 networks:
   proxy_network:
+    # This network is shared across multiple stacks and must exist before the first deploy.
+    # Create it manually on the Docker host (run once):
+    #   docker network create proxy_network
     external: true
