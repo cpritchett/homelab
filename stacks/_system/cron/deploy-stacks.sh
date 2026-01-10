@@ -12,5 +12,5 @@ if ! flock -n 9; then
   exit 0
 fi
 
-SYNC_AND_DEPLOY_PATH="${SYNC_AND_DEPLOY_PATH:-/mnt/apps01/appdata/stacks/homelab/stacks/_bin/sync-and-deploy}"
+SYNC_AND_DEPLOY_PATH="${HOMELAB_STACKS_SYNC_AND_DEPLOY_PATH:-/mnt/apps01/appdata/stacks/homelab/stacks/_bin/sync-and-deploy}"
 "${SYNC_AND_DEPLOY_PATH}"
