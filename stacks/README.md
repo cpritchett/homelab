@@ -8,9 +8,19 @@ NAS nodes in this homelab (TrueNAS, Synology DSM) run containerized services out
 
 ## Organization
 
-Subdirectories are organized by NAS node hostname:
-- `barbary/` - 45Drives HL15 (TrueNAS, primary storage)
-- `razzia/` - Synology DS918+ (DSM, secondary NAS, backup target)
+Subdirectories are organized by deployment type:
+
+### Stack Definitions
+- `00-proxy/` - Caddy reverse proxy (first to deploy, provides proxy_network)
+- `20-harbor/` - Harbor container registry
+
+Stack directories use numeric prefixes to indicate deployment order.
+
+### Infrastructure Utilities
+- `_bin/` - Deployment scripts and utilities (not a stack)
+- `_system/` - TrueNAS system integration hooks (init scripts, cron jobs)
+
+Directories prefixed with underscore are infrastructure components, not stacks.
 
 ## Deployment Methods
 

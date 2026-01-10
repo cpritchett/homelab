@@ -18,7 +18,7 @@ if [[ ! -d "${DEST}/.git" ]]; then
   git -C "${DEST}" remote add origin "https://github.com/${REPO}.git"
   git -C "${DEST}" config core.sparseCheckout true
   git -C "${DEST}" sparse-checkout init --cone
-  git -C "${DEST}" sparse-checkout set stacks bin truenas-scale docs
+  git -C "${DEST}" sparse-checkout set stacks docs
 fi
 
 git -C "${DEST}" fetch --depth 1 origin "${BRANCH}"
@@ -26,6 +26,6 @@ git -C "${DEST}" reset --hard "origin/${BRANCH}"
 
 # Ensure our helper binaries are in the expected place
 sudo install -d -m 0775 -o media -g media-users /mnt/apps01/appdata/bin
-sudo install -m 0755 "${DEST}/bin/op-inject" /mnt/apps01/appdata/bin/op-inject
+sudo install -m 0755 "${DEST}/stacks/_bin/op-inject" /mnt/apps01/appdata/bin/op-inject
 
-"${DEST}/bin/deploy-all"
+"${DEST}/stacks/_bin/deploy-all"

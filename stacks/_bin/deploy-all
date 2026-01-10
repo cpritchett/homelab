@@ -13,5 +13,5 @@ STACKS=(
 
 for s in "${STACKS[@]}"; do
   echo "== Deploying: ${s}"
-  "${ROOT_DIR}/bin/deploy-stack" "${s}"
+  "${ROOT_DIR}/stacks/_bin/deploy-stack" "${s}"
 done
