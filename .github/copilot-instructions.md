@@ -136,9 +136,7 @@ gitleaks detect --source . --verbose --config .gitleaks.toml
 5. Commit secrets or credentials
 6. Simplify away security boundaries (zones, networks, access controls)
 7. Make network/BGP/routing changes without ADR and human review
-8. Modify `.github/agents/` directory files
-9. Expose services directly to WAN
-10. Publish `in.hypyr.space` publicly
+8. Violate hard-stop conditions (see `contracts/hard-stops.md`)
 
 ### ALWAYS:
 1. Read canonical sources before making changes
