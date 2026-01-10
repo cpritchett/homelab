@@ -31,7 +31,7 @@ git -C "${DEST}" reset --hard "origin/${BRANCH}" || {
 }
 
 # Ensure our helper binaries are in the expected place
-sudo install -d -m 0775 -o media -g media-users /mnt/apps01/appdata/bin
-sudo install -m 0755 "${DEST}/stacks/_bin/op-inject" /mnt/apps01/appdata/bin/op-inject
+sudo install -d -m 0755 -o root -g root /mnt/apps01/appdata/bin
+sudo install -m 0755 -o root -g root "${DEST}/stacks/_bin/op-inject" /mnt/apps01/appdata/bin/op-inject
 
 "${DEST}/stacks/_bin/deploy-all"
