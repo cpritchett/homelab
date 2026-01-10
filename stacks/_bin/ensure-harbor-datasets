@@ -33,6 +33,9 @@ sudo install -d -m 0750 /mnt/apps01/appdata/harbor/runtime/database
 
 # Registry root.crt file must be a FILE (not dir) for bind mount.
 sudo install -d -m 0755 /mnt/apps01/appdata/harbor/runtime/secret/registry
+# Create an empty placeholder file so the bind mount target is always a regular file.
+# The actual certificate contents are managed outside this script (e.g. via Harbor/Kubernetes
+# secrets or other tooling) and may overwrite this placeholder at runtime.
 sudo rm -f /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt
 sudo install -m 0644 /dev/null /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt
 
