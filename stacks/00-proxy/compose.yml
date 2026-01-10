@@ -1,5 +1,7 @@
 services:
   caddy:
+    # Using :latest for custom image under owner's control
+    # Pin to specific digest if reproducibility across environments is required
     image: ghcr.io/cpritchett/caddy-labels:latest
     container_name: caddy
     restart: unless-stopped
@@ -38,7 +40,7 @@ services:
       caddy_1.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
 
   docker-socket-proxy:
-    image: ghcr.io/tecnativa/docker-socket-proxy:latest
+    image: ghcr.io/tecnativa/docker-socket-proxy:0.1.1
     container_name: docker-socket-proxy
     restart: unless-stopped
     networks:
