@@ -33,11 +33,16 @@ sudo install -d -m 0750 /mnt/apps01/appdata/harbor/runtime/database
 
 # Registry root.crt file must be a FILE (not dir) for bind mount.
 sudo install -d -m 0755 /mnt/apps01/appdata/harbor/runtime/secret/registry
-# Create an empty placeholder file so the bind mount target is always a regular file.
-# The actual certificate contents are managed outside this script (e.g. via Harbor/Kubernetes
-# secrets or other tooling) and may overwrite this placeholder at runtime.
-sudo rm -f /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt
-sudo install -m 0644 /dev/null /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt
+# Create an empty placeholder file only if missing so we don't clobber a real cert.
+# The actual certificate contents are managed outside this script and may overwrite
+# the placeholder at runtime.
+if [[ -e /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt && ! -f /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt ]]; then
+  echo "ERROR: /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt exists but is not a regular file." >&2
+  exit 1
+fi
+if [[ ! -f /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt ]]; then
+  sudo install -m 0644 /dev/null /mnt/apps01/appdata/harbor/runtime/secret/registry/root.crt
+fi
 
 echo "Harbor datasets/mounts normalized."
 sudo zfs get -H -o name,property,value mountpoint "${BASE}" "${DB}" "${REDIS}"

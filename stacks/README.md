@@ -11,10 +11,10 @@ NAS nodes in this homelab (TrueNAS, Synology DSM) run containerized services out
 Subdirectories are organized by deployment type:
 
 ### Stack Definitions
-- `00-proxy/` - Caddy reverse proxy (first to deploy, provides proxy_network)
-- `20-harbor/` - Harbor container registry
+- `proxy/` - Caddy reverse proxy (provides proxy_network)
+- `harbor/` - Harbor container registry
 
-Stack directories use numeric prefixes to indicate deployment order.
+Stack deployment order is defined in `stacks/registry.toml`.
 
 ### Infrastructure Utilities
 - `_bin/` - Deployment scripts and utilities (not a stack)

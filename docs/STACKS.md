@@ -1,8 +1,8 @@
 # Barbary NAS stacks (GitHub-driven, no secrets in git)
 
 ## Layout
-- `stacks/00-proxy`: Caddy + docker-socket-proxy (terminates 80/443)
-- `stacks/20-harbor`: Harbor (no host ports; joins `proxy_network` and is routed by Caddy labels)
+- `stacks/proxy`: Caddy + docker-socket-proxy (terminates 80/443)
+- `stacks/harbor`: Harbor (no host ports; joins `proxy_network` and is routed by Caddy labels)
 
 ## 1Password secrets
 - Each stack has `.env.tpl` containing `op://` references.
@@ -11,6 +11,9 @@
 ## On the NAS
 - The deployment entrypoint is `stacks/_bin/sync-and-deploy` (uses sparse checkout).
 - TrueNAS should run the init/cron script that calls that entrypoint.
+
+## Deployment order
+- Stack order is defined by `stacks/registry.toml` (dependency-based).
 
 ## Notes
 - Harbor expects certain config dirs under `/mnt/apps01/appdata/harbor/runtime/*`.

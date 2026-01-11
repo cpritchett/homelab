@@ -1,0 +1,9 @@
+version = 1
+
+[stacks.proxy]
+path = "proxy"
+depends_on = []
+
+[stacks.harbor]
+path = "harbor"
+depends_on = ["proxy"]

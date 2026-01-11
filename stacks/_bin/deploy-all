@@ -2,13 +2,73 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REGISTRY_FILE="${ROOT_DIR}/registry.toml"
 
-# Order matters:
-# - 00-proxy first (caddy)
-# - then stacks that rely on proxy_network
-STACKS=(
-  "${ROOT_DIR}/00-proxy"
-  "${ROOT_DIR}/20-harbor"
+need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing: $1" >&2; exit 1; }; }
+need python3
+
+if [[ ! -f "${REGISTRY_FILE}" ]]; then
+  echo "ERROR: missing stack registry: ${REGISTRY_FILE}" >&2
+  exit 1
+fi
+
+mapfile -t STACKS < <(ROOT_DIR="${ROOT_DIR}" python3 - "${REGISTRY_FILE}" <<'PY'
+import sys
+import os
+
+try:
+    import tomllib  # Python 3.11+
+except ModuleNotFoundError:
+    raise SystemExit(
+        "ERROR: python3 missing tomllib (requires Python 3.11+). "
+        "Upgrade python3 or provide a pre-sorted list."
+    )
+
+path = sys.argv[1]
+with open(path, "rb") as fh:
+    data = tomllib.load(fh)
+
+stacks = data.get("stacks", {})
+if not isinstance(stacks, dict) or not stacks:
+    raise SystemExit("ERROR: registry has no stacks")
+
+deps = {name: set((spec or {}).get("depends_on", []) or []) for name, spec in stacks.items()}
+paths = {name: (spec or {}).get("path") for name, spec in stacks.items()}
+
+missing_paths = [name for name, p in paths.items() if not p]
+if missing_paths:
+    raise SystemExit(f"ERROR: stacks missing path: {', '.join(sorted(missing_paths))}")
+
+unknown = {d for ds in deps.values() for d in ds if d not in stacks}
+if unknown:
+    raise SystemExit(f"ERROR: unknown dependencies: {', '.join(sorted(unknown))}")
+
+order = []
+temp = set()
+perm = set()
+
+def visit(n):
+    if n in perm:
+        return
+    if n in temp:
+        raise SystemExit(f\"ERROR: dependency cycle detected at: {n}\")
+    temp.add(n)
+    for d in deps[n]:
+        visit(d)
+    temp.remove(n)
+    perm.add(n)
+    order.append(n)
+
+for name in stacks:
+    visit(name)
+
+root_dir = os.environ.get("ROOT_DIR", "")
+for name in order:
+    p = paths[name]
+    if not os.path.isabs(p):
+        p = os.path.normpath(os.path.join(root_dir, p))
+    print(p)
+PY
 )
 
 SUCCEEDED=()

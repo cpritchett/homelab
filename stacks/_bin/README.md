@@ -5,7 +5,7 @@ This directory contains helper scripts for deploying Docker Compose stacks on Tr
 ## Scripts
 
 - **`sync-and-deploy`** - Sparse-checkout the homelab repo and run deployment
-- **`deploy-all`** - Deploy all stacks in dependency order
+- **`deploy-all`** - Deploy all stacks in dependency order (from `stacks/registry.toml`)
 - **`deploy-stack`** - Deploy a single stack directory
 - **`op-inject`** - Wrapper for 1Password CLI to inject secrets
 - **`ensure-harbor-datasets`** - Initialize Harbor ZFS datasets and mountpoints
