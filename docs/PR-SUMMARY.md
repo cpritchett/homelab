@@ -49,6 +49,7 @@ This branch adds a TrueNAS-focused stacks system with:
 - `scripts/run-all-gates.sh` — aligns local gates with CI checks
 - `contracts/invariants.md` — require NAS stacks to be registered
 - `requirements/workflow/repository-structure.md` — registry requirement + ADR link
+- `requirements/workflow/spec.md` — link ADR-0021
 
 ## Notable Behavior/Design Notes
 

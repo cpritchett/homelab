@@ -5,8 +5,7 @@ ROOT_DIR=$(git rev-parse --show-toplevel)
 cd "$ROOT_DIR"
 
 # Render templates
-cd talos
-./render.sh all
+./talos/render.sh all
 
 # Validate rendered configs
 for node in home01 home02 home04 home05; do
