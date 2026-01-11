@@ -105,6 +105,10 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
    - PRs violating structure MUST be blocked
 
+5. **NAS stacks must be registered**
+   - All stack directories under `stacks/` MUST be listed in `stacks/registry.toml`
+   - Deployment order MUST be derived from registry dependencies, not naming conventions
+
 ## GitOps Invariants
 
 | ID | Description | Risk | Check Script | Remediation |
@@ -116,4 +120,3 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
 | `talos-ytt-renders` | Talos machine configs render from ytt without missing values | High | `scripts/check-talos-ytt-render.sh` | Fix ytt schema/data-values, eliminate hidden defaults, document required inputs |
 | `no-cross-env-leakage` | Flux sources and Kustomizations do not reference paths across clusters/environments | High | `scripts/check-cross-env-refs.sh` | Introduce shared bases or per-cluster overlays; avoid path traversal |
 | `crds-before-crs` | CRDs/controllers reconcile before CR instances (ordering validated) | High | `scripts/check-crd-ordering.sh` | Add explicit `dependsOn` and/or split kustomizations into infra/controllers/apps layers |
-

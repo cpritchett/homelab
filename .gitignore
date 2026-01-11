@@ -21,6 +21,7 @@ secret.yaml
 .env.*
 !.env.example
 !.env.template
+!.env.tpl
 
 # 1Password CLI artifacts
 .op

@@ -1,0 +1,81 @@
+services:
+  caddy:
+    # Using :latest for custom image under owner's control
+    # Pin to specific digest if reproducibility across environments is required
+    image: ghcr.io/cpritchett/caddy-labels:latest
+    container_name: caddy
+    restart: unless-stopped
+    user: "1701:1702"
+    environment:
+      CADDY_INGRESS_NETWORKS: proxy_network
+      TZ: "${TZ}"
+      CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}"
+      DOCKER_HOST: tcp://docker-socket-proxy:2375
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /mnt/apps01/appdata/proxy/caddy-data:/data/caddy
+      - /mnt/apps01/appdata/proxy/caddy-config:/config
+    networks:
+      - proxy_network
+    depends_on:
+      docker-socket-proxy:
+        condition: service_healthy
+    labels:
+      caddy.email: "${CADDY_EMAIL}"
+
+      # Barbary UI (non-docker service)
+      caddy_0: "barbary.in.hypyr.space"
+      caddy_0.reverse_proxy: "https://10.0.5.121:444"
+      # HTTPS upstream; Caddy's transport module is still named "http".
+      caddy_0.reverse_proxy.transport: "http"
+      caddy_0.reverse_proxy.transport.tls_server_name: "barbary.in.hypyr.space"
+      # Skip TLS verification because Barbary UI uses a self-signed cert.
+      # This is acceptable for LAN-internal communication within the trusted network.
+      caddy_0.reverse_proxy.transport.tls_insecure_skip_verify: ""
+
+      # Wildcard cert seeding / fallback
+      caddy_1: "*.in.hypyr.space in.hypyr.space"
+      caddy_1.respond: "ok 200"
+      caddy_1.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+  docker-socket-proxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:0.1.1
+    container_name: docker-socket-proxy
+    restart: unless-stopped
+    networks:
+      - proxy_network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # Grant minimal Docker API access needed for Caddy's label-based routing.
+      # CONTAINERS: required to discover container labels for routing rules
+      # SERVICES: required for Docker Swarm service discovery (if used)
+      # NETWORKS: required to identify which networks containers are connected to
+      # TASKS: required for Swarm task information (if used)
+      # INFO: required for basic Docker daemon information
+      # EVENTS: required to watch for container start/stop events for dynamic updates
+      # PING: required for health checks
+      CONTAINERS: "1"
+      SERVICES: "1"
+      NETWORKS: "1"
+      TASKS: "1"
+      INFO: "1"
+      EVENTS: "1"
+      PING: "1"
+      TIMEOUT_CONNECT: 5s
+      TIMEOUT_CLIENT: 30s
+      TIMEOUT_SERVER: 30s
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:2375/_ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+networks:
+  proxy_network:
+    # This network is shared across multiple stacks and must exist before the first deploy.
+    # Create it manually on the Docker host (run once):
+    #   docker network create proxy_network
+    external: true
