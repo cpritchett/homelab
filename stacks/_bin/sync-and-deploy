@@ -31,7 +31,8 @@ git -C "${DEST}" reset --hard "origin/${BRANCH}" || {
 }
 
 # Ensure our helper binaries are in the expected place
-sudo install -d -m 0755 -o root -g root /mnt/apps01/appdata/bin
-sudo install -m 0755 -o root -g root "${DEST}/stacks/_bin/op-inject" /mnt/apps01/appdata/bin/op-inject
+HOMELAB_BIN_DIR="${HOMELAB_BIN_DIR:-/mnt/apps01/appdata/bin}"
+sudo install -d -m 0755 -o root -g root "${HOMELAB_BIN_DIR}"
+sudo install -m 0755 -o root -g root "${DEST}/stacks/_bin/op-inject" "${HOMELAB_BIN_DIR}/op-inject"
 
 "${DEST}/stacks/_bin/deploy-all"

@@ -5,7 +5,8 @@ set -euo pipefail
 # Requires: sudo docker (your user isn't in the docker group)
 # Requires: service account token file readable on host
 
-TOKEN_FILE="/mnt/apps01/appdata/secrets/1password/op_service_account_token"
+TOKEN_FILE_DEFAULT="/mnt/apps01/appdata/secrets/1password/op_service_account_token"
+TOKEN_FILE="${OP_TOKEN_FILE:-$TOKEN_FILE_DEFAULT}"
 [[ -r "$TOKEN_FILE" ]] || { echo "ERROR: token not readable at: $TOKEN_FILE" >&2; exit 1; }
 
 OP_SERVICE_ACCOUNT_TOKEN="$(tr -d '\r\n' < "$TOKEN_FILE")"

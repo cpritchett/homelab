@@ -11,7 +11,38 @@ STACKS=(
   "${ROOT_DIR}/20-harbor"
 )
 
+SUCCEEDED=()
+FAILED=()
+
 for s in "${STACKS[@]}"; do
   echo "== Deploying: ${s}"
-  "${ROOT_DIR}/_bin/deploy-stack" "${s}"
+  if "${ROOT_DIR}/_bin/deploy-stack" "${s}"; then
+    SUCCEEDED+=("${s}")
+  else
+    echo "!! Deployment FAILED for: ${s}" >&2
+    FAILED+=("${s}")
+  fi
 done
+
+echo
+echo "== Deployment summary =="
+
+if ((${#SUCCEEDED[@]})); then
+  echo "Succeeded:"
+  for s in "${SUCCEEDED[@]}"; do
+    echo "  - ${s}"
+  done
+else
+  echo "No stacks were successfully deployed."
+fi
+
+if ((${#FAILED[@]})); then
+  echo
+  echo "Failed:"
+  for s in "${FAILED[@]}"; do
+    echo "  - ${s}"
+  done
+  exit 1
+fi
+
+exit 0
