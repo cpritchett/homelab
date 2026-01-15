@@ -167,7 +167,7 @@ services:
         tag: "portal"
 
   jobservice:
-    image: goharbor/harbor-jobservice:v2.14.1
+    image: goharbor/harbor-jobservice:v2.14.2@sha256:62584790a748273a299d436650955a37d90aa060bdf2ed08fa541e2272d1aa23
     container_name: harbor-jobservice
     restart: always
     cap_drop: [ "ALL" ]
