@@ -109,7 +109,7 @@ services:
         tag: "redis"
 
   core:
-    image: goharbor/harbor-core:v2.14.1
+    image: goharbor/harbor-core:v2.14.2@sha256:3966507a3a63e2eae2c03145f52120f86f7e72645b41e5a5783672d9a32db428
     container_name: harbor-core
     restart: always
     cap_drop: [ "ALL" ]
