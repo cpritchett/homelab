@@ -149,7 +149,7 @@ services:
         tag: "core"
 
   portal:
-    image: goharbor/harbor-portal:v2.14.1
+    image: goharbor/harbor-portal:v2.14.2@sha256:a13c6aa7a8ffa2cdc06f8eec638a1059230c5c3cbd7bb333ee93ef69a675a7d1
     container_name: harbor-portal
     restart: always
     cap_drop: [ "ALL" ]
