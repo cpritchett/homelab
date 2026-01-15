@@ -192,7 +192,7 @@ services:
         tag: "jobservice"
 
   proxy:
-    image: goharbor/nginx-photon:v2.14.1
+    image: goharbor/nginx-photon:v2.14.2@sha256:aa942c5ef4ad11cee93635908cb3840be9e52c182bbec3d68493f99f9da390f3
     container_name: harbor-proxy
     restart: always
     cap_drop: [ "ALL" ]
