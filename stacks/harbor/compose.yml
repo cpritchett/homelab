@@ -1,6 +1,6 @@
 services:
   log:
-    image: goharbor/harbor-log:v2.14.1
+    image: goharbor/harbor-log:v2.14.2@sha256:32029da316cae6ac4149e868c6d309176ef9e139853139048f706c61a1bf0703
     container_name: harbor-log
     restart: always
     cap_drop: [ "ALL" ]
