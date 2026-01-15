@@ -46,7 +46,7 @@ services:
         tag: "registry"
 
   registryctl:
-    image: goharbor/harbor-registryctl:v2.14.1
+    image: goharbor/harbor-registryctl:v2.14.2@sha256:e148259c1f76d4a0d47aea8bc747ec4cf407ccbd6a7c9ce2f180dd64a5c26ddf
     container_name: registryctl
     restart: always
     cap_drop: [ "ALL" ]
