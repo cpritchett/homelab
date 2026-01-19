@@ -33,7 +33,7 @@ services:
       - ALL
 
     labels:
-      caddy.email: "${CADDY_EMAIL}"
+      caddy.email: "${CADDY_EMAIL:-admin@example.com}"
 
       # Barbary UI (TrueNAS)
       caddy_0: barbary.in.hypyr.space
