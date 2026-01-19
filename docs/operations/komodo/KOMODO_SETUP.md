@@ -70,7 +70,8 @@ TZ=America/Chicago
 CLOUDFLARE_API_TOKEN=your_actual_cloudflare_token
 HARBOR_ADMIN_PASSWORD=your_secure_password
 POSTGRES_PASSWORD=your_postgres_password
-HARBOR_SECRETKEY=your_harbor_secret_key
+HARBOR_CORE_SECRET=your_harbor_core_secret
+HARBOR_JOBSERVICE_SECRET=your_harbor_jobservice_secret
 HARBOR_PRIVATE_KEY_PEM=your_private_key_pem
 ```
 
