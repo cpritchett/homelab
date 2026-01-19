@@ -1,0 +1,4 @@
+# Stack registry - deployment order and dependencies
+# Format: stack_name:path:depends_on (comma-separated deps, empty for none)
+proxy:00-proxy:
+harbor:20-harbor:proxy

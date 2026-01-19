@@ -1,49 +1,46 @@
-# TrueNAS System Integration
+# TrueNAS System Integration (Optional Failsafe)
 
-This directory contains system-level hooks for integrating stack deployment with TrueNAS SCALE.
+This directory contains optional system-level hooks for TrueNAS SCALE. **Komodo Core and Periphery are the primary deployment mechanism.** These scripts serve as optional failsafe bootstrapping only.
+
+## Primary vs Failsafe Deployment
+
+- **Primary**: Komodo Core schedules deployments via Periphery
+- **Failsafe**: TrueNAS init script (this directory) for emergency bootstrap only
 
 ## Directory Structure
 
-- **`init/`** - Init scripts (Post-Init Scripts in TrueNAS UI)
-- **`cron/`** - Cron job scripts (scheduled tasks)
+- **`init/`** - Optional init scripts (Post-Init Scripts in TrueNAS UI)
 
-## Init Scripts
+## Init Scripts (Optional)
 
-Init scripts run after TrueNAS boots. They should be:
-- Idempotent (safe to run multiple times)
-- Fast (avoid blocking boot process)
-- Logged (output goes to system logs)
+Init scripts are **optional failsafe mechanisms** that run after TrueNAS boots. Use only if:
+- Komodo is not available
+- Emergency bootstrap is needed
+- Testing deployment scripts
 
 ### `init/10-homelab-stacks.sh`
 
-Deploys homelab stacks after TrueNAS boot. This ensures containers are running even after system restart.
+Optional bootstrap script that runs `sync-and-deploy` in background with timeout and logging.
 
-**Setup:**
+**Setup (Optional):**
 1. TrueNAS UI → System Settings → Advanced → Init/Shutdown Scripts
 2. Add Post-Init Script
 3. Type: `Script`
-4. Script: `/mnt/apps01/appdata/stacks/homelab/stacks/_system/init/10-homelab-stacks.sh`
+4. Script: `/mnt/apps01/appdata/stacks/checkout/stacks/_system/init/10-homelab-stacks.sh`
 5. When: `Post Init`
 
-## Cron Scripts
+**Logging:**
+- Logs to `/mnt/apps01/appdata/logs/stacks/bootstrap.log`
+- Includes timestamps and deployment status
+- Safe to run multiple times (idempotent)
 
-Cron scripts run on a schedule to keep stacks up-to-date.
+## Removed Components
 
-### `cron/deploy-stacks.sh`
-
-Pulls latest code and redeploys stacks. Use for automatic updates.
-
-**Setup:**
-1. TrueNAS UI → System Settings → Advanced → Cron Jobs
-2. Add Cron Job
-3. Description: `Sync and deploy homelab stacks`
-4. Command: `/mnt/apps01/appdata/stacks/homelab/stacks/_system/cron/deploy-stacks.sh`
-5. Schedule: Custom (e.g., daily at 3 AM)
-6. User: `root`
-7. Hide Standard Output: `No`
-8. Hide Standard Error: `No`
+- **Cron scripts**: Removed in favor of Komodo scheduling
+- **Automatic nightly deployments**: Handled by Komodo Core
 
 ## References
 
+- [Komodo Deployment Guide](../../docs/STACKS_KOMODO.md) - Primary deployment method
 - [TrueNAS SCALE Documentation](https://www.truenas.com/docs/scale/)
 - [Stack Deployment Scripts](../_bin/README.md)

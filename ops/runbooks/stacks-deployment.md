@@ -20,7 +20,7 @@ secrets via 1Password before running Docker Compose.
 
 ## Registry (Order + Dependencies)
 
-Deployment order is controlled by `stacks/registry.toml`:
+Deployment order is controlled by `stacks/registry.toml` using explicit `order` fields and `depends_on` relationships:
 
 ```toml
 version = 1
@@ -28,11 +28,18 @@ version = 1
 [stacks.proxy]
 path = "proxy"
 depends_on = []
+order = 10
 
 [stacks.harbor]
 path = "harbor"
 depends_on = ["proxy"]
+order = 20
 ```
+
+**Ordering Logic:**
+- Stacks are first sorted by `order` field (lower numbers deploy earlier)
+- Dependency resolution via `depends_on` is then applied to ensure dependencies deploy before dependents
+- Both mechanisms work together: `order` provides explicit sequencing, `depends_on` enforces constraints
 
 ## One-time Setup (Harbor datasets)
 

@@ -81,6 +81,11 @@ Prohibiting plaintext secrets in repositories prevents accidental exposure and c
 
 See: [ADR-0004](../../docs/adr/ADR-0004-secrets-management.md)
 
-## Agent Governance
+## NAS service integration
 
-For agent procedures on governance and compliance, see: [ADR-0005](../../docs/adr/ADR-0005-agent-governance-procedures.md)
+**Docker Compose stacks** use 1Password CLI injection for runtime secret access:
+- Secrets stored as 1Password references in `.env.tpl` files
+- `op-inject` script renders secrets at deployment time
+- No secrets persisted to disk beyond container runtime
+
+See: [ADR-0024: Authentik Authentication Stack](../../docs/adr/ADR-0024-authentik-authentication-stack.md)

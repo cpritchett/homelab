@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Pull only the subpaths we need from GitHub and deploy.
-# This keeps the NAS clean: no full monorepo checkout required.
+# Sparse-checkout only stacks/ and docs/ from repo, then deploy all stacks
+# Keeps the NAS clean: no full monorepo checkout required
 
 REPO="${HOMELAB_REPO:-cpritchett/homelab}"
 BRANCH="${HOMELAB_BRANCH:-main}"
-DEST="${HOMELAB_DEST:-/mnt/apps01/appdata/stacks/homelab}"
+DEST="${HOMELAB_DEST:-/mnt/apps01/appdata/stacks/checkout}"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing: $1" >&2; exit 1; }; }
 need git
 need sudo
 
+echo "Syncing homelab stacks from ${REPO}:${BRANCH} to ${DEST}"
+
 mkdir -p "${DEST}"
 if [[ ! -d "${DEST}/.git" ]]; then
+  echo "Initializing sparse checkout..."
   git -C "${DEST}" init
   git -C "${DEST}" remote add origin "https://github.com/${REPO}.git"
   git -C "${DEST}" config core.sparseCheckout true
@@ -21,6 +24,7 @@ if [[ ! -d "${DEST}/.git" ]]; then
   git -C "${DEST}" sparse-checkout set stacks docs
 fi
 
+echo "Fetching latest changes..."
 git -C "${DEST}" fetch --depth 1 origin "${BRANCH}" || {
   echo "ERROR: git fetch failed" >&2
   exit 1
@@ -35,4 +39,5 @@ HOMELAB_BIN_DIR="${HOMELAB_BIN_DIR:-/mnt/apps01/appdata/bin}"
 sudo install -d -m 0755 -o root -g root "${HOMELAB_BIN_DIR}"
 sudo install -m 0755 -o root -g root "${DEST}/stacks/_bin/op-inject" "${HOMELAB_BIN_DIR}/op-inject"
 
+echo "Deploying all stacks..."
 "${DEST}/stacks/_bin/deploy-all"

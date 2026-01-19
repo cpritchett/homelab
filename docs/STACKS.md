@@ -13,7 +13,7 @@
 - TrueNAS should run the init/cron script that calls that entrypoint.
 
 ## Deployment order
-- Stack order is defined by `stacks/registry.toml` (dependency-based).
+- Stack order is defined by `stacks/registry.toml` using explicit `order` fields (lower numbers first) combined with dependency resolution via `depends_on`.
 
 ## Notes
 - Harbor expects certain config dirs under `/mnt/apps01/appdata/harbor/runtime/*`.

@@ -1,86 +1,129 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-REGISTRY_FILE="${ROOT_DIR}/registry.toml"
+# Deploy all stacks in dependency order using simple registry format
+# Registry format: stack_name:path:depends_on (comma-separated deps, empty for none)
 
-need() { command -v "$1" >/dev/null 2>&1 || { echo "Missing: $1" >&2; exit 1; }; }
-need python3
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REGISTRY_FILE="${ROOT_DIR}/registry"
 
 if [[ ! -f "${REGISTRY_FILE}" ]]; then
   echo "ERROR: missing stack registry: ${REGISTRY_FILE}" >&2
   exit 1
 fi
 
-mapfile -t STACKS < <(ROOT_DIR="${ROOT_DIR}" python3 - "${REGISTRY_FILE}" <<'PY'
-import sys
-import os
+# Parse registry and build dependency graph
+declare -A STACK_PATHS=()
+declare -A STACK_DEPS=()
+declare -a ALL_STACKS=()
 
-try:
-    import tomllib  # Python 3.11+
-except ModuleNotFoundError:
-    raise SystemExit(
-        "ERROR: python3 missing tomllib (requires Python 3.11+). "
-        "Upgrade python3 or provide a pre-sorted list."
-    )
+while IFS=':' read -r stack_name path deps_str; do
+  # Skip empty lines and comments
+  [[ -n "${stack_name}" && "${stack_name}" != \#* ]] || continue
+  
+  ALL_STACKS+=("${stack_name}")
+  STACK_PATHS["${stack_name}"]="${path}"
+  
+  # Parse dependencies (comma-separated, empty string means no deps)
+  if [[ -n "${deps_str}" ]]; then
+    IFS=',' read -ra deps_array <<< "${deps_str}"
+    STACK_DEPS["${stack_name}"]="${deps_str}"
+  else
+    STACK_DEPS["${stack_name}"]=""
+  fi
+done < "${REGISTRY_FILE}"
 
-path = sys.argv[1]
-with open(path, "rb") as fh:
-    data = tomllib.load(fh)
+if [[ ${#ALL_STACKS[@]} -eq 0 ]]; then
+  echo "ERROR: no stacks found in registry" >&2
+  exit 1
+fi
 
-stacks = data.get("stacks", {})
-if not isinstance(stacks, dict) or not stacks:
-    raise SystemExit("ERROR: registry has no stacks")
+# Validate that all dependencies exist
+for stack in "${ALL_STACKS[@]}"; do
+  deps="${STACK_DEPS[${stack}]}"
+  if [[ -n "${deps}" ]]; then
+    IFS=',' read -ra deps_array <<< "${deps}"
+    for dep in "${deps_array[@]}"; do
+      if [[ -z "${STACK_PATHS[${dep}]:-}" ]]; then
+        echo "ERROR: stack '${stack}' depends on unknown stack '${dep}'" >&2
+        exit 1
+      fi
+    done
+  fi
+done
 
-deps = {name: set((spec or {}).get("depends_on", []) or []) for name, spec in stacks.items()}
-paths = {name: (spec or {}).get("path") for name, spec in stacks.items()}
+# Simple topological sort (Kahn's algorithm)
+declare -a SORTED_STACKS=()
+declare -A IN_DEGREE=()
+declare -a QUEUE=()
 
-missing_paths = [name for name, p in paths.items() if not p]
-if missing_paths:
-    raise SystemExit(f"ERROR: stacks missing path: {', '.join(sorted(missing_paths))}")
+# Calculate in-degrees
+for stack in "${ALL_STACKS[@]}"; do
+  IN_DEGREE["${stack}"]=0
+done
 
-unknown = {d for ds in deps.values() for d in ds if d not in stacks}
-if unknown:
-    raise SystemExit(f"ERROR: unknown dependencies: {', '.join(sorted(unknown))}")
+for stack in "${ALL_STACKS[@]}"; do
+  deps="${STACK_DEPS[${stack}]}"
+  if [[ -n "${deps}" ]]; then
+    IFS=',' read -ra deps_array <<< "${deps}"
+    for dep in "${deps_array[@]}"; do
+      ((IN_DEGREE["${stack}"]++))
+    done
+  fi
+done
 
-order = []
-temp = set()
-perm = set()
+# Find stacks with no dependencies
+for stack in "${ALL_STACKS[@]}"; do
+  if [[ ${IN_DEGREE["${stack}"]} -eq 0 ]]; then
+    QUEUE+=("${stack}")
+  fi
+done
 
-def visit(n):
-    if n in perm:
-        return
-    if n in temp:
-        raise SystemExit(f\"ERROR: dependency cycle detected at: {n}\")
-    temp.add(n)
-    for d in deps[n]:
-        visit(d)
-    temp.remove(n)
-    perm.add(n)
-    order.append(n)
+# Process queue
+while [[ ${#QUEUE[@]} -gt 0 ]]; do
+  current="${QUEUE[0]}"
+  QUEUE=("${QUEUE[@]:1}")  # Remove first element
+  SORTED_STACKS+=("${current}")
+  
+  # For each stack that depends on current, decrease in-degree
+  for stack in "${ALL_STACKS[@]}"; do
+    deps="${STACK_DEPS[${stack}]}"
+    if [[ -n "${deps}" ]]; then
+      IFS=',' read -ra deps_array <<< "${deps}"
+      for dep in "${deps_array[@]}"; do
+        if [[ "${dep}" == "${current}" ]]; then
+          ((IN_DEGREE["${stack}"]--))
+          if [[ ${IN_DEGREE["${stack}"]} -eq 0 ]]; then
+            QUEUE+=("${stack}")
+          fi
+        fi
+      done
+    fi
+  done
+done
 
-for name in stacks:
-    visit(name)
+# Check for cycles
+if [[ ${#SORTED_STACKS[@]} -ne ${#ALL_STACKS[@]} ]]; then
+  echo "ERROR: dependency cycle detected in registry" >&2
+  exit 1
+fi
 
-root_dir = os.environ.get("ROOT_DIR", "")
-for name in order:
-    p = paths[name]
-    if not os.path.isabs(p):
-        p = os.path.normpath(os.path.join(root_dir, p))
-    print(p)
-PY
-)
-
+# Deploy stacks in order
 SUCCEEDED=()
 FAILED=()
 
-for s in "${STACKS[@]}"; do
-  echo "== Deploying: ${s}"
-  if "${ROOT_DIR}/_bin/deploy-stack" "${s}"; then
-    SUCCEEDED+=("${s}")
+for stack in "${SORTED_STACKS[@]}"; do
+  stack_path="${STACK_PATHS[${stack}]}"
+  if [[ ! "${stack_path}" =~ ^/ ]]; then
+    stack_path="${ROOT_DIR}/${stack_path}"
+  fi
+  
+  echo "== Deploying: ${stack} (${stack_path})"
+  if "${ROOT_DIR}/_bin/deploy-stack" "${stack_path}"; then
+    SUCCEEDED+=("${stack}")
   else
-    echo "!! Deployment FAILED for: ${s}" >&2
-    FAILED+=("${s}")
+    echo "!! Deployment FAILED for: ${stack}" >&2
+    FAILED+=("${stack}")
   fi
 done
 

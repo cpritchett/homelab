@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+# Script: run-all-gates.sh
+# Purpose: Execute all CI gates locally for comprehensive validation before pushing changes
+# Usage: ./scripts/run-all-gates.sh "PR title" "PR description"
+# Dependencies: All individual gate scripts, git, basic shell utilities
+# Maintained by: Governance team
+# Last updated: 2025-01-17
+# Related: ADR-0023 (Script organization), docs/governance/ci-gates.md
+#
+# This master script runs all CI validation gates in the same order as CI.
+# Use this for local validation to catch issues before pushing to remote.
+#
 # NOTE: Ensure this script is committed as executable:
 #   git update-index --chmod=+x scripts/run-all-gates.sh
 set -e

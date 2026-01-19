@@ -5,15 +5,15 @@ services:
     image: ghcr.io/cpritchett/caddy-labels:latest
     container_name: caddy
     restart: unless-stopped
-    user: "1701:1702"
+    user: 1701:1702
     environment:
       CADDY_INGRESS_NETWORKS: proxy_network
       TZ: "${TZ}"
       CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}"
       DOCKER_HOST: tcp://docker-socket-proxy:2375
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     volumes:
       - /mnt/apps01/appdata/proxy/caddy-data:/data/caddy
       - /mnt/apps01/appdata/proxy/caddy-config:/config
@@ -26,11 +26,11 @@ services:
       caddy.email: "${CADDY_EMAIL}"
 
       # Barbary UI (non-docker service)
-      caddy_0: "barbary.in.hypyr.space"
-      caddy_0.reverse_proxy: "https://10.0.5.121:444"
+      caddy_0: barbary.in.hypyr.space
+      caddy_0.reverse_proxy: https://10.0.5.121:444
       # HTTPS upstream; Caddy's transport module is still named "http".
-      caddy_0.reverse_proxy.transport: "http"
-      caddy_0.reverse_proxy.transport.tls_server_name: "barbary.in.hypyr.space"
+      caddy_0.reverse_proxy.transport: http
+      caddy_0.reverse_proxy.transport.tls_server_name: barbary.in.hypyr.space
       # Skip TLS verification because Barbary UI uses a self-signed cert.
       # This is acceptable for LAN-internal communication within the trusted network.
       caddy_0.reverse_proxy.transport.tls_insecure_skip_verify: ""
@@ -38,7 +38,7 @@ services:
       # Wildcard cert seeding / fallback
       caddy_1: "*.in.hypyr.space in.hypyr.space"
       caddy_1.respond: "ok 200"
-      caddy_1.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+      caddy_1.tls.dns: cloudflare {env.CLOUDFLARE_API_TOKEN}
 
   docker-socket-proxy:
     image: ghcr.io/tecnativa/docker-socket-proxy:0.1.1
@@ -68,7 +68,7 @@ services:
       TIMEOUT_CLIENT: 30s
       TIMEOUT_SERVER: 30s
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:2375/_ping"]
+      test: [CMD, wget, -qO-, http://localhost:2375/_ping]
       interval: 10s
       timeout: 3s
       retries: 10

@@ -25,6 +25,14 @@
 ## Access control
 
 - Cloudflare Access is the default enforcement point for external human access
+- NAS services use Authentik for centralized authentication via forward auth pattern
+
+## Authentication architecture
+
+**NAS Services:** Authentik provides SSO authentication for Docker Compose services running on TrueNAS
+**Kubernetes Services:** Cloudflare Access provides identity gating for external access
+
+See: [ADR-0024: Authentik Authentication Stack](../../docs/adr/ADR-0024-authentik-authentication-stack.md)
 
 ## Tunnel scope
 

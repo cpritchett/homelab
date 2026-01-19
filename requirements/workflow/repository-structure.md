@@ -73,12 +73,40 @@ Repository root structure is **fixed and enumerated** to prevent:
 | NAS deployment manifests | `stacks/` | Docker Compose, systemd units for non-K8s nodes |
 | Bootstrap manifests | `bootstrap/` | Bootstrap resources/Helmfile scaffolding |
 | Test case | `test/<domain>/` | Test manifests, fixtures |
-| CI script | `scripts/*.sh` | Validation scripts |
+| Ongoing scripts | `scripts/*.sh` | CI validation, reusable tools, maintained indefinitely |
+| One-shot scripts | `scripts/one-shot/YYYY-MM-DD-purpose/` | Temporary, dated, single-purpose with README.md |
 
 ## NAS stacks registry
 
 - All NAS stacks MUST be registered in `stacks/registry.toml`.
 - Deployment order MUST be derived from registry dependencies (no ordering by naming).
+
+## Script Organization
+
+**Ongoing Scripts** (`scripts/`):
+- CI validation scripts (gates, checks)
+- Reusable automation tools  
+- Infrastructure maintenance scripts
+- Must be maintained and kept current
+- Examples: `run-all-gates.sh`, `check-kustomize-build.sh`
+
+**One-Shot Scripts** (`scripts/one-shot/YYYY-MM-DD-purpose/`):
+- Temporary scripts for specific tasks
+- Migration scripts, cleanup scripts, emergency fixes
+- Must be dated (ISO 8601: YYYY-MM-DD) and single-purpose
+- Each directory MUST contain README.md with purpose, context, usage, and completion status
+- Examples: `scripts/one-shot/2025-01-17-harbor-legacy-cleanup/`
+
+**Documentation Requirements**:
+- **Ongoing scripts** MUST include comprehensive header comments and entry in `scripts/README.md`
+- **Complex ongoing scripts** (>50 lines) MUST include individual README.md files
+- **One-shot scripts** MUST include README.md in directory with context and completion criteria
+
+**Prohibited**:
+- Scripts outside `scripts/` or `scripts/one-shot/`
+- One-shot scripts directly in `scripts/`
+- One-shot directories without dates or README.md
+- Ongoing scripts without proper documentation
 
 ## Enforcement
 
@@ -108,3 +136,5 @@ Repository root structure is **fixed and enumerated** to prevent:
 - **Policy Enforcement:** [docs/policy-enforcement.md](../policy-enforcement.md)
 - **ADR-0020:** [Bootstrap, Storage, Repository Governance, and NAS Stacks Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
 - **ADR-0021:** [Require Registry for NAS Stacks](../../docs/adr/ADR-0021-stacks-registry-required.md)
+- **ADR-0022:** [Explicit Stack Ordering with Order Fields](../../docs/adr/ADR-0022-explicit-stack-ordering.md)
+- **ADR-0023:** [Script Organization Requirements](../../docs/adr/ADR-0023-script-organization-requirements.md)

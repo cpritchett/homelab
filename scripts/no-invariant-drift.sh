@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+# Script: no-invariant-drift.sh
+# Purpose: Ensure router files don't contain hardcoded invariant values (must link to canonical sources)
+# Usage: Called automatically by run-all-gates.sh and CI, or run standalone
+# Dependencies: grep, basic shell utilities
+# Maintained by: Governance team
+# Last updated: 2025-01-17
+# Related: contracts/invariants.md, ADR-0023 (Script organization)
+#
+# This script validates that "router files" (README.md, agents.md, etc.) contain only
+# links to canonical sources rather than restating specific values like VLANs, CIDRs, etc.
+# This prevents invariant drift where values get out of sync across files.
 set -euo pipefail
 
 # Files that MUST remain "thin routers" (links only, no invariant restatement).

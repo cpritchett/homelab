@@ -101,11 +101,19 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - NAS/non-K8s workloads → `stacks/` (Docker Compose, systemd units)
    - Infrastructure provisioning → `infra/`
 
-4. **CI enforcement is mandatory**
+4. **Script organization is mandatory**:
+   - Ongoing scripts → `scripts/` (CI validation, reusable tools, maintained indefinitely)
+   - One-shot scripts → `scripts/one-shot/YYYY-MM-DD-purpose/` (temporary, dated, single-purpose)
+   - One-shot directories MUST include README.md with purpose, context, and completion status
+   - Ongoing scripts MUST include comprehensive header comments and entry in `scripts/README.md`
+   - Complex ongoing scripts (>50 lines) MUST include individual README.md files
+   - No scripts outside these designated locations
+
+5. **CI enforcement is mandatory**
    - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
    - PRs violating structure MUST be blocked
 
-5. **NAS stacks must be registered**
+6. **NAS stacks must be registered**
    - All stack directories under `stacks/` MUST be listed in `stacks/registry.toml`
    - Deployment order MUST be derived from registry dependencies, not naming conventions
 
