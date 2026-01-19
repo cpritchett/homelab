@@ -18,6 +18,7 @@ Architectural Decision Records explain *why* decisions were made.
 - [ADR-0013](ADR-0013-ytt-data-values.md): ytt data values for Talos templating ✓
 - [ADR-0014](ADR-0014-governance-framework.md): Governance framework and policy enforcement ✓
 - [ADR-0020](ADR-0020-bootstrap-storage-governance-codification.md): Bootstrap, storage, and repository governance codification
+- [ADR-0021](ADR-0021-truenas-scale-apps.md): TrueNAS SCALE apps for NAS stacks *(superseded by ADR-0022)*
 - [ADR-0022](ADR-0022-truenas-komodo-stacks.md): Komodo-managed NAS stacks (supersedes ADR-0021)
 
 ## Status values
