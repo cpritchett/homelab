@@ -6,7 +6,7 @@ services:
 
     environment:
       TZ: "${TZ:-America/Chicago}"
-      CADDY_EMAIL: "${CADDY_EMAIL}"
+      CADDY_EMAIL: "${CADDY_EMAIL:-you@example.com}"
       CADDY_INGRESS_NETWORKS: proxy_network
       CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}"
       DOCKER_HOST: tcp://docker-socket-proxy:2375
@@ -33,7 +33,7 @@ services:
       - ALL
 
     labels:
-      caddy.email: "${CADDY_EMAIL}"
+      caddy.email: "${CADDY_EMAIL:-you@example.com}"
 
       # Barbary UI (TrueNAS)
       caddy_0: barbary.in.hypyr.space
@@ -60,6 +60,9 @@ services:
       EVENTS: "1"
       INFO: "1"
       PING: "1"
+      # Enable for Docker Swarm service/task discovery (not required for standalone Compose)
+      # SERVICES: "1"
+      # TASKS: "1"
 
     networks:
       - proxy_network
@@ -70,11 +73,11 @@ services:
       timeout: 3s
       retries: 10
 
-    # Optional hardening (enable if it doesn't break)
+    # Optional hardening - test before enabling, socket proxy may need specific capabilities
     security_opt:
       - no-new-privileges:true
-    cap_drop:
-      - ALL
+    # cap_drop:
+    #   - ALL
 
 networks:
   proxy_network:

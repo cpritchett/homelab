@@ -11,8 +11,11 @@ GitHub and deployed as a Compose app; no registry file or host-side deployment s
 
 - NAS host is LAN-only (no WAN exposure).
 - Docker installed and running on the NAS.
-- External Docker network exists (run once):
-  - `docker network create proxy_network`
+- Create external Docker network (required for proxy and dependent stacks):
+  ```bash
+  docker network create proxy_network
+  ```
+
 ## Komodo deployment flow
 
 1) In TrueNAS Komodo, add a new app from GitHub and point to the stack path (e.g., `stacks/proxy`).

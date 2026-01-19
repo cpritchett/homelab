@@ -64,6 +64,7 @@ services:
         condition: service_healthy
     labels:
       # Route Authentik UI/API through Caddy
+      # Note: CLOUDFLARE_API_TOKEN must be set in Komodo environment (same value as proxy stack)
       caddy: "auth.in.hypyr.space"
       caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
       caddy.reverse_proxy: "{{upstreams 9000}}"
@@ -97,6 +98,7 @@ services:
 
 networks:
   authentik:
+    # Internal network for database and cache - server connects to both networks for external access
     internal: true
   proxy_network:
     external: true

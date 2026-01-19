@@ -8,7 +8,7 @@ This repository now ships only Komodo-compatible stacks. Deploy them directly fr
 
 ## Secrets / env
 - Each stack has a `.env.example` documenting required variables.
-- Set values in Komodo's environment/secret UI; do not use `op inject` or `.env.tpl` templating.
+- Set values in Komodo's environment/secret UI (1Password CLI templating via `op inject` and `.env.tpl` files are no longer used).
 
 ## Deployment (TrueNAS Komodo)
 1. Add the homelab repo in Komodo and select the stack directory (e.g., `stacks/proxy`).
