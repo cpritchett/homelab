@@ -38,7 +38,7 @@ services:
       # Barbary UI (TrueNAS)
       caddy_0: barbary.in.hypyr.space
       caddy_0.reverse_proxy: https://10.0.5.121:444
-      caddy_0.reverse_proxy.transport: http
+      caddy_0.reverse_proxy.transport: http  # transport for HTTPS backend
       caddy_0.reverse_proxy.transport.tls_server_name: barbary.in.hypyr.space
       caddy_0.reverse_proxy.transport.tls_insecure_skip_verify: ""
 

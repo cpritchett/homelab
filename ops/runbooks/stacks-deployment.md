@@ -16,6 +16,8 @@ GitHub and deployed as a Compose app; no registry file or host-side deployment s
   docker network create proxy_network
   ```
 
+**Note:** The `proxy_network` must be created before deploying any stacks that depend on it (e.g., `authentik`).
+
 ## Komodo deployment flow
 
 1) In TrueNAS Komodo, add a new app from GitHub and point to the stack path (e.g., `stacks/proxy`).
