@@ -1,24 +1,21 @@
-# Barbary NAS stacks (GitHub-driven, no secrets in git)
+# NAS stacks via TrueNAS Komodo
+
+This repository now ships only Komodo-compatible stacks. Deploy them directly from GitHub using the TrueNAS Komodo app (no registry, no host-side scripts).
 
 ## Layout
-- `stacks/proxy`: Caddy + docker-socket-proxy (terminates 80/443)
-- `stacks/harbor`: Harbor (no host ports; joins `proxy_network` and is routed by Caddy labels)
+- `stacks/proxy`: Caddy reverse proxy + docker-socket-proxy on `proxy_network` (external network must exist).
+- `stacks/authentik`: Authentik with bundled Postgres + Redis, routed through the proxy.
 
-## 1Password secrets
-- Each stack has `.env.tpl` containing `op://` references.
-- Run `./render-env.sh` to render `.env` locally (never commit `.env`).
+## Secrets / env
+- Each stack has a `.env.example` documenting required variables.
+- Set values in Komodo's environment/secret UI (1Password CLI templating via `op inject` and `.env.tpl` files are no longer used).
 
-## On the NAS
-- The deployment entrypoint is `stacks/_bin/sync-and-deploy` (uses sparse checkout).
-- TrueNAS should run the init/cron script that calls that entrypoint.
-
-## Deployment order
-- Stack order is defined by `stacks/registry.toml` (dependency-based).
+## Deployment (TrueNAS Komodo)
+1. Add the homelab repo in Komodo and select the stack directory (e.g., `stacks/proxy`).
+2. Provide env/secret values from `.env.example`.
+3. Ensure shared prerequisites (e.g., external Docker network `proxy_network`) exist before deploying dependent stacks.
+4. Deploy via Komodo. Repeat for additional stacks.
 
 ## Notes
-- Harbor expects certain config dirs under `/mnt/apps01/appdata/harbor/runtime/*`.
-  If you previously deployed Harbor using the official installer tarball (offline installer),
-  you can reuse the generated `common/config/*` from that installation by copying it into
-  the runtime config paths mounted by this stack (see the Harbor compose file for the exact
-  volume mappings). For details on obtaining and using the installer, see the official docs:
-  https://goharbor.io/docs/latest/install-config/
+- Registry-based ordering (`stacks/registry.toml`) and helper scripts (`stacks/_bin/*`, `_system/*`) have been removed.
+- Keep stack directories self-contained: `compose.yml` + `.env.example` only.

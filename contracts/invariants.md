@@ -105,9 +105,10 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
    - PRs violating structure MUST be blocked
 
-5. **NAS stacks must be registered**
-   - All stack directories under `stacks/` MUST be listed in `stacks/registry.toml`
-   - Deployment order MUST be derived from registry dependencies, not naming conventions
+5. **NAS stacks are Komodo-managed**
+   - NAS/non-Kubernetes stacks are deployed from this repository via TrueNAS Komodo
+   - No `stacks/registry.toml` or host-side deploy scripts are required or permitted
+   - Each stack directory must be self-contained (compose file + `.env.example`)
 
 ## GitOps Invariants
 
