@@ -1,21 +1,21 @@
 # ADR-0021: Require Registry for NAS Stacks
 
-**Status:** Accepted  
+**Status:** Superseded by ADR-0022  
 **Date:** 2026-01-11  
 **Author:** Codex (LLM agent)
 
 ## Context
 
-NAS stacks are deployed via Docker Compose on non-Kubernetes nodes. Prior approaches relied on
+NAS stacks were deployed via Docker Compose on non-Kubernetes nodes. Prior approaches relied on
 naming conventions (e.g., numeric prefixes) to imply deployment order, which is fragile and
-non-obvious. The repository now supports an explicit registry file (`stacks/registry.toml`) that
-defines stack paths and dependencies, enabling deterministic ordering and clearer intent.
+non-obvious. The repository adopted an explicit registry file (`stacks/registry.toml`) to define
+stack paths and dependencies for deterministic ordering.
 
 ## Decision
 
-1. **All NAS stacks MUST be listed in `stacks/registry.toml`.**
-2. **Deployment order MUST be derived from registry dependencies**, not naming conventions.
-3. **Unregistered stacks are invalid** and must not be deployed or introduced in PRs.
+1. All NAS stacks MUST be listed in `stacks/registry.toml`.
+2. Deployment order MUST be derived from registry dependencies, not naming conventions.
+3. Unregistered stacks are invalid and must not be deployed or introduced in PRs.
 
 ## Consequences
 
@@ -25,8 +25,8 @@ defines stack paths and dependencies, enabling deterministic ordering and cleare
 
 ## Alternatives Considered
 
-- **Numeric prefixes (00-/10-/20-)** — rejected; implicit and error-prone.
-- **Free-form ordering in docs** — rejected; not machine-validated.
+- Numeric prefixes (00-/10-/20-) — rejected; implicit and error-prone.
+- Free-form ordering in docs — rejected; not machine-validated.
 
 ## References
 

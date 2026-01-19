@@ -1,63 +1,40 @@
-# PR Summary (main..feat/stacks-truenas)
+# PR Summary (updated for Komodo stacks)
 
 This document summarizes all changes on this branch relative to `main`.
 
 ## Overview
 
-This branch adds a TrueNAS-focused stacks system with:
-- Docker Compose stack definitions for a Caddy proxy and Harbor registry
-- Deployment scripts for sparse checkout + automated rollout
-- TrueNAS init/cron integration
-- Supporting documentation
+This branch replaces the registry/script-driven stacks flow with Komodo-managed stacks:
+- Compose stack definitions for proxy and authentik (Komodo-compatible)
+- No registry.toml, no host-side deploy scripts
+- Documentation updated for Komodo deployment
 
 ## Files Added
 
 ### Stack definitions
 - `stacks/proxy/compose.yml` — Caddy reverse proxy + docker-socket-proxy on `proxy_network`
-- `stacks/proxy/.env.tpl` — 1Password references for Caddy secrets and TZ
-- `stacks/proxy/render-env.sh` — renders `.env` from `.env.tpl` using `op-inject`
-- `stacks/harbor/compose.yml` — Harbor registry stack (all services on Docker networks; no host ports)
-- `stacks/harbor/.env.tpl` — 1Password references for Harbor secrets + Cloudflare DNS token
-- `stacks/harbor/render-env.sh` — renders `.env` from `.env.tpl` using `op-inject`
-
-### Deployment utilities
-- `stacks/_bin/op-inject` — runs 1Password CLI in a container as the host user
-- `stacks/_bin/deploy-stack` — deploy a single stack directory (render .env, compose pull/up)
-- `stacks/_bin/deploy-all` — deploy stacks in dependency order
-- `stacks/_bin/sync-and-deploy` — sparse-checkout repo and deploy (intended for NAS)
-- `stacks/_bin/ensure-harbor-datasets` — creates/normalizes ZFS datasets + mountpoints for Harbor
-- `stacks/_bin/README.md` — documentation for stack helper scripts
-- `scripts/test-talos-templates.sh` — local Talos render validation script (mirrors CI)
-
-### TrueNAS system hooks
-- `stacks/_system/init/10-homelab-stacks.sh` — boot-time deploy hook (async + timeout)
-- `stacks/_system/cron/deploy-stacks.sh` — scheduled deploy hook (flocked)
-- `stacks/_system/README.md` — docs for TrueNAS integration
-
-### Registry
-- `stacks/registry.toml` — explicit stack registry with dependencies
+- `stacks/proxy/.env.example` — env keys for proxy stack (Komodo secrets/vars)
+- `stacks/authentik/compose.yml` — Authentik stack (bundled Postgres/Redis) routed via proxy
+- `stacks/authentik/.env.example` — env keys for Authentik
 
 ### Documentation
-- `docs/STACKS.md` — NAS stacks overview and workflow
-- `ops/runbooks/stacks-deployment.md` — runbook for NAS stack deployment (registry-based)
-- `docs/adr/ADR-0021-stacks-registry-required.md` — ADR requiring registry for NAS stacks
+- `docs/STACKS.md` — NAS stacks via Komodo
+- `ops/runbooks/stacks-deployment.md` — Komodo deployment flow
+- `docs/adr/ADR-0022-truenas-komodo-stacks.md` — supersedes ADR-0021
 
 ## Files Updated
 
-- `.gitignore` — allow committed `.env.tpl` files
-- `stacks/README.md` — reorganized around deployment-type structure and registry-driven order
-- `scripts/run-all-gates.sh` — aligns local gates with CI checks
-- `contracts/invariants.md` — require NAS stacks to be registered
-- `requirements/workflow/repository-structure.md` — registry requirement + ADR link
-- `requirements/workflow/spec.md` — link ADR-0021
+- `contracts/invariants.md` — switch to Komodo-managed stacks; no registry
+- `requirements/workflow/repository-structure.md` — remove registry requirement
+- `requirements/workflow/spec.md` — link ADR-0022
+- `docs/STACKS.md` — Komodo deployment docs
+- `ops/runbooks/stacks-deployment.md` — Komodo flow
 
 ## Notable Behavior/Design Notes
 
-- Stack deployment is GitHub-driven via sparse checkout, keeping the NAS clean.
-- Deployment order is driven by `stacks/registry.toml` (dependency graph), not naming conventions.
-- Caddy uses docker-socket-proxy for label-based routing; `proxy_network` is external and must exist.
-- Harbor stack uses syslog to `harbor-log` aggregator, with small log files to limit disk use.
-- TrueNAS hooks are intentionally independent and idempotent.
+- Stack deployment is driven by TrueNAS Komodo pulling from GitHub; no host scripts needed.
+- Proxy stack still expects external network `proxy_network`.
+- Authentik stack binds Postgres/Redis locally and fronts through proxy labels.
 
 ## Branch-specific Adjustments (this session)
 

@@ -1,0 +1,104 @@
+version: "3.9"
+
+services:
+  postgresql:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: "${AUTHENTIK_POSTGRESQL__PASSWORD}"
+      POSTGRES_USER: "${AUTHENTIK_POSTGRESQL__USER:-authentik}"
+      POSTGRES_DB: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
+    volumes:
+      - type: bind
+        source: ${APPDATA}/postgres
+        target: /var/lib/postgresql/data
+    networks: [authentik]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${AUTHENTIK_POSTGRESQL__USER:-authentik} -d ${AUTHENTIK_POSTGRESQL__NAME:-authentik}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - type: bind
+        source: ${APPDATA}/redis
+        target: /data
+    networks: [authentik]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  server:
+    image: ghcr.io/goauthentik/server:2025.6.2
+    restart: unless-stopped
+    environment:
+      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}"
+      AUTHENTIK_REDIS__HOST: "redis"
+      AUTHENTIK_POSTGRESQL__HOST: "postgresql"
+      AUTHENTIK_POSTGRESQL__USER: "${AUTHENTIK_POSTGRESQL__USER:-authentik}"
+      AUTHENTIK_POSTGRESQL__NAME: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "${AUTHENTIK_POSTGRESQL__PASSWORD}"
+      # Important when running behind reverse proxy
+      AUTHENTIK_DISABLE_STARTUP_ANALYTICS: "true"
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+      AUTHENTIK_COOKIE_DOMAIN: "${AUTHENTIK_COOKIE_DOMAIN:-in.hypyr.space}"
+      AUTHENTIK_HOST: "${AUTHENTIK_HOST:-https://auth.in.hypyr.space}"
+    volumes:
+      - type: bind
+        source: ${APPDATA}/media
+        target: /media
+      - type: bind
+        source: ${APPDATA}/templates
+        target: /templates
+    networks:
+      - authentik
+      - proxy_network
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      # Route Authentik UI/API through Caddy
+      caddy: "auth.in.hypyr.space"
+      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+      caddy.reverse_proxy: "{{upstreams 9000}}"
+
+  worker:
+    image: ghcr.io/goauthentik/server:2025.6.2
+    restart: unless-stopped
+    command: ["worker"]
+    environment:
+      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}"
+      AUTHENTIK_REDIS__HOST: "redis"
+      AUTHENTIK_POSTGRESQL__HOST: "postgresql"
+      AUTHENTIK_POSTGRESQL__USER: "${AUTHENTIK_POSTGRESQL__USER:-authentik}"
+      AUTHENTIK_POSTGRESQL__NAME: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "${AUTHENTIK_POSTGRESQL__PASSWORD}"
+      AUTHENTIK_DISABLE_STARTUP_ANALYTICS: "true"
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+    volumes:
+      - type: bind
+        source: ${APPDATA}/media
+        target: /media
+      - type: bind
+        source: ${APPDATA}/templates
+        target: /templates
+    networks: [authentik]
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+networks:
+  authentik:
+    internal: true
+  proxy_network:
+    external: true

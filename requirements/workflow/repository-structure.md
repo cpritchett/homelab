@@ -75,10 +75,10 @@ Repository root structure is **fixed and enumerated** to prevent:
 | Test case | `test/<domain>/` | Test manifests, fixtures |
 | CI script | `scripts/*.sh` | Validation scripts |
 
-## NAS stacks registry
+## NAS stacks deployment
 
-- All NAS stacks MUST be registered in `stacks/registry.toml`.
-- Deployment order MUST be derived from registry dependencies (no ordering by naming).
+- NAS stacks are deployed via TrueNAS Komodo using per-stack Compose definitions under `stacks/`.
+- No registry file is used; any cross-stack dependency must be documented in stack docs.
 
 ## Enforcement
 
@@ -107,4 +107,4 @@ Repository root structure is **fixed and enumerated** to prevent:
 - **Agent Rules:** [contracts/agents.md](../../contracts/agents.md#repository-structure-constraints)
 - **Policy Enforcement:** [docs/policy-enforcement.md](../policy-enforcement.md)
 - **ADR-0020:** [Bootstrap, Storage, Repository Governance, and NAS Stacks Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
-- **ADR-0021:** [Require Registry for NAS Stacks](../../docs/adr/ADR-0021-stacks-registry-required.md)
+- **ADR-0022:** [Komodo-Managed NAS Stacks](../../docs/adr/ADR-0022-truenas-komodo-stacks.md)
