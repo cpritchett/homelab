@@ -42,6 +42,6 @@
 
 ## References
 
-- requirements/workflow/repository-structure.md
-- requirements/workflow/spec.md
-- docs/STACKS.md
+- ../../requirements/workflow/repository-structure.md
+- ../../requirements/workflow/spec.md
+- ../STACKS.md
