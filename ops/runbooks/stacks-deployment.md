@@ -22,8 +22,12 @@ GitHub and deployed as a Compose app; no registry file or host-side deployment s
 
 ## Troubleshooting
 
-### Check rendered env files
+### Verify Komodo environment variables and secrets
 
+- In TrueNAS Komodo, open the app for the stack (e.g., `proxy`, `authentik`).
+- Review the environment variables and secrets configured for the app and compare them to the stack's `.env.example`.
+- If you change any values, re-deploy the app from the Komodo UI so the containers pick up the updated configuration.
+- To confirm what the container sees, you can exec into a running container and inspect its environment (for example: `sudo docker exec -it <container_name> env`).
 ### Docker status
 
 ```bash
