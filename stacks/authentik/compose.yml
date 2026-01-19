@@ -89,6 +89,8 @@ services:
         source: ${APPDATA:-/mnt/apps01/appdata/authentik}/templates
         target: /templates
     networks: [authentik]
+    # Note: Worker is on internal-only network. If email sending or external resource fetching fails,
+    # consider adding proxy_network to this service's networks list.
     depends_on:
       postgresql:
         condition: service_healthy
