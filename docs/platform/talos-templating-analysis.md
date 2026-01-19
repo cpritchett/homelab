@@ -5,9 +5,9 @@
 **Status:** Analysis Complete → Implementation In Progress (ADR-0011)
 
 **Related Documents:**
-- [ADR-0011: ytt for Talos Templating](./adr/ADR-0011-talos-ytt-templating.md) — Templating tool selection and rationale
-- [talos/FIELD-CLASSIFICATION.md](../talos/FIELD-CLASSIFICATION.md) — Exhaustive field-by-field analysis
-- [talos/render.sh](../talos/render.sh) — Rendering orchestration script
+- [ADR-0011: ytt for Talos Templating](../adr/ADR-0011-talos-ytt-templating.md) — Templating tool selection and rationale
+- [talos/FIELD-CLASSIFICATION.md](../../talos/FIELD-CLASSIFICATION.md) — Exhaustive field-by-field analysis
+- [talos/render.sh](../../talos/render.sh) — Rendering orchestration script
 
 ## Executive Summary
 
@@ -15,7 +15,7 @@ This analysis examines five legacy Talos machine configurations (four active, on
 
 The active cluster consists of heterogeneous commodity hardware with significant variation in networking, storage, and workload capabilities. A validation-first templating strategy is implemented: verify configurations against Talos documentation, clean up experimental drift, then template the validated state.
 
-**Decision:** **ytt (YAML Templating Tool)** chosen as templating engine per [ADR-0011](./adr/ADR-0011-talos-ytt-templating.md). Architecture: `templates/base.yaml` → `hardware/{type}.yaml` → `nodes/{node}.yaml` → `rendered/{node}.yaml`.
+**Decision:** **ytt (YAML Templating Tool)** chosen as templating engine per [ADR-0011](../adr/ADR-0011-talos-ytt-templating.md). Architecture: `templates/base.yaml` → `hardware/{type}.yaml` → `nodes/{node}.yaml` → `rendered/{node}.yaml`.
 
 **Key Finding:** Despite hardware heterogeneity and experimental origins, the cluster has converged on strong structural invariants in Kubernetes and Talos core configuration. Documented variations are validated and preserved; undocumented drift is cleaned up per governance principle (best practices > legacy patterns).
 

@@ -72,4 +72,4 @@ sudo cp -r /mnt/apps01/appdata/archive/harbor-broken-legacy-20250117-*/20-harbor
 
 - **ADR-0023:** [Script Organization Requirements](../../../docs/adr/ADR-0023-script-organization-requirements.md)
 - **New Harbor Stack:** `/mnt/apps01/appdata/stacks/homelab/stacks/harbor/`
-- **Deployment Docs:** [ops/runbooks/stacks-deployment.md](../../../ops/runbooks/stacks-deployment.md)
+- **Deployment Docs:** [docs/operations/stacks/lifecycle.md](../../../docs/operations/stacks/lifecycle.md)

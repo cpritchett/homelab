@@ -78,7 +78,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 
 ## NAS stacks registry
 
-- All NAS stacks MUST be registered in `stacks/registry.toml`.
+- All NAS stacks MUST be registered in `stacks/registry.conf`.
 - Deployment order MUST be derived from registry dependencies (no ordering by naming).
 
 ## Script Organization
@@ -133,7 +133,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 
 - **Invariants:** [contracts/invariants.md](../../contracts/invariants.md#repository-structure-invariants)
 - **Agent Rules:** [contracts/agents.md](../../contracts/agents.md#repository-structure-constraints)
-- **Policy Enforcement:** [docs/policy-enforcement.md](../policy-enforcement.md)
+- **Policy Enforcement:** [docs/governance/policy-enforcement.md](../../docs/governance/policy-enforcement.md)
 - **ADR-0020:** [Bootstrap, Storage, Repository Governance, and NAS Stacks Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
 - **ADR-0021:** [Require Registry for NAS Stacks](../../docs/adr/ADR-0021-stacks-registry-required.md)
 - **ADR-0022:** [Explicit Stack Ordering with Order Fields](../../docs/adr/ADR-0022-explicit-stack-ordering.md)

@@ -1,12 +1,27 @@
 # ADR-0022: Explicit Stack Ordering with Order Fields
 
-**Status:** Accepted  
+**Status:** SUPERSEDED - See implementation note below  
 **Date:** 2025-01-17  
 **Author:** Kiro AI Assistant
 
+## Status Update (2025-01-18)
+
+**This ADR describes a TOML-based format with explicit `order` fields that was never implemented.** 
+
+The actual implementation uses a simpler colon-separated format in `stacks/registry.conf`:
+```
+# Format: stack_name:path:depends_on (comma-separated deps, empty for none)
+proxy:00-proxy:
+harbor:20-harbor:proxy
+```
+
+Ordering is achieved through dependency-based topological sorting only, without explicit order fields. This provides deterministic ordering while keeping the format simple and avoiding the complexity of TOML parsing.
+
+---
+
 ## Context
 
-The current stack deployment system uses `stacks/registry.toml` with dependency-based ordering via `depends_on` relationships. While this provides correct dependency resolution, it lacks explicit control over deployment sequence for stacks that don't have direct dependencies but should still deploy in a specific order.
+The current stack deployment system uses `stacks/registry.conf` with dependency-based ordering via `depends_on` relationships. While this provides correct dependency resolution, it lacks explicit control over deployment sequence for stacks that don't have direct dependencies but should still deploy in a specific order.
 
 The existing system relies solely on topological sorting of the dependency graph, which can result in non-deterministic ordering for independent stacks. This makes deployment behavior less predictable and harder to reason about, especially as the number of stacks grows.
 
@@ -17,7 +32,7 @@ For future-proofing and operational clarity, we need a system that supports:
 
 ## Decision
 
-Add explicit `order` fields to all stack definitions in `stacks/registry.toml` and update the deployment logic to use a two-phase sorting approach:
+Add explicit `order` fields to all stack definitions in `stacks/registry.conf` and update the deployment logic to use a two-phase sorting approach:
 
 1. **Primary sort:** By `order` field (lower numbers deploy earlier)
 2. **Secondary sort:** Apply dependency resolution via topological sort
@@ -83,4 +98,4 @@ The `stacks/_bin/deploy-all` script will:
 
 - Related specs: [repository structure](../../requirements/workflow/repository-structure.md)
 - Related ADRs: [ADR-0021](./ADR-0021-stacks-registry-required.md)
-- Implementation: `stacks/registry.toml`, `stacks/_bin/deploy-all`
+- Implementation: `stacks/registry.conf`, `stacks/_bin/deploy-all`

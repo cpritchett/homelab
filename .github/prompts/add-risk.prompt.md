@@ -12,7 +12,7 @@ You are adding a new risk to the hypyr homelab risk register.
 
 ## Instructions
 
-1. Read `docs/risk/risk-register.md` to find the highest existing risk ID (R-NNN)
+1. Read `docs/governance/risk/risk-register.md` to find the highest existing risk ID (R-NNN)
 2. Increment to get the next risk ID
 3. Append a new row to the risk register table
 

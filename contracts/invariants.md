@@ -114,7 +114,7 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - PRs violating structure MUST be blocked
 
 6. **NAS stacks must be registered**
-   - All stack directories under `stacks/` MUST be listed in `stacks/registry.toml`
+   - All stack directories under `stacks/` MUST be listed in `stacks/registry.conf`
    - Deployment order MUST be derived from registry dependencies, not naming conventions
 
 ## GitOps Invariants

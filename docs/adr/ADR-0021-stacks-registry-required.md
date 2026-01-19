@@ -8,18 +8,18 @@
 
 NAS stacks are deployed via Docker Compose on non-Kubernetes nodes. Prior approaches relied on
 naming conventions (e.g., numeric prefixes) to imply deployment order, which is fragile and
-non-obvious. The repository now supports an explicit registry file (`stacks/registry.toml`) that
+non-obvious. The repository now supports an explicit registry file (`stacks/registry.conf`) that
 defines stack paths and dependencies, enabling deterministic ordering and clearer intent.
 
 ## Decision
 
-1. **All NAS stacks MUST be listed in `stacks/registry.toml`.**
+1. **All NAS stacks MUST be listed in `stacks/registry.conf`.**
 2. **Deployment order MUST be derived from registry dependencies**, not naming conventions.
 3. **Unregistered stacks are invalid** and must not be deployed or introduced in PRs.
 
 ## Consequences
 
-- Contributors must update `stacks/registry.toml` when adding or removing stacks.
+- Contributors must update `stacks/registry.conf` when adding or removing stacks.
 - Deployment tooling can validate dependency ordering and detect cycles.
 - Stack directory names are no longer tied to ordering conventions.
 
@@ -30,6 +30,6 @@ defines stack paths and dependencies, enabling deterministic ordering and cleare
 
 ## References
 
-- `stacks/registry.toml`
+- `stacks/registry.conf`
 - `contracts/invariants.md`
 - `requirements/workflow/repository-structure.md`

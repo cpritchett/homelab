@@ -77,7 +77,7 @@ Governance is **encoded as admission control**:
 | [`restrict-rwx-access-mode.yaml`](../policies/storage/restrict-rwx-access-mode.yaml) | Undefined behavior with NFSv4 provisioner overlay | **Enforce** |
 | [`limit-volume-size.yaml`](../policies/storage/limit-volume-size.yaml) | Cluster capacity exhaustion, large volumes on wrong storage | **Enforce (>1TB)** / **Audit (>500GB)** |
 
-**Rationale:** [ADR-0010: Longhorn Storage](./adr/ADR-0010-longhorn-storage.md), [requirements/storage/spec.md](../requirements/storage/spec.md)
+**Rationale:** [ADR-0010: Longhorn Storage](../adr/ADR-0010-longhorn-storage.md), [requirements/storage/spec.md](../../requirements/storage/spec.md)
 
 ### Ingress Domain ([`policies/ingress/`](../policies/ingress/))
 
@@ -86,7 +86,7 @@ Governance is **encoded as admission control**:
 | [`deny-loadbalancer-external-ips.yaml`](../policies/ingress/deny-loadbalancer-external-ips.yaml) | WAN exposure bypassing Cloudflare Access | **Enforce** |
 | [`deny-nodeport-services.yaml`](../policies/ingress/deny-nodeport-services.yaml) | WAN exposure via misconfigured firewall rules | **Enforce** |
 
-**Rationale:** [ADR-0002: Tunnel-Only Ingress](./adr/ADR-0002-tunnel-only-ingress.md), [constitution: External Access is Identity-Gated](../constitution/constitution.md)
+**Rationale:** [ADR-0002: Tunnel-Only Ingress](../adr/ADR-0002-tunnel-only-ingress.md), [constitution: External Access is Identity-Gated](../../constitution/constitution.md)
 
 ### Secrets Domain ([`policies/secrets/`](../policies/secrets/))
 
@@ -94,7 +94,7 @@ Governance is **encoded as admission control**:
 |--------|------------------------|-------------|
 | [`deny-inline-secrets.yaml`](../policies/secrets/deny-inline-secrets.yaml) | Secret leakage in git, lack of rotation, credential sprawl | **Enforce** |
 
-**Rationale:** [ADR-0004: Secrets Management](./adr/ADR-0004-secrets-management.md), [requirements/secrets/spec.md](../requirements/secrets/spec.md)
+**Rationale:** [ADR-0004: Secrets Management](../adr/ADR-0004-secrets-management.md), [requirements/secrets/spec.md](../../requirements/secrets/spec.md)
 
 ### DNS Domain ([`policies/dns/`](../policies/dns/))
 
@@ -102,7 +102,7 @@ Governance is **encoded as admission control**:
 |--------|------------------------|-------------|
 | *(Not yet implemented)* | Split-horizon DNS bypassing Cloudflare Access | **Planned** |
 
-**Rationale:** [ADR-0001: DNS Intent](./adr/ADR-0001-dns-intent.md), [requirements/dns/spec.md](../requirements/dns/spec.md)
+**Rationale:** [ADR-0001: DNS Intent](../adr/ADR-0001-dns-intent.md), [requirements/dns/spec.md](../../requirements/dns/spec.md)
 
 ### Management Domain ([`policies/management/`](../policies/management/))
 
@@ -110,7 +110,7 @@ Governance is **encoded as admission control**:
 |--------|------------------------|-------------|
 | *(Not yet implemented)* | Overlay agents on management VLAN → network compromise | **Planned** |
 
-**Rationale:** [ADR-0003: Management Network](./adr/ADR-0003-management-network.md)
+**Rationale:** [ADR-0003: Management Network](../adr/ADR-0003-management-network.md)
 
 ### Repository Structure ([`policies/repository/`](../policies/repository/))
 
@@ -118,7 +118,7 @@ Governance is **encoded as admission control**:
 |--------|------------------------|-------------|
 | [`deny-unauthorized-root-files.rego`](../policies/repository/deny-unauthorized-root-files.rego) | Documentation sprawl, arbitrary summary files, unclear content ownership | **Enforce** (Conftest + OPA) |
 
-**Rationale:** [requirements/workflow/repository-structure.md](../requirements/workflow/repository-structure.md)
+**Rationale:** [requirements/workflow/repository-structure.md](../../requirements/workflow/repository-structure.md)
 
 ## Override Mechanism (Break-Glass)
 
@@ -161,7 +161,7 @@ spec:
 
 ### GitHub Actions Workflow
 
-**File:** [`.github/workflows/policy-enforcement.yml`](../.github/workflows/policy-enforcement.yml)
+**File:** [`.github/workflows/policy-enforcement.yml`](../../.github/workflows/policy-enforcement.yml)
 
 **Triggers:**
 - Pull requests modifying `infra/**/*.yaml` or `policies/**/*.yaml`
@@ -196,7 +196,7 @@ task test:policies
 
 ### Test Manifests
 
-**Location:** [`test/policies/`](../test/policies/)
+**Location:** [`test/policies/`](../../test/policies/)
 
 **Structure:**
 ```
@@ -355,10 +355,10 @@ results:
 
 ## References
 
-- **Constitution:** [constitution/constitution.md](../constitution/constitution.md)
-- **Hard-Stops:** [contracts/hard-stops.md](../contracts/hard-stops.md)
-- **Invariants:** [contracts/invariants.md](../contracts/invariants.md)
-- **Requirements:** [requirements/](../requirements/)
-- **ADRs:** [docs/adr/](./adr/)
+- **Constitution:** [constitution/constitution.md](../../constitution/constitution.md)
+- **Hard-Stops:** [contracts/hard-stops.md](../../contracts/hard-stops.md)
+- **Invariants:** [contracts/invariants.md](../../contracts/invariants.md)
+- **Requirements:** [requirements/](../../requirements/)
+- **ADRs:** [docs/adr/](../adr/)
 - **Kyverno Documentation:** https://kyverno.io/docs/
 - **Kubernetes Policy Working Group:** https://github.com/kubernetes-sigs/wg-policy-prototypes

@@ -304,7 +304,7 @@ When updating policies:
 ## References
 
 - **Kyverno Installation:** https://kyverno.io/docs/installation/
-- **Policy Architecture:** [docs/policy-enforcement.md](../docs/policy-enforcement.md)
+- **Policy Architecture:** [docs/governance/policy-enforcement.md](../docs/governance/policy-enforcement.md)
 - **Policy Definitions:** [policies/](../policies/)
 - **Test Cases:** [test/policies/](../test/policies/)
 - **Flux Kustomization:** https://fluxcd.io/flux/components/kustomize/kustomization/

@@ -4,7 +4,7 @@
 
 ## Summary
 
-Stacks are deployed from this repo using a registry file (`stacks/registry.toml`) that defines
+Stacks are deployed from this repo using a registry file (`stacks/registry.conf`) that defines
 stack paths and dependencies. Deployment uses a sparse checkout on the NAS and renders
 secrets via 1Password before running Docker Compose.
 
@@ -20,24 +20,16 @@ secrets via 1Password before running Docker Compose.
 
 ## Registry (Order + Dependencies)
 
-Deployment order is controlled by `stacks/registry.toml` using explicit `order` fields and `depends_on` relationships:
+Deployment order is controlled by `stacks/registry.conf` using dependency relationships:
 
-```toml
-version = 1
-
-[stacks.proxy]
-path = "proxy"
-depends_on = []
-order = 10
-
-[stacks.harbor]
-path = "harbor"
-depends_on = ["proxy"]
-order = 20
+```
+# Format: stack_name:path:depends_on (comma-separated deps, empty for none)
+proxy:00-proxy:
+harbor:20-harbor:proxy
 ```
 
 **Ordering Logic:**
-- Stacks are first sorted by `order` field (lower numbers deploy earlier)
+- Stacks are sorted using topological sort based on dependencies
 - Dependency resolution via `depends_on` is then applied to ensure dependencies deploy before dependents
 - Both mechanisms work together: `order` provides explicit sequencing, `depends_on` enforces constraints
 
@@ -101,8 +93,8 @@ cd /mnt/apps01/appdata/stacks/homelab/stacks/harbor && ./render-env.sh
 
 ### Check deploy order
 
-```bash
-cat /mnt/apps01/appdata/stacks/homelab/stacks/registry.toml
+```
+cat /mnt/apps01/appdata/stacks/homelab/stacks/registry.conf
 ```
 
 ### Docker status

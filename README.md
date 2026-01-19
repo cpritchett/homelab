@@ -30,10 +30,10 @@ Conflicts are resolved by precedence (highest first):
 - Workflow spec: [`requirements/workflow/spec.md`](requirements/workflow/spec.md)
 
 ### Explanatory (why)
-- Rationale: [`docs/rationale.md`](docs/rationale.md)
-- Glossary: [`docs/glossary.md`](docs/glossary.md)
+- Rationale: [`docs/platform/rationale.md`](docs/platform/rationale.md)
+- Glossary: [`docs/governance/glossary.md`](docs/governance/glossary.md)
 - ADRs: [`docs/adr/`](docs/adr/)
-- Risk register: [`docs/risk/risk-register.md`](docs/risk/risk-register.md)
+- Risk register: [`docs/governance/risk/risk-register.md`](docs/governance/risk/risk-register.md)
 
 ### Spec-Kit
 - `.specify/` — Spec-Kit compatibility layer for AI agents
@@ -48,4 +48,4 @@ Conflicts are resolved by precedence (highest first):
 - Scan staged changes locally: `mise run security:scan:staged`
 - Full repo scan: `mise run security:scan:repo`
 - CI required check: `pii_secrets_gate` (see `.github/workflows/security-pii-secrets.yml`)
-- Policy/details: `docs/security/pii-and-secrets.md`
+- Policy/details: `docs/governance/security/pii-and-secrets.md`
