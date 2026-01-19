@@ -26,6 +26,12 @@ services:
       docker-socket-proxy:
         condition: service_healthy
 
+    # Optional hardening (enable if it doesn't break)
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
     labels:
       caddy.email: "${CADDY_EMAIL}"
 

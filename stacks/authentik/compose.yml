@@ -8,7 +8,7 @@ services:
       POSTGRES_DB: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
     volumes:
       - type: bind
-        source: ${APPDATA}/postgres
+        source: ${APPDATA:-/mnt/apps01/appdata/authentik}/postgres
         target: /var/lib/postgresql/data
     networks: [authentik]
     healthcheck:
@@ -23,7 +23,7 @@ services:
     command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
     volumes:
       - type: bind
-        source: ${APPDATA}/redis
+        source: ${APPDATA:-/mnt/apps01/appdata/authentik}/redis
         target: /data
     networks: [authentik]
     healthcheck:
@@ -49,10 +49,10 @@ services:
       AUTHENTIK_HOST: "${AUTHENTIK_HOST:-https://auth.in.hypyr.space}"
     volumes:
       - type: bind
-        source: ${APPDATA}/media
+        source: ${APPDATA:-/mnt/apps01/appdata/authentik}/media
         target: /media
       - type: bind
-        source: ${APPDATA}/templates
+        source: ${APPDATA:-/mnt/apps01/appdata/authentik}/templates
         target: /templates
     networks:
       - authentik
@@ -83,10 +83,10 @@ services:
       AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
     volumes:
       - type: bind
-        source: ${APPDATA}/media
+        source: ${APPDATA:-/mnt/apps01/appdata/authentik}/media
         target: /media
       - type: bind
-        source: ${APPDATA}/templates
+        source: ${APPDATA:-/mnt/apps01/appdata/authentik}/templates
         target: /templates
     networks: [authentik]
     depends_on:
