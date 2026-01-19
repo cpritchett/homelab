@@ -61,14 +61,14 @@ services:
       INFO: "1"
       PING: "1"
 
+    networks:
+      - proxy_network
+
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:2375/_ping"]
       interval: 10s
       timeout: 3s
       retries: 10
-
-    networks:
-      - proxy_network
 
     # Optional hardening (enable if it doesn't break)
     security_opt:
