@@ -33,7 +33,7 @@ services:
       retries: 10
 
   server:
-    image: ghcr.io/goauthentik/server:2025.6.2
+    image: ghcr.io/goauthentik/server:2025.12.1@sha256:94e25e04a05cfbb2450803e7782b8d1297b5c898df43b28a7fd6e47fe276301c
     restart: unless-stopped
     environment:
       AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}"
@@ -69,7 +69,7 @@ services:
       caddy.reverse_proxy: "{{upstreams 9000}}"
 
   worker:
-    image: ghcr.io/goauthentik/server:2025.6.2
+    image: ghcr.io/goauthentik/server:2025.12.1@sha256:94e25e04a05cfbb2450803e7782b8d1297b5c898df43b28a7fd6e47fe276301c
     restart: unless-stopped
     command: ["worker"]
     environment:
