@@ -6,7 +6,7 @@ services:
 
     environment:
       TZ: "${TZ:-America/Chicago}"
-      CADDY_EMAIL: "${CADDY_EMAIL:-admin@example.com}"
+      CADDY_EMAIL: "${CADDY_EMAIL:-you@example.com}"
       CADDY_INGRESS_NETWORKS: proxy_network
       CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}"
       DOCKER_HOST: tcp://docker-socket-proxy:2375
@@ -33,7 +33,7 @@ services:
       - ALL
 
     labels:
-      caddy.email: "${CADDY_EMAIL:-admin@example.com}"
+      caddy.email: "${CADDY_EMAIL:-you@example.com}"
 
       # Barbary UI (TrueNAS)
       caddy_0: barbary.in.hypyr.space
