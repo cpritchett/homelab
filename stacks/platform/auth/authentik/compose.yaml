@@ -1,0 +1,98 @@
+services:
+  postgresql:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - /mnt/apps01/secrets/authentik/postgres.env
+    volumes:
+      - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-authentik}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - authentik
+
+  redis:
+    image: redis:7-alpine@sha256:ee64a64eaab618d88051c3ade8f6352d11531fcf79d9a4818b9b183d8c1d18ba
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1"]
+    volumes:
+      - /mnt/data01/appdata/authentik/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - authentik
+
+  authentik-server:
+    image: ghcr.io/goauthentik/server:2025.12.1@sha256:94e25e04a05cfbb2450803e7782b8d1297b5c898df43b28a7fd6e47fe276301c
+    restart: unless-stopped
+    env_file:
+      - /mnt/apps01/secrets/authentik/authentik.env
+    environment:
+      # Core settings (normally from env_file, but explicit for clarity and fallbacks)
+      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}"
+      AUTHENTIK_REDIS__HOST: "redis"
+      AUTHENTIK_POSTGRESQL__HOST: "postgresql"
+      AUTHENTIK_POSTGRESQL__USER: "${AUTHENTIK_POSTGRESQL__USER:-authentik}"
+      AUTHENTIK_POSTGRESQL__NAME: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "${AUTHENTIK_POSTGRESQL__PASSWORD}"
+      # Security and privacy
+      AUTHENTIK_DISABLE_STARTUP_ANALYTICS: "true"
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+      # Public-facing configuration
+      AUTHENTIK_COOKIE_DOMAIN: "${AUTHENTIK_COOKIE_DOMAIN:-.in.hypyr.space}"
+      AUTHENTIK_HOST: "${AUTHENTIK_HOST:-https://auth.in.hypyr.space}"
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - /mnt/apps01/appdata/authentik/media:/media
+      - /mnt/apps01/appdata/authentik/custom-templates:/templates
+    labels:
+      caddy: auth.in.hypyr.space
+      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+      caddy.reverse_proxy: "{{upstreams 9000}}"
+    networks:
+      - authentik
+      - proxy_network
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:2025.12.1@sha256:94e25e04a05cfbb2450803e7782b8d1297b5c898df43b28a7fd6e47fe276301c
+    restart: unless-stopped
+    env_file:
+      - /mnt/apps01/secrets/authentik/authentik.env
+    environment:
+      # Core settings (normally from env_file, but explicit for clarity and fallbacks)
+      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}"
+      AUTHENTIK_REDIS__HOST: "redis"
+      AUTHENTIK_POSTGRESQL__HOST: "postgresql"
+      AUTHENTIK_POSTGRESQL__USER: "${AUTHENTIK_POSTGRESQL__USER:-authentik}"
+      AUTHENTIK_POSTGRESQL__NAME: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
+      AUTHENTIK_POSTGRESQL__PASSWORD: "${AUTHENTIK_POSTGRESQL__PASSWORD}"
+      # Security and privacy
+      AUTHENTIK_DISABLE_STARTUP_ANALYTICS: "true"
+      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
+    command: worker
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - /mnt/apps01/appdata/authentik/media:/media
+      - /mnt/apps01/appdata/authentik/custom-templates:/templates
+    networks:
+      - authentik
+
+networks:
+  authentik:
+    driver: bridge
+  proxy_network:
+    external: true

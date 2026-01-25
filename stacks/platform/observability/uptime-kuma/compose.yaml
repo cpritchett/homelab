@@ -1,0 +1,15 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1.23.13@sha256:5ed40a58b56b689ec2af50230e8d28804503351fed5eb54b1aefe530a8ea1fdc
+    restart: unless-stopped
+    volumes:
+      - /mnt/apps01/appdata/uptime-kuma:/app/data
+    labels:
+      caddy: status.in.hypyr.space
+      caddy.reverse_proxy: "{{upstreams 3001}}"
+    networks:
+      - proxy_network
+
+networks:
+  proxy_network:
+    external: true
