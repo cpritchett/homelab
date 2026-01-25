@@ -10,6 +10,13 @@ handoffs:
     prompt: Create a checklist for the following domain...
 ---
 
+## Governance Authority
+
+**This agent operates within repository governance.** All design artifacts must comply with:
+- Constitution and amendment authority (loaded from `.specify/memory/constitution.md`)
+- Repository structure and governance rules (documented in `requirements/workflow/spec.md` and `contracts/`)
+- Dependency on governance evolution is handled by canonical document updates, not agent changes
+
 ## User Input
 
 ```text

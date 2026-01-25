@@ -6,6 +6,13 @@ handoffs:
     prompt: Create a plan for the spec. I am building with...
 ---
 
+## Governance Authority
+
+**Clarifications must respect constitutional constraints.** Before asking questions:
+- Load project constitution from `.specify/memory/constitution.md`
+- If a clarification conflicts with constitutional principles, escalate (do not accept answer that violates constitution)
+- All clarifications are recorded in spec.md for governance audit; governance rules (scope, format, authority) are maintained in canonical documents, not in agent logic
+
 ## User Input
 
 ```text

@@ -6,7 +6,10 @@ This file defines **agent operating rules** for this repo.
 
 Agents must comply with all files in `contracts/` and `requirements/`.
 
+**Agent Governance Steering:** See [Agent Governance Steering](../requirements/workflow/spec.md#agent-governance-steering) in `requirements/workflow/spec.md` for how agents reference canonical governance sources.
+
 **Adding/Amending:** See [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md) for procedures.
+
 
 ## Allowed actions
 Agents MAY:

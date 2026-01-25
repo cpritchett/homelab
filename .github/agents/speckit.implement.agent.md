@@ -2,6 +2,15 @@
 description: Execute the implementation plan by processing and executing all tasks defined in tasks.md
 ---
 
+## Governance Authority
+
+**Implementation must comply with repository governance and CI gates.** Governance is maintained in canonical sources:
+- Constitution and authorities (`constitution/constitution.md`)
+- Governance procedures (`docs/governance/procedures.md`)
+- Repository structure and constraints (`requirements/workflow/spec.md`, `contracts/`)
+
+Agent executes tasks but relies on CI gates and pre-implementation validation to ensure governance compliance; governance changes are managed through canonical processes.
+
 ## User Input
 
 ```text

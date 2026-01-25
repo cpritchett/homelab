@@ -6,6 +6,17 @@ handoffs:
     prompt: Implement the feature specification based on the updated constitution. I want to build...
 ---
 
+## Governance Authority
+
+**Constitutional updates are authoritative and affect all downstream governance.** This agent:
+- Directly edits `.specify/memory/constitution.md` (agent-internal canonical source)
+- Updates `constitution/constitution.md` (repository-wide canonical authority)
+- Propagates changes to templates, amendments, and ADRs
+- Must increment version number per AMENDMENT-0002 rules
+- Validates no circular dependencies or contradictions
+
+Constitutional updates require explicit human review before commit (Status: Proposed → Accepted workflow).
+
 ## User Input
 
 ```text

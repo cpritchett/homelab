@@ -34,26 +34,30 @@ echo "==> Gate 2: Spec placement (ADR-0026)"
 ./scripts/check-spec-placement.sh
 echo
 
-echo "==> Gate 3: no_invariant_drift"
+echo "==> Gate 3: Agent instruction governance (no grab bags)"
+./scripts/check-no-agent-grab-bag.sh
+echo
+
+echo "==> Gate 4: no_invariant_drift"
 ./scripts/no-invariant-drift.sh
 echo
 
-echo "==> Gate 4: require_adr_for_canonical_changes"
+echo "==> Gate 5: require_adr_for_canonical_changes"
 export GITHUB_BASE_REF=main
 export PR_TITLE="${1:-Update}"
 export PR_BODY="${2:-}"
 ./scripts/require-adr-on-canonical-changes.sh
 echo
 
-echo "==> Gate 5: approval_status_enforced"
+echo "==> Gate 6: approval_status_enforced"
 bash ./scripts/check-approval-status.sh
 echo
 
-echo "==> Gate 6: adr-must-be-linked-from-spec"
+echo "==> Gate 7: adr-must-be-linked-from-spec"
 ./scripts/adr-must-be-linked-from-spec.sh
 echo
 
-echo "==> Gate 7: Secret scanning (gitleaks)"
+echo "==> Gate 8: Secret scanning (gitleaks)"
 if command -v gitleaks &> /dev/null; then
   GITLEAKS_CONFIG=".gitleaks.toml"
   GITLEAKS_ALLOWLIST=".gitleaks.allowlist"
@@ -162,7 +166,7 @@ else
 fi
 echo
 
-echo "==> Gate 9: Talos templates (conditional)"
+echo "==> Gate 10: Talos templates (conditional)"
 if has_changes '^(talos/|scripts/test-talos-templates.sh)'; then
   if command -v ytt >/dev/null 2>&1; then
     (cd talos && ./render.sh all)
@@ -180,7 +184,7 @@ else
 fi
 echo
 
-echo "==> Gate 10: Invariants (informational, conditional)"
+echo "==> Gate 11: Invariants (informational, conditional)"
 if has_changes '^(kubernetes/|bootstrap/|talos/|scripts/)'; then
   set +e
   ./scripts/check-kustomize-build.sh

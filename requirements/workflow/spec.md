@@ -102,6 +102,74 @@ chore(tooling): pin kubectl version in mise config
 - `governance` - Governance changes
 - `question` - Further information requested
 
+## Agent Governance Steering
+
+**Principle:** Agents must reference canonical governance sources rather than hardcoding rules. This enables governance to evolve without requiring agent code changes.
+
+### Canonical Authority Hierarchy
+
+Agents MUST consult these documents in order:
+
+1. **`constitution/constitution.md`** — Immutable principles (highest authority)
+   - Amendment process
+   - ADR lifecycle
+   - Contract definition and lifecycle
+
+2. **`constitution/amendments/`** — Constitutional amendments
+   - Amendment-level procedures (e.g., contract lifecycle)
+
+3. **`contracts/`** — Operating rules and constraints
+   - `agents.md` — Agent behavioral rules and allowed/prohibited actions
+   - `invariants.md` — System invariants (what must always be true)
+   - `hard-stops.md` — Actions requiring human approval
+
+4. **`requirements/workflow/spec.md`** (this file) — Agent governance steering
+   - How agents reference canonical sources
+   - Which governance documents to consult
+   - Where agent instructions should live
+
+5. **`requirements/**/spec.md`** — Domain specifications
+   - Domain-specific requirements and constraints
+
+6. **`docs/adr/`** — Architectural decision records
+   - Rationale for governance decisions
+   - Linked from relevant specs
+
+7. **`docs/governance/procedures.md`** — Procedural documentation
+   - Workflows and change procedures
+   - Examples and decision trees
+
+### Agent Instruction Governance
+
+Agent instructions MUST:
+- Live in **canonical governance documents only** (constitution, contracts, requirements, docs)
+- Reference this hierarchy when describing governance rules
+- NOT create new instruction files (`.md` files that duplicate governance)
+- Update automatically when canonical sources change (without requiring code edits)
+
+Agent instruction files that are **prohibited**:
+- `CLAUDE.md` - use this spec + canonical sources instead
+- `.gemini` - use this spec + canonical sources instead
+- Any other role-specific instruction grab bags
+
+**Approved agent instruction locations:**
+- `.github/copilot-instructions.md` — Copilot-specific tool guidance (if needed); MUST link to canonical sources
+- `.github/agents/*.agent.md` — Speckit agent files; MUST include "## Governance Authority" section
+
+### Adding Agent Instructions
+
+**When to add agent instructions:**
+- Only if copilot/tooling-specific guidance is needed (e.g., VS Code API details)
+- Must link to canonical governance sources
+- Must be in approved locations only
+
+**Prohibited:**
+- Creating new role-specific instruction files
+- Duplicating governance rules from canonical sources
+- Hardcoding governance procedures that should come from specs
+
+**Validation:** CI gate `check-no-agent-grab-bag.sh` blocks commits with unapproved agent instruction files.
+
 ## Prohibitions
 
 Agents and developers MUST NOT:
@@ -109,6 +177,8 @@ Agents and developers MUST NOT:
 - Use non-conventional commit messages
 - Omit scope from commit messages
 - Merge PRs without completing checklist
+- Create agent instruction files outside approved locations
+- Duplicate governance rules from canonical sources in agent instructions
 
 ## Rationale
 
@@ -127,4 +197,4 @@ See: [ADR-0025: Strict Markdown Governance](../../docs/adr/ADR-0025-strict-markd
 See: [ADR-0027: Agent PR/Issue Template Enforcement](../../docs/adr/ADR-0027-agent-template-enforcement.md)
 See: [ADR-0028: Constitutional Authority for Governance Procedures](../../docs/adr/ADR-0028-constitutional-governance-authority.md)
 See: [ADR-0029: Contract Lifecycle Procedures](../../docs/adr/ADR-0029-contract-lifecycle-procedures.md)
-See: [ADR-0029: Contract Lifecycle Procedures](../../docs/adr/ADR-0029-contract-lifecycle-procedures.md)
+See: [ADR-0030: Agent Governance Steering Pattern](../../docs/adr/ADR-0030-agent-governance-steering.md)

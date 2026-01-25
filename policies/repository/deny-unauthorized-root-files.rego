@@ -9,15 +9,12 @@ allowed_root_files := {
     ".mise.toml",
     "README.md",
     "CONTRIBUTING.md",
-    "CLAUDE.md",
     "Taskfile.yml",
     "agents.md",
 }
 
 # Allowed root-level directories
 allowed_root_dirs := {
-    ".claude",
-    ".gemini",
     ".git",
     ".github",
     ".specify",
@@ -49,6 +46,10 @@ prohibited_patterns := [
     "^ROADMAP\\.md$",
     "^IMPLEMENTATION.*\\.md$",
     "^GOVERNANCE-.*\\.md$",
+    "^CLAUDE\\.md$",          # Agent instructions: use canonical governance sources
+    "^claude\\.md$",          # (case variations)
+    "^\\.gemini$",            # Agent instructions: use canonical governance sources
+    "^\\.gemini\\.md$",       # (with .md extension)
 ]
 
 # Check if file matches prohibited pattern
@@ -81,7 +82,7 @@ deny contains msg if {
     not str_contains(filename, "/")
     matches_prohibited_pattern(filename)
     
-    msg := sprintf("Prohibited file pattern in root: %s\nFiles matching *-improvements.md, *-summary.md, etc. are not allowed.\nMove to docs/ or ops/runbooks/ instead.", [filename])
+    msg := sprintf("Prohibited file pattern in root: %s\nAgent instructions must live in canonical governance sources:\n  - requirements/workflow/spec.md (Agent Governance Steering)\n  - contracts/agents.md (Agent Operating Rules)\n  - .github/copilot-instructions.md (copilot-specific tool guidance)\n  - .github/agents/*.agent.md (speckit agents)\n\nSee: ADR-0030 for agent governance steering policy.", [filename])
 }
 
 # Deny unauthorized root directories

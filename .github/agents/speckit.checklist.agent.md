@@ -2,6 +2,15 @@
 description: Generate a custom checklist for the current feature based on user requirements.
 ---
 
+## Governance Authority
+
+**Checklists must align with repository governance standards.** Checklist quality expectations and constitutional compliance rules are defined in canonical documents:
+- Constitution and amendments (`constitution/constitution.md`)
+- Governance procedures (`docs/governance/procedures.md`)
+- Spec quality criteria (referenced in `requirements/workflow/spec.md`)
+
+Agents do not encode specific checklist standards—they defer to canonical documents for current governance.
+
 ## Checklist Purpose: "Unit Tests for English"
 
 **CRITICAL CONCEPT**: Checklists are **UNIT TESTS FOR REQUIREMENTS WRITING** - they validate the quality, clarity, and completeness of requirements in a given domain.

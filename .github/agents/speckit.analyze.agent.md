@@ -2,6 +2,15 @@
 description: Perform a non-destructive cross-artifact consistency and quality analysis across spec.md, plan.md, and tasks.md after task generation.
 ---
 
+## Governance Authority
+
+**Analysis must validate against canonical governance.** Constitution and governance rules are:
+- Authoritative: `.specify/memory/constitution.md` and `constitution/constitution.md`
+- Supporting: `requirements/workflow/spec.md` and `contracts/`
+- Procedural: `docs/governance/procedures.md`
+
+Analysis identifies violations against current governance; governance changes are made through canonical processes, not agent edits.
+
 ## User Input
 
 ```text
