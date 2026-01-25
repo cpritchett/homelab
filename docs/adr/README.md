@@ -30,4 +30,7 @@ Architectural Decision Records explain *why* decisions were made.
 ## Rules
 - ADRs are append-only history.
 - If reversing a decision, add a new ADR that supersedes the old one.
+- For minor clarifications, create an amendment: `ADR-NNNN-amendment-A.md`
 - ADRs should link to relevant specs in `requirements/` where appropriate.
+
+**Authority:** ADR lifecycle is defined in the constitution. See [AMENDMENT-0002](../../constitution/amendments/AMENDMENT-0002-adr-lifecycle.md) for supersede vs amend guidance.
