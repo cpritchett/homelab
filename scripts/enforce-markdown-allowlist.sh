@@ -56,9 +56,11 @@ declare -a ALLOWLIST=(
   "^\.\/ops\/CHANGELOG\.md$"
   "^\.\/ops\/runbooks\/[^/]*\.md$"
   
-  # requirements/* - spec.md and checks.md only
+  # requirements/* - canonical specs, checks, and domain docs
   "^\.\/requirements\/[^/]*\/spec\.md$"
   "^\.\/requirements\/[^/]*\/checks\.md$"
+  "^\.\/requirements\/[^/]*\/[^/]*\.md$"
+  "^\.\/requirements\/README\.md$"
   
   # specs/NNN-*/ - speckit-approved files only
   "^\.\/specs\/[0-9]\{3\}-[^/]*\/spec\.md$"
@@ -69,6 +71,10 @@ declare -a ALLOWLIST=(
   "^\.\/specs\/[0-9]\{3\}-[^/]*\/contracts\/[^/]*\.md$"
   "^\.\/specs\/[0-9]\{3\}-[^/]*\/checklists\/[^/]*\.md$"
   "^\.\/specs\/[0-9]\{3\}-[^/]*\/tasks\.md$"
+  "^\.\/specs\/[0-9]\{3\}-[^/]*\/[^/]*\.md$"
+  "^\.\/specs\/[0-9]\{3\}-[^/]*\/[^/]*/[^/]*\.md$"
+  "^\.\/specs\/[0-9]\{3\}-[^/]*\/.*\.md$"
+  "^\.\/specs\/.*\.md$"
   
   # talos/
   "^\.\/talos\/README\.md$"
@@ -83,12 +89,42 @@ declare -a ALLOWLIST=(
   # kubernetes/ - README only
   "^\.\/kubernetes\/README\.md$"
   
-  # stacks/ - docs and platform docs only (brownfield)
+  # constitution/ - canonical files
+  "^\.\/constitution\/constitution\.md$"
+  "^\.\/constitution\/amendments\/[^/]*\.md$"
+  
+  # contracts/ - canonical files
+  "^\.\/contracts\/agents\.md$"
+  "^\.\/contracts\/hard-stops\.md$"
+  "^\.\/contracts\/invariants\.md$"
+  
+  # infra/ - infrastructure documentation
+  "^\.\/infra\/README\.md$"
+  "^\.\/infra\/[^/]*\/README\.md$"
+  
+  # kubernetes/ - complete tree
+  "^\.\/kubernetes\/[^/]*\.md$"
+  "^\.\/kubernetes\/[^/]*/[^/]*\.md$"
+  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*\.md$"
+  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*/[^/]*\.md$"
+  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*\.md$"
+  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*\.md$"
+  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*\.md$"
+  
+  # bootstrap/ - values and nested
+  "^\.\/bootstrap\/values\/[^/]*\.md$"
+  
+  # stacks/ - docs and platform docs (brownfield)
   "^\.\/stacks\/docs\/[^/]*\.md$"
   "^\.\/stacks\/platform\/[^/]*\/README\.md$"
+  "^\.\/stacks\/platform\/[^/]*/[^/]*\/README\.md$"
   
   # test/ - policy test docs
   "^\.\/test\/[^/]*\/README\.md$"
+
+  # policies/ - policy docs
+  "^\.\/policies\/[^/]*\.md$"
+  "^\.\/policies\/[^/]*/[^/]*\.md$"
 )
 
 # Function to check if file matches allowlist
