@@ -124,3 +124,4 @@ See: [ADR-0023: Scripts and Stacks Directory Classification](../../docs/adr/ADR-
 See: [ADR-0024: Speckit Workflow for Non-Canonical Implementation](../../docs/adr/ADR-0024-speckit-workflow-non-canonical.md)
 See: [ADR-0026: Spec Placement Governance](../../docs/adr/ADR-0026-spec-placement-governance.md)
 See: [ADR-0025: Strict Markdown Governance](../../docs/adr/ADR-0025-strict-markdown-governance.md)
+See: [ADR-0027: Agent PR/Issue Template Enforcement](../../docs/adr/ADR-0027-agent-template-enforcement.md)
