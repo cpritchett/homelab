@@ -268,6 +268,17 @@ Based on change type, complete relevant sections of PR template.
 
 1. **Classify your change** (doc-only, non-canonical, canonical, constitutional)
 
+### Approval Workflow (Governance Documents with Status)
+
+For any governance document that declares a `**Status:**` field (e.g., constitutional amendments, ADRs, and others that use Status):
+
+- Agents draft documents with `**Status:** Proposed` and request explicit human approval before committing.
+- Documents with `Status: Proposed` MUST NOT be committed.
+- After approval, change status to `**Status:** Accepted` and commit.
+- CI Gate `approval_status_enforced` blocks PRs containing Proposed-status documents.
+
+This ensures human-in-the-loop approval while maintaining strict repository governance.
+
 2. **Run local validation:**
    ```bash
    # Run all CI gates locally

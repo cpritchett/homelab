@@ -8,6 +8,7 @@ set -euo pipefail
 BASE_REF=${GITHUB_BASE_REF:-origin/main}
 
 changed_files=$(git --no-pager diff --name-only "$BASE_REF"...HEAD | grep -E '^(docs/adr/ADR-|constitution/amendments/)') || true
+changed_files=$(git --no-pager diff --name-only "$BASE_REF"...HEAD | grep -E '\.md$') || true
 
 if [[ -z "$changed_files" ]]; then
   echo "No ADR or amendment changes detected; skipping approval status check."
@@ -16,11 +17,12 @@ fi
 
 failures=()
 while IFS= read -r f; do
-  if [[ ! -f "$f" ]]; then
-    continue
-  fi
-  if grep -qE '^\*\*Status:\*\*\s*Proposed' "$f"; then
-    failures+=("$f")
+  [[ -f "$f" ]] || continue
+  # Only enforce for documents that declare a Status field
+  if grep -qE '^\*\*Status:\*\*\s*' "$f"; then
+    if grep -qE '^\*\*Status:\*\*\s*Proposed' "$f"; then
+      failures+=("$f")
+    fi
   fi
 done < <(printf "%s\n" $changed_files)
 

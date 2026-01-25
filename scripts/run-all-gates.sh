@@ -46,7 +46,7 @@ export PR_BODY="${2:-}"
 echo
 
 echo "==> Gate 5: approval_status_enforced"
-./scripts/check-approval-status.sh
+bash ./scripts/check-approval-status.sh
 echo
 
 echo "==> Gate 6: adr-must-be-linked-from-spec"
