@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Gate: approval status enforcement
-# Fails if any changed ADRs or constitutional amendments have Status: Proposed
+# Fails if any changed governance documents with a Status field have Status: Proposed
 # Usage: ./scripts/check-approval-status.sh
 
 BASE_REF=${GITHUB_BASE_REF:-origin/main}
@@ -11,16 +11,18 @@ changed_files=$(git --no-pager diff --name-only "$BASE_REF"...HEAD | grep -E '^(
 changed_files=$(git --no-pager diff --name-only "$BASE_REF"...HEAD | grep -E '\.md$') || true
 
 if [[ -z "$changed_files" ]]; then
-  echo "No ADR or amendment changes detected; skipping approval status check."
+  echo "No markdown changes detected; skipping approval status check."
   exit 0
 fi
 
 failures=()
 while IFS= read -r f; do
   [[ -f "$f" ]] || continue
-  # Only enforce for documents that declare a Status field
-  if grep -qE '^\*\*Status:\*\*\s*' "$f"; then
-    if grep -qE '^\*\*Status:\*\*\s*Proposed' "$f"; then
+  # Find the first Status line outside of code fences
+  status_line=$(awk 'BEGIN{code=0} /^```/{code=!code; next} !code && /^\*\*Status:\*\*/{print; exit 0}' "$f")
+  if [[ -n "$status_line" ]]; then
+    # If the status line contains Proposed and is not a template list with pipes, fail
+    if [[ "$status_line" =~ \*\*Status:\*\*\s*Proposed ]] && [[ ! "$status_line" =~ \| ]]; then
       failures+=("$f")
     fi
   fi
@@ -35,4 +37,4 @@ if (( ${#failures[@]} > 0 )); then
   exit 1
 fi
 
-echo "✅ Approval status check passed (no Proposed statuses in changed ADRs/amendments)."
+echo "✅ Approval status check passed (no Proposed statuses in changed governance documents)."
