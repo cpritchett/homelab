@@ -1,4 +1,5 @@
 # Platform Layer Plan (homelab)
+> **Non-canonical:** Relocated from kubernetes/clusters/homelab/platform/spec.md on 2026-01-25 per ADR-0026.
 
 ## Scope
 Cluster-scoped services required before apps: CNI, DNS, registry mirror, cert management, secrets plumbing, control-plane VIP, observability base.

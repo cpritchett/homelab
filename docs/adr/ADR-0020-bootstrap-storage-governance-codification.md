@@ -10,7 +10,7 @@ Multiple governance decisions already exist across ADRs (bootstrap sequencing, G
 
 ## Decision
 
-1. **Codify bootstrap requirements and checks** in `bootstrap/spec.md` and `bootstrap/checks.md`, referencing ADR-0017 and ADR-0019 for the ordering and constraints.
+1. **Codify bootstrap requirements and checks** in `specs/002-bootstrap/spec.md` and `bootstrap/checks.md`, referencing ADR-0017 and ADR-0019 for the ordering and constraints.
 2. **Expand storage requirements and checks** to clarify required StorageClasses, VolSync/Restic expectations, and S3-compatible endpoint flexibility while keeping secret material out of git.
 3. **Document GitOps invariants** in `contracts/invariants.md` so CI checks map to explicit, auditable invariants.
 4. **Align repository structure policy** with the established root layout by allowing `bootstrap/` and `kubernetes/`, and standardizing security fixtures under `test/`.
@@ -35,6 +35,6 @@ Multiple governance decisions already exist across ADRs (bootstrap sequencing, G
 - ADR-0018: GitOps Structure Refactor for home-ops
 - ADR-0019: Bootstrap Sequence Hardening (CRDs, Secrets, Ordering)
 - ADR-0010: Longhorn for Non-Database Storage
-- [bootstrap/spec.md](../../bootstrap/spec.md)
+- [specs/002-bootstrap/spec.md](../../specs/002-bootstrap/spec.md)
 - [requirements/storage/spec.md](../../requirements/storage/spec.md)
 - `requirements/workflow/repository-structure.md`

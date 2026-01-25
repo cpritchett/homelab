@@ -84,15 +84,13 @@ Yet agents and developers still create arbitrary `.md` files (e.g., `plan.md` in
 
 **Under `talos/`**:
 - ✅ `talos/README.md` - Overview only
-- ✅ `talos/spec.md` - Talos configuration specification
 - ✅ `talos/checks.md` - Validation criteria
-- ❌ All others prohibited
+- ❌ All others prohibited (spec relocated to `specs/006-talos/spec.md` per ADR-0026)
 
 **Under `bootstrap/`**:
 - ✅ `bootstrap/README.md` - Overview only
-- ✅ `bootstrap/spec.md` - Bootstrap specification
 - ✅ `bootstrap/checks.md` - Validation criteria
-- ❌ All others prohibited
+- ❌ All others prohibited (spec relocated to `specs/002-bootstrap/spec.md` per ADR-0026)
 
 ---
 

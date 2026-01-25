@@ -1,4 +1,5 @@
 # Compute Requirements
+> **Non-canonical:** Relocated from talos/spec.md on 2026-01-25 per ADR-0026.
 **Effective:** 2025-12-21
 
 ## Hardware constraints
@@ -47,7 +48,7 @@ All compute infrastructure is **commodity/repurposed consumer hardware**.
 - See: [ADR-0017](../../docs/adr/ADR-0017-talos-baremetal-bootstrap.md), [ADR-0019](../../docs/adr/ADR-0019-bootstrap-sequence-hardening.md)
 - Render and validate Talos configs via `./talos/render.sh`; install Talos on all control-plane nodes; run single `talosctl bootstrap`; fetch kubeconfig; join remaining nodes; apply bootstrap resources/CRDs (envoy-gateway excluded), then trigger app bootstrap (`task bootstrap:apps`) in the order defined by ADR-0019.
 
-**See:** [ADR-0013](../docs/adr/ADR-0013-ytt-data-values.md), [talos/README.md](../talos/README.md)
+**See:** [ADR-0013](../../docs/adr/ADR-0013-ytt-data-values.md), [talos/README.md](../../talos/README.md)
 
 ### NAS systems
 - Pre-existing management (TrueNAS UI, Synology DSM)

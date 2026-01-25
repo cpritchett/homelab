@@ -101,25 +101,31 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
      - `requirements/*/spec.md`, `requirements/*/checks.md`
      - `specs/NNN-*/spec.md`, `specs/NNN-*/plan.md`, `specs/NNN-*/research.md`, `specs/NNN-*/data-model.md`, `specs/NNN-*/quickstart.md`, `specs/NNN-*/contracts/`, `specs/NNN-*/checklists/`, `specs/NNN-*/tasks.md`
      - `infra/README.md`, `infra/<domain>/README.md`
-     - Domain dirs: `talos/`, `bootstrap/` (spec.md, checks.md, README.md only)
+   - Domain dirs: `talos/`, `bootstrap/` (README.md and checks.md only; specs relocated to `specs/NNN-*` per ADR-0026)
 
-3. **Documentation must be properly located**:
+3. **Specification placement is constrained** (see ADR-0026)
+   - Canonical specs **only** under `requirements/<domain>/spec.md`
+   - Non-canonical/operational specs **only** under `specs/NNN-<slug>/spec.md`
+   - `spec.md` is prohibited in any other path (e.g., `kubernetes/`, `bootstrap/`, `talos/`)
+   - Enforced by `scripts/check-spec-placement.sh` and CI gate wiring
+
+4. **Documentation must be properly located**:
    - Architecture decisions → `docs/adr/`
    - General documentation → `docs/`
    - Operational documentation → `ops/runbooks/`
    - Change logs → `ops/CHANGELOG.md` (single file, append-only)
    - Implementation → `infra/<domain>/`
 
-4. **Deployment targets are separated by directory**:
+5. **Deployment targets are separated by directory**:
    - Kubernetes workloads → `kubernetes/`
    - NAS/non-K8s workloads → `stacks/` (Docker Compose, systemd units)
    - Infrastructure provisioning → `infra/`
 
-4. **CI enforcement is mandatory**
+6. **CI enforcement is mandatory**
    - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
    - PRs violating structure MUST be blocked
 
-5. **NAS stacks are Komodo-managed**
+7. **NAS stacks are Komodo-managed**
    - NAS/non-Kubernetes stacks are deployed from this repository via TrueNAS Komodo
    - No `stacks/registry.toml` or host-side deploy scripts are required or permitted
    - Each stack directory must be self-contained (compose file + `.env.example`)
