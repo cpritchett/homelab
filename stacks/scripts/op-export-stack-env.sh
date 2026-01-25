@@ -23,12 +23,7 @@ fi
 echo "Exporting secrets for stack: $STACK from vault: $VAULT"
 
 ITEM_COUNT=0
-op item list --vault "$VAULT" --format=json |
-jq -r --arg tag "$TAG" '
-  .[]
-  | select((.title | endswith(".env")) and ((.tags // []) | index($tag)))
-  | .id
-' | while read -r ITEM_ID; do
+while read -r ITEM_ID; do
   ITEM_JSON="$(op item get "$ITEM_ID" --vault "$VAULT" --format=json)" || {
     echo "Error: failed to fetch item '$ITEM_ID' from vault '$VAULT'" >&2
     continue
@@ -63,7 +58,12 @@ jq -r --arg tag "$TAG" '
 
   echo "  ✓ Exported: $TITLE"
   ITEM_COUNT=$((ITEM_COUNT + 1))
-done
+done < <(op item list --vault "$VAULT" --format=json |
+  jq -r --arg tag "$TAG" '
+    .[]
+    | select((.title | endswith(".env")) and ((.tags // []) | index($tag)))
+    | .id
+  ')
 
 if [[ $ITEM_COUNT -eq 0 ]]; then
   echo "Warning: no items found for stack '$STACK' with tag '$TAG'" >&2
