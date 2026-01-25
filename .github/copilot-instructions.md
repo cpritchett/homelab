@@ -152,8 +152,15 @@ gitleaks detect --source . --verbose --config .gitleaks.toml
 1. Run all CI gates locally: `./scripts/run-all-gates.sh "PR title" "PR body"`
 2. Create ADR if canonical change (constitution/contracts/requirements/)
 3. Link ADR from relevant spec
-4. Provide evidence in PR description
-5. Run security scan: `gitleaks detect --source . --verbose`
+4. Use `.github/PULL_REQUEST_TEMPLATE.md` format for PR descriptions
+5. Provide evidence in PR description (gate results, validation output)
+6. Run security scan: `gitleaks detect --source . --verbose`
+
+## PR and Issue Templates
+- **PR descriptions**: Must follow `.github/PULL_REQUEST_TEMPLATE.md` format
+- **Policy changes**: Use `.github/ISSUE_TEMPLATE/policy-change.yml` structure
+- Fill all required checklist items (Constitution check, Specs impact, Risks)
+- Include evidence of CI gate passage and validation
 
 ## When Stuck or Uncertain
 - Check canonical sources first (constitution, contracts, requirements)
