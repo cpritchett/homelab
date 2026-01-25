@@ -18,4 +18,4 @@ This repository now ships only Komodo-compatible stacks. Deploy them directly fr
 
 ## Notes
 - Registry-based ordering (`stacks/registry.toml`) and helper scripts (`stacks/_bin/*`, `_system/*`) have been removed.
-- Keep stack directories self-contained: `compose.yaml` + `.env.example` only.
+- Keep stack directories self-contained: `compose.yml` + `.env.example` only.

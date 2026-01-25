@@ -48,7 +48,6 @@
       groupName: "Flux Operator",
       matchDatasources: ["docker", "github-releases", "helm"],
       matchPackageNames: ["/flux-operator/", "/flux-instance/", "fluxcd/flux2"],
-      matchFileNames: [".mise.toml"],
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -68,7 +67,6 @@
         "ghcr.io/siderolabs/talosctl",
         "ghcr.io/jfroy/tnu"
       ],
-      matchFileNames: [".mise.toml"],
       group: { commitMessageTopic: "{{{groupName}}} group" },
       minimumReleaseAge: "3 days"
     },

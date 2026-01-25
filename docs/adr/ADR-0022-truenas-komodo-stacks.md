@@ -16,7 +16,7 @@
 
 1. **TrueNAS Komodo is the authoritative deployment mechanism for NAS stacks.** Operators deploy each stack from this repository via the Komodo GitHub integration instead of host-side scripts.
 2. **The stack registry (`stacks/registry.toml`) is retired.** Deployment ordering is handled per-stack inside Komodo; any cross-stack dependency (e.g., shared external network `proxy_network`) must be documented in stack docs rather than encoded in a registry file.
-3. **Stacks must be Komodo-compatible and self-contained.** Each `stacks/<name>/compose.yaml` plus `.env.example` declares everything required for deployment; no `render-env.sh`, `op-inject`, or cron/init wrappers are used.
+3. **Stacks must be Komodo-compatible and self-contained.** Each `stacks/<name>/compose.yml` plus `.env.example` declares everything required for deployment; no `render-env.sh`, `op-inject`, or cron/init wrappers are used.
 4. **Secrets are supplied through Komodo, not 1Password CLI templates.** `.env.example` documents required variables; actual values are entered through Komodo's env/secret fields.
 
 ## Consequences

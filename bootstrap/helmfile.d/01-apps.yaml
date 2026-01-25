@@ -25,7 +25,7 @@ releases:
   - name: coredns
     namespace: kube-system
     chart: oci://ghcr.io/coredns/charts/coredns
-    version: 1.45.0
+    version: 1.45.2
     needs: ['kube-system/cilium']
     values:
       - ../values/coredns.yaml
@@ -49,7 +49,7 @@ releases:
   - name: external-secrets
     namespace: external-secrets
     chart: oci://ghcr.io/external-secrets/charts/external-secrets
-    version: 1.2.1
+    version: 1.3.1
     needs: ['cert-manager/cert-manager']
     values:
       - ../values/external-secrets.yaml
@@ -57,7 +57,7 @@ releases:
   - name: onepassword-store
     namespace: external-secrets
     chart: oci://ghcr.io/bjw-s-labs/helm/app-template
-    version: 4.6.0
+    version: 4.6.2
     installed: false # enable after providing values in ../values/onepassword-store.yaml
     needs: ['external-secrets/external-secrets']
     values:
@@ -74,7 +74,7 @@ releases:
   - name: flux-operator
     namespace: flux-system
     chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
-    version: 0.39.0
+    version: 0.40.0
     needs: ['kube-system/kube-vip']
     values:
       - ../values/flux-operator.yaml
@@ -82,7 +82,7 @@ releases:
   - name: flux-instance
     namespace: flux-system
     chart: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
-    version: 0.38.1
+    version: 0.40.0
     needs: ['flux-system/flux-operator']
     values:
       - ../values/flux-instance.yaml
