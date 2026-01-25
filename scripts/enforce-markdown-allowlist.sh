@@ -89,6 +89,7 @@ declare -a ALLOWLIST=(
   
   # test/ - policy test docs
   "^\.\/test\/[^/]*\/README\.md$"
+)
 
 # Function to check if file matches allowlist
 matches_allowlist() {
