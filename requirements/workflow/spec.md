@@ -126,3 +126,5 @@ See: [ADR-0026: Spec Placement Governance](../../docs/adr/ADR-0026-spec-placemen
 See: [ADR-0025: Strict Markdown Governance](../../docs/adr/ADR-0025-strict-markdown-governance.md)
 See: [ADR-0027: Agent PR/Issue Template Enforcement](../../docs/adr/ADR-0027-agent-template-enforcement.md)
 See: [ADR-0028: Constitutional Authority for Governance Procedures](../../docs/adr/ADR-0028-constitutional-governance-authority.md)
+See: [ADR-0029: Contract Lifecycle Procedures](../../docs/adr/ADR-0029-contract-lifecycle-procedures.md)
+See: [ADR-0029: Contract Lifecycle Procedures](../../docs/adr/ADR-0029-contract-lifecycle-procedures.md)

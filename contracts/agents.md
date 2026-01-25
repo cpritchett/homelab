@@ -1,9 +1,12 @@
 # Agent Operating Rules
-**Effective:** 2025-12-14
+**Effective:** 2025-12-14  
+**Authority:** Constitution [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md)
 
 This file defines **agent operating rules** for this repo.
 
 Agents must comply with all files in `contracts/` and `requirements/`.
+
+**Adding/Amending:** See [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md) for procedures.
 
 ## Allowed actions
 Agents MAY:

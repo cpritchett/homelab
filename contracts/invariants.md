@@ -1,7 +1,10 @@
 # Invariants
-**Effective:** 2025-12-14
+**Effective:** 2025-12-14  
+**Authority:** Constitution [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md)
 
 These conditions must **always be true**. Any change that would violate an invariant is invalid.
+
+**Adding/Amending:** See [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md) for procedures.
 
 ## Network Identity Invariants
 

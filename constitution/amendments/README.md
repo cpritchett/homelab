@@ -14,3 +14,4 @@ Use `AMENDMENT-NNNN-short-title.md` naming convention.
 
 - [AMENDMENT-0001](AMENDMENT-0001-amendment-process.md): Constitutional Amendment Process
 - [AMENDMENT-0002](AMENDMENT-0002-adr-lifecycle.md): ADR Lifecycle Process
+- [AMENDMENT-0003](AMENDMENT-0003-contract-lifecycle.md): Contract Lifecycle Process (Invariants, Hard-Stops, Agent Rules)

@@ -109,3 +109,76 @@ Is the core decision changing?
 ```
 
 **Complete ADR lifecycle specification:** See [AMENDMENT-0002](amendments/AMENDMENT-0002-adr-lifecycle.md)
+
+---
+
+## Contracts
+
+**Purpose:** Contracts define operational constraints that must always hold. There are three types:
+
+1. **Invariants** (`contracts/invariants.md`) - Conditions that must always be true
+2. **Hard-Stops** (`contracts/hard-stops.md`) - Actions requiring human approval before proceeding
+3. **Agent Rules** (`contracts/agents.md`) - What agents may and must not do
+
+**Authority:** This constitution establishes contract lifecycle. Changes to contract format or process require constitutional amendment.
+
+**Hierarchy:** Contracts sit between constitution and requirements:
+- Derive from constitutional principles (subordinate to constitution)
+- Apply across all domains (superior to requirements)
+
+### Invariants
+
+**Definition:** Technical or operational conditions that must always be true. Violations indicate broken system state.
+
+**Categories:** Network Identity, WAN Constraints, Storage, Hardware, Access, DNS, Repository Structure, GitOps
+
+**Adding Procedure:**
+1. Create supporting ADR documenting rationale
+2. Add to `contracts/invariants.md` using table (structured data) or list (rules) format
+3. Add CI gate if invariant is checkable
+4. PR with ADR reference, code owner approval
+
+**Format:** Category header, table or numbered list, rationale, ADR reference
+
+### Hard-Stops
+
+**Definition:** Actions that agents must stop and request human approval before proceeding.
+
+**Criteria:** Must derive from constitutional principle and represent high-risk potential violation.
+
+**Adding Procedure:**
+1. Validate constitutional basis
+2. Create supporting ADR documenting why human approval needed
+3. Add to `contracts/hard-stops.md` numbered list
+4. Update agent instructions if detection logic needed
+5. PR with ADR reference, constitutional review
+
+**Format:** Numbered list with action description and rationale
+
+### Agent Rules
+
+**Definition:** Operational rules governing what agents may and must not do.
+
+**Categories:** Required workflows, Prohibited actions, Authority levels, Classification rules
+
+**Adding Procedure:**
+1. Create supporting ADR
+2. Update `contracts/agents.md` in appropriate section
+3. Update router files to reference, not restate (no invariant drift)
+4. PR with ADR reference
+
+### Decision Tree: Contract vs Constitution
+
+```
+Is this an immutable principle about system architecture?
+├─ Yes → CONSTITUTIONAL PRINCIPLE (requires amendment)
+└─ No → Is it a constraint that must always hold?
+    ├─ Yes → INVARIANT (contracts/invariants.md)
+    └─ No → Is it a high-risk action requiring human approval?
+        ├─ Yes → HARD-STOP (contracts/hard-stops.md)
+        └─ No → Is it an agent behavioral rule?
+            ├─ Yes → AGENT RULE (contracts/agents.md)
+            └─ No → REQUIREMENT or ADR
+```
+
+**Complete contract lifecycle specification:** See [AMENDMENT-0003](amendments/AMENDMENT-0003-contract-lifecycle.md)

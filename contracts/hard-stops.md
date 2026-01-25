@@ -1,7 +1,10 @@
 # Hard-Stop Conditions
-**Effective:** 2025-12-14
+**Effective:** 2025-12-14  
+**Authority:** Constitution [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md)
 
 Agents must **stop and ask** before proceeding if a proposed change would:
+
+**Adding/Amending:** See [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md) for procedures.
 
 1. **Expose services directly to WAN** (any port forward / WAN listener)
 2. **Publish `in.hypyr.space` publicly** (internal zone must remain internal-only)
