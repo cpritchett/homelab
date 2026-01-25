@@ -1,6 +1,6 @@
 # ADR-0029: Contract Lifecycle Procedures
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-01-25  
 **Author:** GitHub Copilot Agent  
 **Constitutional Amendment:** [AMENDMENT-0003](../../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md)

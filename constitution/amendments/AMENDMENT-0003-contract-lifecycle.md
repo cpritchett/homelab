@@ -1,6 +1,6 @@
 # AMENDMENT-0003: Contract Lifecycle Process
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-01-25  
 **Rationale:** Contracts (invariants, hard-stops, agent rules) require constitutional authority for lifecycle management
 

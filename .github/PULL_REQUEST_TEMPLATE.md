@@ -20,3 +20,8 @@ What does this change do?
 
 ## Risks
 - [ ] Risk register updated (if applicable)
+
+## Approval
+- [ ] All changed ADRs and constitutional amendments have `**Status:** Accepted` (no `Proposed` statuses)
+- [ ] Explicit human approval has been granted for governance documents (ADR/amendments)
+- [ ] PR title/body includes ADR reference for canonical changes

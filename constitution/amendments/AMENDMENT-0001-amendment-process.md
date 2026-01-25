@@ -1,6 +1,6 @@
 # AMENDMENT-0001: Constitutional Amendment Process
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-01-25  
 **Rationale:** Constitution must define its own amendment procedure to establish authority
 

@@ -1,6 +1,6 @@
 # ADR-0028: Establish Constitutional Authority for Governance Procedures
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-01-25  
 **Author:** GitHub Copilot Agent  
 **Constitutional Amendments:** [AMENDMENT-0001](../../constitution/amendments/AMENDMENT-0001-amendment-process.md), [AMENDMENT-0002](../../constitution/amendments/AMENDMENT-0002-adr-lifecycle.md)

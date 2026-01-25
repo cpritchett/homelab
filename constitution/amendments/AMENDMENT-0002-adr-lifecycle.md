@@ -1,6 +1,6 @@
 # AMENDMENT-0002: ADR Lifecycle Process
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-01-25  
 **Rationale:** ADR lifecycle rules (new, supersede, amend) require constitutional authority
 

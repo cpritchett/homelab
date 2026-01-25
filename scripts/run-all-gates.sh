@@ -45,11 +45,15 @@ export PR_BODY="${2:-}"
 ./scripts/require-adr-on-canonical-changes.sh
 echo
 
-echo "==> Gate 5: adr-must-be-linked-from-spec"
+echo "==> Gate 5: approval_status_enforced"
+./scripts/check-approval-status.sh
+echo
+
+echo "==> Gate 6: adr-must-be-linked-from-spec"
 ./scripts/adr-must-be-linked-from-spec.sh
 echo
 
-echo "==> Gate 6: Secret scanning (gitleaks)"
+echo "==> Gate 7: Secret scanning (gitleaks)"
 if command -v gitleaks &> /dev/null; then
   GITLEAKS_CONFIG=".gitleaks.toml"
   GITLEAKS_ALLOWLIST=".gitleaks.allowlist"
@@ -90,7 +94,7 @@ else
 fi
 echo
 
-echo "==> Gate 7: Policy enforcement (conditional)"
+echo "==> Gate 8: Policy enforcement (conditional)"
 if has_changes '^(infra/|policies/).*\.(ya?ml)$'; then
   if command -v kyverno >/dev/null 2>&1 && command -v yq >/dev/null 2>&1; then
     echo "Validating policy YAML syntax..."
@@ -158,7 +162,7 @@ else
 fi
 echo
 
-echo "==> Gate 8: Talos templates (conditional)"
+echo "==> Gate 9: Talos templates (conditional)"
 if has_changes '^(talos/|scripts/test-talos-templates.sh)'; then
   if command -v ytt >/dev/null 2>&1; then
     (cd talos && ./render.sh all)
@@ -176,7 +180,7 @@ else
 fi
 echo
 
-echo "==> Gate 9: Invariants (informational, conditional)"
+echo "==> Gate 10: Invariants (informational, conditional)"
 if has_changes '^(kubernetes/|bootstrap/|talos/|scripts/)'; then
   set +e
   ./scripts/check-kustomize-build.sh
