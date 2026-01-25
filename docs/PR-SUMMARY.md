@@ -25,7 +25,7 @@ This branch replaces the registry/script-driven stacks flow with Komodo-managed 
 ## Files Updated
 
 - `contracts/invariants.md` — switch to Komodo-managed stacks; no registry
-- `requirements/workflow/repository-structure.md` — remove registry requirement
+- `docs/governance/repository-structure-policy.md` — remove registry requirement
 - `requirements/workflow/spec.md` — link ADR-0022
 - `docs/STACKS.md` — Komodo deployment docs
 - `ops/runbooks/stacks-deployment.md` — Komodo flow

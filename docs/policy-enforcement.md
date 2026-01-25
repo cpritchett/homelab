@@ -118,7 +118,7 @@ Governance is **encoded as admission control**:
 |--------|------------------------|-------------|
 | [`deny-unauthorized-root-files.rego`](../policies/repository/deny-unauthorized-root-files.rego) | Documentation sprawl, arbitrary summary files, unclear content ownership | **Enforce** (Conftest + OPA) |
 
-**Rationale:** [requirements/workflow/repository-structure.md](../requirements/workflow/repository-structure.md)
+**Rationale:** [docs/governance/repository-structure-policy.md](../docs/governance/repository-structure-policy.md)
 
 ## Override Mechanism (Break-Glass)
 

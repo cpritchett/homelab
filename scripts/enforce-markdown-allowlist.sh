@@ -42,7 +42,7 @@ declare -a ALLOWLIST=(
   "^\.\/\.gemini\/[^/]*\.md$"
   
   # docs/adr/ - ADR-NNNN-*.md only
-  "^\.\/docs\/adr\/ADR-[0-9]\{4\}-[^/]*\.md$"
+  "^\.\/docs\/adr\/ADR-[0-9][0-9][0-9][0-9]-[^/]+\.md$"
   "^\.\/docs\/adr\/README\.md$"
   
   # docs/* - general documentation
@@ -56,34 +56,27 @@ declare -a ALLOWLIST=(
   "^\.\/ops\/CHANGELOG\.md$"
   "^\.\/ops\/runbooks\/[^/]*\.md$"
   
-  # requirements/* - canonical specs, checks, and domain docs
+  # requirements/* - canonical specs and checks only
   "^\.\/requirements\/[^/]*\/spec\.md$"
   "^\.\/requirements\/[^/]*\/checks\.md$"
-  "^\.\/requirements\/[^/]*\/[^/]*\.md$"
   "^\.\/requirements\/README\.md$"
   
   # specs/NNN-*/ - speckit-approved files only
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/spec\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/plan\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/research\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/data-model\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/quickstart\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/contracts\/[^/]*\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/checklists\/[^/]*\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/tasks\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/[^/]*\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/[^/]*/[^/]*\.md$"
-  "^\.\/specs\/[0-9]\{3\}-[^/]*\/.*\.md$"
-  "^\.\/specs\/.*\.md$"
+  "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/spec\.md$"
+  "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/plan\.md$"
+  "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/research\.md$"
+  "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/data-model\.md$"
+  "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/quickstart\.md$"
+  "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/contracts\/[^/]+\.md$"
+  "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/checklists\/[^/]+\.md$"
+  "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/tasks\.md$"
   
   # talos/
   "^\.\/talos\/README\.md$"
-  "^\.\/talos\/spec\.md$"
   "^\.\/talos\/checks\.md$"
   
   # bootstrap/
   "^\.\/bootstrap\/README\.md$"
-  "^\.\/bootstrap\/spec\.md$"
   "^\.\/bootstrap\/checks\.md$"
   
   # kubernetes/ - README only
@@ -102,14 +95,13 @@ declare -a ALLOWLIST=(
   "^\.\/infra\/README\.md$"
   "^\.\/infra\/[^/]*\/README\.md$"
   
-  # kubernetes/ - complete tree
-  "^\.\/kubernetes\/[^/]*\.md$"
-  "^\.\/kubernetes\/[^/]*/[^/]*\.md$"
-  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*\.md$"
-  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*/[^/]*\.md$"
-  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*\.md$"
-  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*\.md$"
-  "^\.\/kubernetes\/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*/[^/]*\.md$"
+  # kubernetes/ - specific permitted subdirectories only
+  "^\.\/kubernetes\/components\/README\.md$"
+  "^\.\/kubernetes\/components\/[^/]*\/README\.md$"
+  "^\.\/kubernetes\/components\/[^/]*\/templates\/README\.md$"
+  "^\.\/kubernetes\/profiles\/README\.md$"
+  "^\.\/kubernetes\/clusters\/homelab\/apps\/[^/]*\/README\.md$"
+  "^\.\/kubernetes\/clusters\/homelab\/apps\/[^/]*\/[^/]*\/plans\/README\.md$"
   
   # bootstrap/ - values and nested
   "^\.\/bootstrap\/values\/[^/]*\.md$"
@@ -168,7 +160,7 @@ else
   echo "  - requirements/*/spec.md, requirements/*/checks.md"
   echo "  - specs/NNN-*/{spec,plan,research,data-model,quickstart}.md"
   echo "  - specs/NNN-*/{contracts,checklists,tasks}/"
-  echo "  - talos/, bootstrap/ (spec.md, checks.md, README.md only)"
+  echo "  - talos/, bootstrap/ (checks.md, README.md only; spec.md moved to specs/)"
   echo "  - infra/README.md, infra/*/README.md"
   exit 1
 fi
