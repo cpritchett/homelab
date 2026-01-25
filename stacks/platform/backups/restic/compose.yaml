@@ -1,0 +1,42 @@
+services:
+  restic:
+    image: restic/restic:0.16.5
+    restart: "no"
+    env_file:
+      - /mnt/apps01/secrets/restic/restic.env
+    environment:
+      # set by Komodo when you run the job: backup | prune | check | snapshots
+      RESTIC_TASK: backup
+
+      # tag snapshots so restores are sane
+      RESTIC_HOST: barbary
+      RESTIC_TAGS: "homelab,barbary,truenas"
+
+      # keep cache on fast storage
+      RESTIC_CACHE_DIR: /cache
+
+    volumes:
+      # read sources
+      - type: bind
+        source: /mnt/apps01
+        target: /src/apps01
+        read_only: true
+      - type: bind
+        source: /mnt/data01
+        target: /src/data01
+        read_only: true
+
+      # cache on fast pool
+      - type: bind
+        source: /mnt/apps01/appdata/restic/cache
+        target: /cache
+
+      # scripts + exclude file live in repo (mounted from /mnt/apps01)
+      - type: bind
+        source: /mnt/apps01/scripts/restic
+        target: /scripts
+        read_only: true
+
+    entrypoint: ["/bin/sh","-lc"]
+    command: >
+      /scripts/run.sh
