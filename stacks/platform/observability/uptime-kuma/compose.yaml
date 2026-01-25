@@ -7,3 +7,9 @@ services:
     labels:
       caddy: status.in.hypyr.space
       caddy.reverse_proxy: "{{upstreams 3001}}"
+    networks:
+      - proxy_network
+
+networks:
+  proxy_network:
+    external: true

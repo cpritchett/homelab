@@ -37,7 +37,7 @@ If you are restoring onto empty datasets:
 
 Restore order:
 - Restore /mnt/apps01 first (Komodo stacks rely on these paths)
-- Restore /mnt/data01 next (stateful services rely on rust storage)
+- Restore /mnt/data01 next (stateful services rely on spinning rust storage)
 
 ### 3) Bring up Caddy (ingress)
 - Deploy Caddy attached to `proxy_network`

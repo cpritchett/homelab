@@ -35,11 +35,11 @@ Relevant layout:
 - `stacks/platform/auth/authentik/compose.yaml`
 - `stacks/platform/observability/uptime-kuma/compose.yaml`
 - `stacks/platform/backups/restic/compose.yaml`
-- `scripts/op-export-stack-env.sh`
-- `scripts/restic/run.sh`
-- `docs/PLATFORM_BOOTSTRAP.md`
-- `docs/RESTORE_RUNBOOK.md`
-- `docs/CADDY_FORWARD_AUTH_LABELS.md`
+- `stacks/scripts/op-export-stack-env.sh`
+- `stacks/scripts/restic/run.sh`
+- `stacks/docs/PLATFORM_BOOTSTRAP.md`
+- `stacks/docs/RESTORE_RUNBOOK.md`
+- `stacks/docs/CADDY_FORWARD_AUTH_LABELS.md`
 
 ## Step 0: Host directories (one-time)
 
