@@ -38,5 +38,8 @@
     "@backstage/cli": "^0.25.0",
     "@types/node": "^18.0.0",
     "typescript": "^5.0.0"
+  },
+  "overrides": {
+    "jsonpath-plus": "^10.2.0"
   }
 }
