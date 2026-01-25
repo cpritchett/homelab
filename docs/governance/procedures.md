@@ -84,10 +84,12 @@ All changes fall into one of these categories, each with different requirements:
 
 **Process:**
 1. Create ADR explaining why amendment is needed
-2. Create amendment file: `constitution/amendments/YYYY-MM-DD-topic.md`
+2. Create amendment file: `constitution/amendments/AMENDMENT-NNNN-topic.md`
 3. Update constitution
 4. Update all affected contracts and requirements
 5. Link amendment from ADR and vice versa
+
+**Authority:** Constitutional amendment process is defined in the constitution itself. See [AMENDMENT-0001](../../constitution/amendments/AMENDMENT-0001-amendment-process.md) for complete specification.
 
 ---
 
@@ -182,6 +184,11 @@ vim requirements/<domain>/spec.md
 ### Step 5: Reference in PR
 Include `ADR-0005` in your PR title or description.
 
+**Authority:** ADR lifecycle (new, supersede, amend) is defined in the constitution. See [AMENDMENT-0002](../../constitution/amendments/AMENDMENT-0002-adr-lifecycle.md) for:
+- When to supersede vs amend existing ADRs
+- Amendment format: `ADR-NNNN-amendment-A.md`
+- Decision tree for supersede vs amend vs new
+
 ---
 
 ## Speckit Workflow for Non-Canonical Work
@@ -260,6 +267,17 @@ Based on change type, complete relevant sections of PR template.
 ### Before Creating PR
 
 1. **Classify your change** (doc-only, non-canonical, canonical, constitutional)
+
+### Approval Workflow (Governance Documents with Status)
+
+For any governance document that declares a `**Status:**` field (e.g., constitutional amendments, ADRs, and others that use Status):
+
+- Agents draft documents with `**Status:** Proposed` and request explicit human approval before committing.
+- Documents with `Status: Proposed` MUST NOT be committed.
+- After approval, change status to `**Status:** Accepted` and commit.
+- CI Gate `approval_status_enforced` blocks PRs containing Proposed-status documents.
+
+This ensures human-in-the-loop approval while maintaining strict repository governance.
 
 2. **Run local validation:**
    ```bash

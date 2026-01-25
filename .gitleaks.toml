@@ -6,6 +6,7 @@ builtinRules = true
 [allowlist]
 paths = [
   "^test/security/fixtures/", # synthetic fixtures (scanned separately in security:test)
+  "^tests/security/fixtures/", # historical fixture path (commit history)
 ]
 
 [[rules]]

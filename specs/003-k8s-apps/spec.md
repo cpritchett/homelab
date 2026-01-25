@@ -1,4 +1,5 @@
 # Apps Layer Plan (homelab)
+> **Non-canonical:** Relocated from kubernetes/clusters/homelab/apps/spec.md on 2026-01-25 per ADR-0026.
 
 ## Scope
 Namespace-scoped application overlays reconciled after platform is healthy.

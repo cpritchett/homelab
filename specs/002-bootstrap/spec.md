@@ -1,4 +1,5 @@
 # Bootstrap Requirements
+> **Non-canonical:** Relocated from bootstrap/spec.md on 2026-01-25 per ADR-0026.
 **Effective:** 2025-12-22  
 **Scope:** Bare-metal cluster bootstrap through Flux hand-off  
 **See:** [ADR-0017](../../docs/adr/ADR-0017-talos-baremetal-bootstrap.md), [ADR-0019](../../docs/adr/ADR-0019-bootstrap-sequence-hardening.md), [ADR-0020](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)

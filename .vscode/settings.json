@@ -1,17 +1,24 @@
 {
-  "github.copilot.chat.codeGeneration.instructions": [
-    {
-      "file": ".github/copilot-instructions.md"
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": ".github/copilot-instructions.md"
+        }
+    ],
+    "github.copilot.chat.reviewSelection.instructions": [
+        {
+            "text": "Check changes against constitution/constitution.md principles and contracts/invariants.md. Flag any hard-stop conditions from contracts/hard-stops.md."
+        }
+    ],
+    "github.copilot.chat.testGeneration.instructions": [
+        {
+            "text": "Generate validation checks that can be added to requirements/*/checks.md files."
+        }
+    ],
+    "chat.promptFilesRecommendations": {
+        "speckit.constitution": true,
+        "speckit.specify": true,
+        "speckit.plan": true,
+        "speckit.tasks": true,
+        "speckit.implement": true
     }
-  ],
-  "github.copilot.chat.reviewSelection.instructions": [
-    {
-      "text": "Check changes against constitution/constitution.md principles and contracts/invariants.md. Flag any hard-stop conditions from contracts/hard-stops.md."
-    }
-  ],
-  "github.copilot.chat.testGeneration.instructions": [
-    {
-      "text": "Generate validation checks that can be added to requirements/*/checks.md files."
-    }
-  ]
 }

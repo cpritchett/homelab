@@ -32,4 +32,4 @@ stack paths and dependencies for deterministic ordering.
 
 - `stacks/registry.toml`
 - `contracts/invariants.md`
-- `requirements/workflow/repository-structure.md`
+- `docs/governance/repository-structure-policy.md`

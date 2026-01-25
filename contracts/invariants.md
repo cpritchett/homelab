@@ -1,7 +1,10 @@
 # Invariants
-**Effective:** 2025-12-14
+**Effective:** 2025-12-14  
+**Authority:** Constitution [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md)
 
 These conditions must **always be true**. Any change that would violate an invariant is invalid.
+
+**Adding/Amending:** See [AMENDMENT-0003](../constitution/amendments/AMENDMENT-0003-contract-lifecycle.md) for procedures.
 
 ## Network Identity Invariants
 
@@ -89,23 +92,43 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - Only files explicitly listed in `scripts/enforce-root-structure.sh` may exist in repository root
    - No arbitrary documentation, summaries, or scratch files in root
 
-2. **Documentation must be properly located**:
+2. **Markdown files MUST be on allowlist** (see ADR-0025)
+   - Only `.md` files explicitly permitted by location/name pattern are allowed
+   - Violations blocked by `scripts/enforce-markdown-allowlist.sh` gate
+   - Arbitrary summaries, notes, plans (outside `specs/NNN-*/`) prohibited
+   - Permitted locations:
+     - Root: `README.md`, `CONTRIBUTING.md`, `CLAUDE.md`, `agents.md`
+     - `docs/adr/ADR-NNNN-*.md` (append-only)
+     - `docs/`, `docs/governance/`, `docs/operations/`
+     - `ops/CHANGELOG.md`, `ops/README.md`, `ops/runbooks/`
+     - `requirements/*/spec.md`, `requirements/*/checks.md`
+     - `specs/NNN-*/spec.md`, `specs/NNN-*/plan.md`, `specs/NNN-*/research.md`, `specs/NNN-*/data-model.md`, `specs/NNN-*/quickstart.md`, `specs/NNN-*/contracts/`, `specs/NNN-*/checklists/`, `specs/NNN-*/tasks.md`
+     - `infra/README.md`, `infra/<domain>/README.md`
+   - Domain dirs: `talos/`, `bootstrap/` (README.md and checks.md only; specs relocated to `specs/NNN-*` per ADR-0026)
+
+3. **Specification placement is constrained** (see ADR-0026)
+   - Canonical specs **only** under `requirements/<domain>/spec.md`
+   - Non-canonical/operational specs **only** under `specs/NNN-<slug>/spec.md`
+   - `spec.md` is prohibited in any other path (e.g., `kubernetes/`, `bootstrap/`, `talos/`)
+   - Enforced by `scripts/check-spec-placement.sh` and CI gate wiring
+
+4. **Documentation must be properly located**:
    - Architecture decisions → `docs/adr/`
    - General documentation → `docs/`
    - Operational documentation → `ops/runbooks/`
    - Change logs → `ops/CHANGELOG.md` (single file, append-only)
    - Implementation → `infra/<domain>/`
 
-3. **Deployment targets are separated by directory**:
+5. **Deployment targets are separated by directory**:
    - Kubernetes workloads → `kubernetes/`
    - NAS/non-K8s workloads → `stacks/` (Docker Compose, systemd units)
    - Infrastructure provisioning → `infra/`
 
-4. **CI enforcement is mandatory**
+6. **CI enforcement is mandatory**
    - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
    - PRs violating structure MUST be blocked
 
-5. **NAS stacks are Komodo-managed**
+7. **NAS stacks are Komodo-managed**
    - NAS/non-Kubernetes stacks are deployed from this repository via TrueNAS Komodo
    - No `stacks/registry.toml` or host-side deploy scripts are required or permitted
    - Each stack directory must be self-contained (compose file + `.env.example`)

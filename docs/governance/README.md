@@ -151,8 +151,8 @@ Eight governance domains:
 8. **Workflow** - Git workflow, PR requirements, commit conventions
 
 Implementation specs (co-located with code):
-- **Bootstrap** (`bootstrap/spec.md`) - Cluster bootstrap procedures
-- **Talos/Compute** (`talos/spec.md`) - Hardware inventory, node requirements
+- **Bootstrap** (`specs/002-bootstrap/spec.md`) - Cluster bootstrap procedures (non-canonical)
+- **Talos/Compute** (`specs/006-talos/spec.md`) - Hardware inventory, node requirements (non-canonical)
 
 ### Architecture Decision Records
 **Location:** `docs/adr/ADR-*.md`

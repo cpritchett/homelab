@@ -1,15 +1,23 @@
-# Constitution Reference
+# Repository Constitution
 
-This file links to the authoritative constitution for Spec-Kit memory.
+**This is a reference file for speckit tooling.**
 
-**Authoritative source:** [constitution/constitution.md](../../constitution/constitution.md)
+The canonical constitution for this repository is located at:
 
-## Principles (Summary)
+**`/constitution/constitution.md`**
 
-1. **Management is Sacred and Boring**
-2. **DNS Encodes Intent**
-3. **External Access is Identity-Gated**
-4. **Routing Does Not Imply Permission**
-5. **Prefer Structural Safety Over Convention**
+Speckit agents and tools should read the canonical constitution from the path above, not from this file.
 
-See the authoritative source for full details.
+---
+
+## Quick Reference
+
+For full constitutional principles and governance rules, see:
+- **Constitution**: `constitution/constitution.md`
+- **Invariants**: `contracts/invariants.md`
+- **Hard Stops**: `contracts/hard-stops.md`
+- **Agent Rules**: `contracts/agents.md`
+
+---
+
+**Last Updated**: 2026-01-25

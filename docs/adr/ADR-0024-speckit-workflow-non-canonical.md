@@ -23,7 +23,7 @@ This ADR-driven process works well for governance changes but is heavyweight for
    - `tasks-template.md` - Ordered tasks with dependencies
 
 2. **Templates are used inconsistently**:
-   - Kubernetes platform layer uses spec-like files (`kubernetes/clusters/homelab/platform/spec.md`)
+  - Kubernetes platform layer uses spec-like files (`specs/005-k8s-platform/spec.md`)
    - Stacks have no consistent planning artifacts
    - Infrastructure changes have no standard workflow
    - No guidance on when to use templates vs ADRs

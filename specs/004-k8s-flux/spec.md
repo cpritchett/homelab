@@ -1,4 +1,5 @@
 # Flux EntryPoint Plan (homelab)
+> **Non-canonical:** Relocated from kubernetes/clusters/homelab/flux/spec.md on 2026-01-25 per ADR-0026.
 
 ## Objectives
 - Define Flux sources and Kustomizations that reconcile the homelab cluster GitOps tree per ADR-0018.

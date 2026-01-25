@@ -1,8 +1,9 @@
 # ADR-0005: Agent Governance Procedures
 
-**Status:** Accepted  
+**Status:** Superseded by ADR-0027  
 **Date:** 2025-12-21  
-**Author:** GitHub Copilot Agent
+**Author:** GitHub Copilot Agent  
+**Superseded by:** ADR-0027 (2026-01-25) - Adds PR/issue template enforcement
 
 ## Context
 

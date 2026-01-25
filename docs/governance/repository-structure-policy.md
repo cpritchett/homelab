@@ -38,6 +38,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 | `scripts/` | CI/validation scripts | Tooling |
 | `talos/` | Talos node configuration templates and values | Infrastructure |
 | `test/` | Test manifests for policies | Testing |
+| `specs/` | Non-canonical specs and design docs (speckit outputs) | Governance |
 | `.github/` | GitHub Actions, templates | Tooling |
 | `.claude/` | Claude Code configuration | Tooling |
 | `.gemini/` | Gemini configuration | Tooling |
@@ -67,6 +68,8 @@ Repository root structure is **fixed and enumerated** to prevent:
 | Technical documentation | `docs/*.md` | General purpose docs |
 | Runbook | `ops/runbooks/*.md` | Operational procedures |
 | Change log | `ops/CHANGELOG.md` | Single file, append-only |
+| Canonical spec | `requirements/<domain>/spec.md` | One per domain |
+| Non-canonical spec | `specs/NNN-<slug>/spec.md` | speckit outputs, archived as needed |
 | Policy definition | `policies/<domain>/*.yaml` | Kyverno ClusterPolicy YAML |
 | Infrastructure config | `infra/<domain>/` | Kubernetes manifests, configs |
 | GitOps manifests | `kubernetes/` | Flux sources, cluster overlays, app stacks |

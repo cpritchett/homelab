@@ -51,6 +51,17 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: status
+    attributes:
+      label: Document status
+      description: "Select status for governance documents. Proposed requires explicit human approval before commit."
+      options:
+        - Proposed (requires approval; cannot be committed)
+        - Accepted (approved)
+    validations:
+      required: true
+
   - type: textarea
     id: rollback
     attributes:
@@ -82,6 +93,8 @@ body:
         - label: "I understand canonical changes require an ADR reference in the PR."
           required: true
         - label: "If an ADR is added/changed, I will link it from the relevant requirements/**/spec.md."
+          required: true
+        - label: "I will not commit governance documents with `Status: Proposed` (approval required)."
           required: true
         - label: "If this is break-glass, I will timebox it and document restoration."
           required: false
