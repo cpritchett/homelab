@@ -42,6 +42,6 @@
 
 ## References
 
-- ../../requirements/workflow/repository-structure.md
+- ../../docs/governance/repository-structure-policy.md
 - ../../requirements/workflow/spec.md
 - ../STACKS.md

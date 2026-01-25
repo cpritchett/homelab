@@ -37,4 +37,4 @@ Multiple governance decisions already exist across ADRs (bootstrap sequencing, G
 - ADR-0010: Longhorn for Non-Database Storage
 - [specs/002-bootstrap/spec.md](../../specs/002-bootstrap/spec.md)
 - [requirements/storage/spec.md](../../requirements/storage/spec.md)
-- `requirements/workflow/repository-structure.md`
+- `docs/governance/repository-structure-policy.md`

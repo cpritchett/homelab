@@ -68,8 +68,13 @@ await octokit.git.createRef({
 });
 
 // Commit via local git CLI (manifests already written to disk)
-exec(`git add kubernetes/clusters/...`);
-exec(`git commit -m "feat(app): add ${appName}"`);
+// SECURITY: Use execFile to prevent shell injection
+const { execFile } = require('child_process');
+const { promisify } = require('util');
+const execFileAsync = promisify(execFile);
+
+await execFileAsync('git', ['add', 'kubernetes/clusters/...']);
+await execFileAsync('git', ['commit', '-m', `feat(app): add ${appName}`]);
 
 // Create PR via Octokit
 const { data: pr } = await octokit.pulls.create({

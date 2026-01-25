@@ -389,7 +389,7 @@ spec:
     spec:
       containers:
         - name: backstage
-          image: ghcr.io/backstage/backend:latest
+          image: ghcr.io/backstage/backend:v1.31.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 7007
