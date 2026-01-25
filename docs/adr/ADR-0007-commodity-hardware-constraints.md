@@ -62,5 +62,5 @@ Homelab infrastructure is built on repurposed and consumer-grade hardware rather
 - Sufficient for homelab workloads
 
 ## Links
-- [requirements/compute/spec.md](../../requirements/compute/spec.md)
+- [talos/spec.md](../../talos/spec.md)
 - [ADR-0006: WAN Bandwidth Constraints](ADR-0006-wan-bandwidth-constraints.md)

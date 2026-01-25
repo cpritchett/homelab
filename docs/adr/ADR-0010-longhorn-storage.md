@@ -148,5 +148,5 @@ See: [requirements/storage/spec.md](../../requirements/storage/spec.md)
 ## Links
 - [Longhorn documentation](https://longhorn.io/docs/)
 - [ADR-0007: Commodity Hardware Constraints](ADR-0007-commodity-hardware-constraints.md)
-- [requirements/compute/spec.md](../../requirements/compute/spec.md)
+- [talos/spec.md](../../talos/spec.md)
 - [requirements/storage/spec.md](../../requirements/storage/spec.md)

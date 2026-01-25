@@ -1,5 +1,5 @@
 # Governance Map
-**Effective:** 2025-12-21
+**Effective:** 2026-01-25 (updated by ADR-0023, ADR-0024)
 
 This document provides a high-level map of governance in this repository: what exists, where it lives, and how it's enforced.
 
@@ -15,7 +15,7 @@ contracts/
 ├── invariants.md            [Must always be true]
 └── agents.md                [Agent operating rules]
 
-requirements/                [DOMAIN SPECS]
+requirements/                [DOMAIN SPECS - GOVERNANCE ONLY]
 ├── dns/
 │   ├── spec.md             [DNS intent requirements]
 │   └── checks.md           [DNS validation checklist]
@@ -28,21 +28,42 @@ requirements/                [DOMAIN SPECS]
 ├── overlay/
 │   ├── spec.md             [Overlay networking requirements]
 │   └── checks.md           [Overlay validation checklist]
-└── secrets/
-    ├── spec.md             [Secrets management requirements]
-    └── checks.md           [Secrets validation checklist]
+├── secrets/
+│   ├── spec.md             [Secrets management requirements]
+│   └── checks.md           [Secrets validation checklist]
+├── storage/
+│   ├── spec.md             [Storage policy requirements]
+│   └── checks.md           [Storage validation checklist]
+├── tooling/
+│   ├── spec.md             [Tooling standardization]
+│   └── checks.md           [Tooling validation]
+└── workflow/
+    ├── spec.md             [Git workflow requirements]
+    └── checks.md           [Workflow validation]
+
+bootstrap/                   [IMPLEMENTATION SPECS]
+├── spec.md                 [Bootstrap procedure requirements]
+└── checks.md               [Bootstrap validation]
+
+talos/                       [IMPLEMENTATION SPECS]
+├── spec.md                 [Hardware inventory, Talos requirements]
+└── checks.md               [Talos validation]
 
 docs/
 ├── governance/              [PROCEDURES & GATES]
 │   ├── ci-gates.md         [CI gate reference & local commands]
 │   ├── procedures.md       [Change workflows & ADR process]
+│   ├── speckit-workflow.md [Non-canonical work planning]
 │   └── agent-contract.md   [Strict agent rules]
 └── adr/                    [DECISIONS]
     ├── ADR-0001-dns-intent.md
     ├── ADR-0002-tunnel-only-ingress.md
     ├── ADR-0003-management-network.md
     ├── ADR-0004-secrets-management.md
-    └── ADR-0005-agent-governance-procedures.md
+    ├── ADR-0005-agent-governance-procedures.md
+    ├── ...
+    ├── ADR-0023-scripts-stacks-classification.md
+    └── ADR-0024-speckit-workflow-non-canonical.md
 
 .github/
 ├── workflows/               [CI ENFORCEMENT]
@@ -56,10 +77,15 @@ docs/
 └── PULL_REQUEST_TEMPLATE.md [PR checklist template]
 
 scripts/
-├── no-invariant-drift.sh              [Gate 1 implementation]
-├── require-adr-on-canonical-changes.sh [Gate 2 implementation]
-├── adr-must-be-linked-from-spec.sh    [Gate 3 implementation]
-└── run-all-gates.sh                   [Convenience wrapper]
+├── [CANONICAL - Governance enforcement]
+│   ├── no-invariant-drift.sh              [Gate 1 implementation]
+│   ├── require-adr-on-canonical-changes.sh [Gate 2 implementation]
+│   ├── adr-must-be-linked-from-spec.sh    [Gate 3 implementation]
+│   ├── enforce-root-structure.sh          [Repository structure validation]
+│   └── run-all-gates.sh                   [Convenience wrapper]
+└── [NON-CANONICAL - Validation helpers]
+    ├── check-*.sh                         [Kubernetes/Talos validation]
+    └── test-*.sh                          [Testing scripts]
 ```
 
 ---
@@ -110,28 +136,38 @@ Defines:
 - What agents MUST NOT do (violate requirements, simplify boundaries)
 
 ### Domain Requirements
-**Location:** `requirements/*/spec.md`  
-**Type:** Normative constraints per domain  
+**Location:** `requirements/*/spec.md`
+**Type:** Normative constraints per domain
 **Enforced by:** Domain-specific checks, CI gates, human review
 
-Five domains:
+Eight governance domains:
 1. **DNS** - Zone structure, naming rules, prohibitions
 2. **Ingress** - Cloudflare Tunnel requirements, WAN prohibitions
 3. **Management** - Network isolation, access rules, VLAN constraints
 4. **Overlay** - Trusted endpoints only, management exclusions
 5. **Secrets** - Handling, rotation, scanning requirements
+6. **Storage** - Storage class policies, Longhorn constraints, backup requirements
+7. **Tooling** - Standardized developer tooling (Task, mise, etc.)
+8. **Workflow** - Git workflow, PR requirements, commit conventions
+
+Implementation specs (co-located with code):
+- **Bootstrap** (`bootstrap/spec.md`) - Cluster bootstrap procedures
+- **Talos/Compute** (`talos/spec.md`) - Hardware inventory, node requirements
 
 ### Architecture Decision Records
-**Location:** `docs/adr/ADR-*.md`  
-**Type:** Historical rationale (append-only)  
+**Location:** `docs/adr/ADR-*.md`
+**Type:** Historical rationale (append-only)
 **Enforced by:** ADR guard gates, linking requirements
 
-Current ADRs:
+Current ADRs (23+):
 - ADR-0001: DNS Intent
 - ADR-0002: Tunnel-Only Ingress
 - ADR-0003: Management Network
 - ADR-0004: Secrets Management
 - ADR-0005: Agent Governance Procedures
+- ... (ADR-0006 through ADR-0022)
+- ADR-0023: Scripts and Stacks Directory Classification
+- ADR-0024: Speckit Workflow for Non-Canonical Implementation
 
 ---
 
@@ -379,8 +415,8 @@ git diff origin/main -- infra/ ops/ | grep -i "vlan.*100\|10\.0\.100"
 
 ### Change Classification
 - **Doc-only:** Only `docs/` changes, no governance impact
-- **Non-canonical:** Implementation changes (`infra/`, `ops/`), no governance
-- **Canonical:** Changes to `constitution/`, `contracts/`, `requirements/` (ADR required)
+- **Non-canonical:** Implementation changes (`infra/`, `ops/`, `stacks/`, validation scripts) - see [Speckit workflow](./speckit-workflow.md)
+- **Canonical:** Changes to `constitution/`, `contracts/`, `requirements/`, governance scripts (ADR required)
 - **Constitutional:** Changes to `constitution/constitution.md` (ADR + amendment required)
 
 ### Agent Definition of Done
@@ -391,15 +427,18 @@ git diff origin/main -- infra/ ops/ | grep -i "vlan.*100\|10\.0\.100"
 - [ ] No constitutional violations
 
 ### Files Modified vs Required Actions
-| Files Changed | Classification | ADR Required | Gates |
-|--------------|----------------|--------------|-------|
-| `docs/` only | Doc-only | No | 1, 4 |
-| `infra/`, `ops/` | Non-canonical | Recommended* | 1, 4 |
-| `requirements/` | Canonical | Yes | 1, 2, 3, 4 |
-| `contracts/` | Canonical | Yes | 1, 2, 3, 4 |
-| `constitution/` | Constitutional | Yes + Amendment | 1, 2, 3, 4 |
 
-*ADR recommended for architectural changes, required for cross-domain impact
+| Files Changed                | Classification    | ADR Required      | Gates       | Notes                                    |
+|------------------------------|-------------------|-------------------|-------------|------------------------------------------|
+| `docs/` only                 | Doc-only          | No                | 1, 4        |                                          |
+| `infra/`, `ops/`, `stacks/`  | Non-canonical     | Recommended*      | 1, 4        | Consider [Speckit](./speckit-workflow.md)|
+| `scripts/` (validation)      | Non-canonical     | Recommended*      | 1, 4        | `check-*.sh`, `test-*.sh`                |
+| `scripts/` (governance)      | Canonical         | Yes               | 1, 2, 3, 4  | See ADR-0023                             |
+| `requirements/`              | Canonical         | Yes               | 1, 2, 3, 4  |                                          |
+| `contracts/`                 | Canonical         | Yes               | 1, 2, 3, 4  |                                          |
+| `constitution/`              | Constitutional    | Yes + Amendment   | 1, 2, 3, 4  |                                          |
+
+\*ADR recommended for architectural changes, required for cross-domain impact
 
 ---
 
@@ -407,11 +446,14 @@ git diff origin/main -- infra/ ops/ | grep -i "vlan.*100\|10\.0\.100"
 
 - **Detailed gate info:** [docs/governance/ci-gates.md](./ci-gates.md)
 - **Change procedures:** [docs/governance/procedures.md](./procedures.md)
+- **Speckit workflow:** [docs/governance/speckit-workflow.md](./speckit-workflow.md)
 - **Agent contract:** [docs/governance/agent-contract.md](./agent-contract.md)
 - **Constitution:** [constitution/constitution.md](../../constitution/constitution.md)
 - **All contracts:** [contracts/](../../contracts/)
 - **All requirements:** [requirements/](../../requirements/)
 - **All ADRs:** [docs/adr/](../adr/)
+- **ADR-0023:** [Scripts and Stacks Classification](../adr/ADR-0023-scripts-stacks-classification.md)
+- **ADR-0024:** [Speckit Workflow for Non-Canonical Work](../adr/ADR-0024-speckit-workflow-non-canonical.md)
 
 ---
 
@@ -458,5 +500,5 @@ Review these metrics quarterly and adjust gates/procedures as needed (with ADR).
 
 ---
 
-**Last Updated:** 2025-12-21  
+**Last Updated:** 2026-01-25
 **Maintained By:** Core team (see `.github/CODEOWNERS`)

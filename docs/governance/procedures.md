@@ -1,5 +1,5 @@
 # Governance Procedures
-**Effective:** 2025-12-21
+**Effective:** 2026-01-25 (updated by ADR-0023, ADR-0024)
 
 This document describes the governance procedures for making changes to this repository.
 
@@ -20,7 +20,15 @@ All changes fall into one of these categories, each with different requirements:
 ---
 
 ### 2. Non-Canonical Changes
-**Definition:** Changes to implementation (`infra/`, `ops/`, scripts) that don't modify governance
+**Definition:** Changes to implementation (`infra/`, `ops/`, `stacks/`, validation scripts) that don't modify governance
+
+**Directories:**
+- `/infra` - Infrastructure as code
+- `/ops` - Operational documentation and runbooks
+- `/stacks` - Docker Compose deployment manifests
+- `/scripts` - Validation and testing helpers (`check-*.sh`, `test-*.sh`)
+
+**Note:** Some scripts in `/scripts` are **canonical** (governance enforcement) - see ADR-0023 for details.
 
 **Requirements:**
 - [ ] No constitutional or contract violations
@@ -33,14 +41,28 @@ All changes fall into one of these categories, each with different requirements:
 - Change affects multiple domains
 - Change has security implications
 
+**Recommended Workflow:**
+- For non-trivial implementation work, consider using the [Speckit workflow](./speckit-workflow.md) to structure planning
+
 ---
 
 ### 3. Canonical Changes
-**Definition:** Changes to governance files (`constitution/`, `contracts/`, `requirements/`)
+**Definition:** Changes to governance files (`constitution/`, `contracts/`, `requirements/`, governance scripts)
+
+**Directories/Files:**
+- `/constitution` - Immutable principles
+- `/contracts` - Hard-stops, invariants, agent rules
+- `/requirements` - Domain specifications
+- `/scripts` - Governance enforcement scripts (see ADR-0023):
+  - `adr-must-be-linked-from-spec.sh`
+  - `require-adr-on-canonical-changes.sh`
+  - `no-invariant-drift.sh`
+  - `enforce-root-structure.sh`
+  - `run-all-gates.sh`
 
 **Requirements:**
 - [ ] **ADR reference required** in PR title or body
-- [ ] ADR must be linked from relevant `requirements/**/spec.md`
+- [ ] ADR must be linked from relevant `requirements/**/spec.md` (if applicable)
 - [ ] Pass all CI gates
 - [ ] No invariant drift in router files
 - [ ] Code owner review with extra scrutiny
@@ -159,6 +181,54 @@ vim requirements/<domain>/spec.md
 
 ### Step 5: Reference in PR
 Include `ADR-0005` in your PR title or description.
+
+---
+
+## Speckit Workflow for Non-Canonical Work
+
+For non-canonical implementation work (stacks, infra, ops), you may use the **Speckit workflow** to structure your planning. This is a lightweight alternative to ADRs for implementation decisions.
+
+### When to Use Speckit
+
+**Use for:**
+- Adding new applications to `/stacks`
+- Major infrastructure changes in `/infra`
+- New operational procedures in `/ops`
+- Non-trivial multi-component work
+
+**Skip for:**
+- Bug fixes, routine updates, doc-only changes
+- Canonical changes (use ADR process instead)
+
+### Speckit Workflow Phases
+
+1. **Constitution Review** - Check principles, hard-stops, invariants
+2. **Specify** - Create `spec.md` with MUST/MUST NOT/SHOULD requirements
+3. **Plan** - Create `plan.md` with architecture and approach
+4. **Tasks** - Create `tasks.md` with ordered tasks and acceptance criteria
+5. **Implement** - Execute tasks, verify criteria, pass gates
+
+### Templates
+
+Use templates from [`.specify/templates/`](../../.specify/templates/):
+- `spec-template.md` - Requirements
+- `plan-template.md` - Architecture
+- `tasks-template.md` - Tasks
+
+### Artifact Location
+
+Co-locate with implementation:
+```text
+stacks/platform/myapp/
+├── spec.md
+├── plan.md
+├── tasks.md
+└── compose.yaml
+```
+
+### Detailed Guide
+
+See [Speckit Workflow Guide](./speckit-workflow.md) for complete procedures, examples, and best practices.
 
 ---
 
@@ -457,6 +527,9 @@ Urgency does not override governance. If existing governance prevents a necessar
 
 - CI Gates Details: [ci-gates.md](./ci-gates.md)
 - Agent Contract: [agent-contract.md](./agent-contract.md)
+- Speckit Workflow: [speckit-workflow.md](./speckit-workflow.md)
 - Constitution: [constitution/constitution.md](../../constitution/constitution.md)
 - Contracts: [contracts/](../../contracts/)
 - Requirements: [requirements/](../../requirements/)
+- ADR-0023: [Scripts and Stacks Classification](../adr/ADR-0023-scripts-stacks-classification.md)
+- ADR-0024: [Speckit Workflow for Non-Canonical Work](../adr/ADR-0024-speckit-workflow-non-canonical.md)

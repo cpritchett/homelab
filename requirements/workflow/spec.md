@@ -120,3 +120,5 @@ See: [ADR-0018: GitOps Structure Refactor for home-ops](../../docs/adr/ADR-0018-
 See: [ADR-0020: Bootstrap, Storage, and Repository Governance Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
 See: [ADR-0022: Komodo-Managed NAS Stacks (supersedes ADR-0021)](../../docs/adr/ADR-0022-truenas-komodo-stacks.md)
 See: [ADR-0021: Require Registry for NAS Stacks (superseded)](../../docs/adr/ADR-0021-stacks-registry-required.md)
+See: [ADR-0023: Scripts and Stacks Directory Classification](../../docs/adr/ADR-0023-scripts-stacks-classification.md)
+See: [ADR-0024: Speckit Workflow for Non-Canonical Implementation](../../docs/adr/ADR-0024-speckit-workflow-non-canonical.md)
