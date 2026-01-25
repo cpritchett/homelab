@@ -26,25 +26,26 @@ has_changes() {
   changed_files | rg -q "${pattern}"
 }
 
-echo "Running all CI gates locally..."
+echo "==> Gate 1: Markdown allowlist (ADR-0025)"
+./scripts/enforce-markdown-allowlist.sh
 echo
 
-echo "==> Gate 1: no_invariant_drift"
+echo "==> Gate 2: no_invariant_drift"
 ./scripts/no-invariant-drift.sh
 echo
 
-echo "==> Gate 2: require_adr_for_canonical_changes"
+echo "==> Gate 3: require_adr_for_canonical_changes"
 export GITHUB_BASE_REF=main
 export PR_TITLE="${1:-Update}"
 export PR_BODY="${2:-}"
 ./scripts/require-adr-on-canonical-changes.sh
 echo
 
-echo "==> Gate 3: adr-must-be-linked-from-spec"
+echo "==> Gate 4: adr-must-be-linked-from-spec"
 ./scripts/adr-must-be-linked-from-spec.sh
 echo
 
-echo "==> Gate 4: Secret scanning (gitleaks)"
+echo "==> Gate 5: Secret scanning (gitleaks)"
 if command -v gitleaks &> /dev/null; then
   GITLEAKS_CONFIG=".gitleaks.toml"
   GITLEAKS_ALLOWLIST=".gitleaks.allowlist"
@@ -85,7 +86,7 @@ else
 fi
 echo
 
-echo "==> Gate 5: Policy enforcement (conditional)"
+echo "==> Gate 6: Policy enforcement (conditional)"
 if has_changes '^(infra/|policies/).*\.(ya?ml)$'; then
   if command -v kyverno >/dev/null 2>&1 && command -v yq >/dev/null 2>&1; then
     echo "Validating policy YAML syntax..."
@@ -153,7 +154,7 @@ else
 fi
 echo
 
-echo "==> Gate 6: Talos templates (conditional)"
+echo "==> Gate 7: Talos templates (conditional)"
 if has_changes '^(talos/|scripts/test-talos-templates.sh)'; then
   if command -v ytt >/dev/null 2>&1; then
     (cd talos && ./render.sh all)
@@ -171,7 +172,7 @@ else
 fi
 echo
 
-echo "==> Gate 7: Invariants (informational, conditional)"
+echo "==> Gate 8: Invariants (informational, conditional)"
 if has_changes '^(kubernetes/|bootstrap/|talos/|scripts/)'; then
   set +e
   ./scripts/check-kustomize-build.sh

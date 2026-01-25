@@ -89,14 +89,28 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - Only files explicitly listed in `scripts/enforce-root-structure.sh` may exist in repository root
    - No arbitrary documentation, summaries, or scratch files in root
 
-2. **Documentation must be properly located**:
+2. **Markdown files MUST be on allowlist** (see ADR-0025)
+   - Only `.md` files explicitly permitted by location/name pattern are allowed
+   - Violations blocked by `scripts/enforce-markdown-allowlist.sh` gate
+   - Arbitrary summaries, notes, plans (outside `specs/NNN-*/`) prohibited
+   - Permitted locations:
+     - Root: `README.md`, `CONTRIBUTING.md`, `CLAUDE.md`, `agents.md`
+     - `docs/adr/ADR-NNNN-*.md` (append-only)
+     - `docs/`, `docs/governance/`, `docs/operations/`
+     - `ops/CHANGELOG.md`, `ops/README.md`, `ops/runbooks/`
+     - `requirements/*/spec.md`, `requirements/*/checks.md`
+     - `specs/NNN-*/spec.md`, `specs/NNN-*/plan.md`, `specs/NNN-*/research.md`, `specs/NNN-*/data-model.md`, `specs/NNN-*/quickstart.md`, `specs/NNN-*/contracts/`, `specs/NNN-*/checklists/`, `specs/NNN-*/tasks.md`
+     - `infra/README.md`, `infra/<domain>/README.md`
+     - Domain dirs: `talos/`, `bootstrap/` (spec.md, checks.md, README.md only)
+
+3. **Documentation must be properly located**:
    - Architecture decisions → `docs/adr/`
    - General documentation → `docs/`
    - Operational documentation → `ops/runbooks/`
    - Change logs → `ops/CHANGELOG.md` (single file, append-only)
    - Implementation → `infra/<domain>/`
 
-3. **Deployment targets are separated by directory**:
+4. **Deployment targets are separated by directory**:
    - Kubernetes workloads → `kubernetes/`
    - NAS/non-K8s workloads → `stacks/` (Docker Compose, systemd units)
    - Infrastructure provisioning → `infra/`
