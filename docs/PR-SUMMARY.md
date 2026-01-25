@@ -12,9 +12,9 @@ This branch replaces the registry/script-driven stacks flow with Komodo-managed 
 ## Files Added
 
 ### Stack definitions
-- `stacks/proxy/compose.yml` — Caddy reverse proxy + docker-socket-proxy on `proxy_network`
+- `stacks/proxy/compose.yaml` — Caddy reverse proxy + docker-socket-proxy on `proxy_network`
 - `stacks/proxy/.env.example` — env keys for proxy stack (Komodo secrets/vars)
-- `stacks/authentik/compose.yml` — Authentik stack (bundled Postgres/Redis) routed via proxy
+- `stacks/authentik/compose.yaml` — Authentik stack (bundled Postgres/Redis) routed via proxy
 - `stacks/authentik/.env.example` — env keys for Authentik
 
 ### Documentation
@@ -39,5 +39,5 @@ This branch replaces the registry/script-driven stacks flow with Komodo-managed 
 ## Branch-specific Adjustments (this session)
 
 - `stacks/harbor/.env.tpl` now consistently references `CLOUDFLARE_API_TOKEN`.
-- `stacks/proxy/compose.yml` clarifies HTTPS upstream for Barbary reverse proxy.
+- `stacks/proxy/compose.yaml` clarifies HTTPS upstream for Barbary reverse proxy.
 - `stacks/_bin/ensure-harbor-datasets` no longer deletes `root.crt` on every run; it now only creates a placeholder if missing and errors on non-file paths.
