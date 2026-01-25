@@ -11,6 +11,15 @@ handoffs:
     send: true
 ---
 
+## Governance Authority
+
+**Tasks must respect governance constraints defined in canonical sources:**
+- Constitution and amendments (`constitution/constitution.md`)
+- Governance procedures and workflows (`docs/governance/procedures.md`)
+- Repository structure and rules (maintained in `requirements/workflow/spec.md` and `contracts/`)
+
+Agent does not encode governance into task generation; it defers to canonical documents and relies on CI gates for enforcement.
+
 ## User Input
 
 ```text

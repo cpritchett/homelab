@@ -10,6 +10,15 @@ handoffs:
     send: true
 ---
 
+## Governance Authority
+
+**This agent must follow repository governance for spec placement and structure.** Canonical governance is defined in `requirements/workflow/spec.md` (links to ADRs and constitutional authorities). Before executing, consult:
+- Spec placement rules in canonical sources
+- Repository structure constraints in `constitution/constitution.md`
+- Any active governance procedures in `docs/governance/procedures.md`
+
+The agent automatically inherits governance compliance through directory/filename pattern enforcement in prerequisite scripts, but agents must not hardcode specific rules—defer to canonical sources if governance changes.
+
 ## User Input
 
 ```text

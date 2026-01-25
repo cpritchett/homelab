@@ -3,6 +3,24 @@ description: Convert existing tasks into actionable, dependency-ordered GitHub i
 tools: ['github/github-mcp-server/issue_write']
 ---
 
+## Governance Authority
+
+**Issues must reference canonical governance and follow procedures.** Issue metadata should link to:
+- Relevant governance documents in repository (`requirements/`, `constitution/`, `contracts/`)
+- Related ADRs (via links in issue description)
+- Project constitution constraints (for issue scope validation)
+
+Agent creates issues but does not enforce governance—repository CI gates and governance procedures handle enforcement.
+
+## Governance Authority
+
+**Issues must reference canonical governance and follow procedures.** Issue metadata should link to:
+- Relevant governance documents in repository (`requirements/`, `constitution/`, `contracts/`)
+- Related ADRs (via links in issue description)
+- Project constitution constraints (for issue scope validation)
+
+Agent creates issues but does not enforce governance—repository CI gates and governance procedures handle enforcement.
+
 ## User Input
 
 ```text
