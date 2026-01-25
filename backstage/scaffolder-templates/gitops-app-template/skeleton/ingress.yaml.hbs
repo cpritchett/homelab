@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{appName}}
+  namespace: {{namespace}}
+  labels:
+    app.kubernetes.io/name: {{appName}}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    {{#if externalIngress}}
+    external-dns.alpha.kubernetes.io/hostname: {{appName}}.hypyr.space
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+    {{/if}}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{appName}}.{{#if externalIngress}}hypyr.space{{else}}in.hypyr.space{{/if}}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{appName}}
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - {{appName}}.{{#if externalIngress}}hypyr.space{{else}}in.hypyr.space{{/if}}
+      secretName: {{appName}}-tls

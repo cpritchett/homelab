@@ -1,0 +1,225 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: gitops-app-template
+  title: Deploy GitOps App
+  description: Deploy a containerized app to Kubernetes with customizable storage, ingress, and backup patterns
+  tags:
+    - kubernetes
+    - gitops
+    - deployment
+    - recommended
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Application Details
+      required: [appName, containerImage]
+      properties:
+        appName:
+          type: string
+          title: App Name
+          description: Kubernetes-compatible app name (lowercase, alphanumeric, hyphens)
+          pattern: '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$'
+          ui:autofocus: true
+          ui:help: 'Example: my-app, nginx-proxy, api-server'
+          
+        containerImage:
+          type: string
+          title: Container Image
+          description: Full image URL with tag
+          ui:help: 'Example: ghcr.io/owner/app:v1.0.0 or docker.io/library/nginx:latest'
+          
+        namespace:
+          type: string
+          title: Namespace
+          description: Target Kubernetes namespace (defaults to app name if empty)
+          default: ""
+
+    - title: Storage Configuration
+      properties:
+        storagePattern:
+          type: string
+          title: Storage Pattern
+          description: How should app data be persisted?
+          enum:
+            - ephemeral
+            - longhorn-persistent
+            - nas-mount
+            - s3-external
+          enumNames:
+            - 'Ephemeral (no persistence)'
+            - 'Longhorn Persistent (block storage)'
+            - 'NAS Mount (shared NFS)'
+            - 'S3 External (object storage)'
+          default: ephemeral
+          ui:widget: radio
+          
+        storageSize:
+          type: string
+          title: Storage Size (GB)
+          description: Required for Longhorn/NAS patterns
+          pattern: '^[0-9]{1,4}$'
+          default: "10"
+          ui:help: 'Enter size in GB (1-1000)'
+          
+        nasEndpoint:
+          type: string
+          title: NAS Endpoint
+          description: Select pre-configured NAS endpoint
+          enum:
+            - "nfs://nas.internal:2049"
+            - "nfs://nas-backup.internal:2049"
+          
+        nasSubpath:
+          type: string
+          title: NAS Subpath
+          description: Path on NAS where app data will be stored
+          ui:help: 'Example: /mnt/apps/myapp (must start with /)'
+          
+        s3Bucket:
+          type: string
+          title: S3 Bucket
+          description: AWS S3 bucket name for external storage
+
+    - title: Ingress & DNS Configuration
+      properties:
+        ingressPattern:
+          type: string
+          title: Ingress Pattern
+          description: How should the app be exposed?
+          enum:
+            - internal-only
+            - external-via-tunnel
+          enumNames:
+            - 'Internal Only (*.in.hypyr.space)'
+            - 'External via Cloudflare Tunnel (*.hypyr.space)'
+          default: internal-only
+          ui:widget: radio
+          
+    - title: Backup Strategy
+      properties:
+        backupStrategy:
+          type: string
+          title: Backup Strategy
+          description: How should app data be backed up?
+          enum:
+            - none
+            - volsync-snapshots
+          enumNames:
+            - 'None (no automated backups)'
+            - 'Volsync Snapshots (daily backups to S3)'
+          default: none
+          ui:widget: radio
+          
+        retentionDays:
+          type: number
+          title: Backup Retention (Days)
+          description: How long to keep backup snapshots
+          default: 30
+          minimum: 7
+          maximum: 365
+
+  steps:
+    - id: fetch-base
+      name: Fetch Base Repository
+      action: fetch:plain
+      input:
+        url: "https://github.com/${{ parameters.repoOwner }}/${{ parameters.repoName }}.git"
+        targetPath: ./base
+
+    - id: generate-manifests
+      name: Generate Kubernetes Manifests
+      action: custom:generate-manifests
+      input:
+        appName: ${{ parameters.appName }}
+        containerImage: ${{ parameters.containerImage }}
+        namespace: ${{ parameters.namespace || parameters.appName }}
+        storagePattern: ${{ parameters.storagePattern }}
+        storageSize: ${{ parameters.storageSize }}
+        nasEndpoint: ${{ parameters.nasEndpoint }}
+        nasSubpath: ${{ parameters.nasSubpath }}
+        s3Bucket: ${{ parameters.s3Bucket }}
+        ingressPattern: ${{ parameters.ingressPattern }}
+        backupStrategy: ${{ parameters.backupStrategy }}
+        retentionDays: ${{ parameters.retentionDays }}
+        operatorId: ${{ user.entity.metadata.name }}
+
+    - id: validate-manifests
+      name: Validate Kubernetes Manifests
+      action: custom:validate-manifests
+      input:
+        manifestsPath: ${{ steps['generate-manifests'].output.manifestsPath }}
+
+    - id: create-branch
+      name: Create Feature Branch
+      action: custom:create-git-branch
+      input:
+        repoUrl: 'github.com?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}'
+        branchName: "feat/app/${{ parameters.appName }}-${{ '' | now | date('unix') }}"
+        baseBranch: main
+
+    - id: commit-manifests
+      name: Commit Generated Manifests
+      action: custom:commit-files
+      input:
+        branchName: ${{ steps['create-branch'].output.branchName }}
+        commitMessage: "feat(app): add ${{ parameters.appName }}"
+        files: ${{ steps['generate-manifests'].output.files }}
+
+    - id: create-pr
+      name: Create Pull Request
+      action: publish:github:pull-request
+      input:
+        repoUrl: 'github.com?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}'
+        branchName: ${{ steps['create-branch'].output.branchName }}
+        title: "feat: deploy ${{ parameters.appName }}"
+        description: |
+          ## App Deployment Request
+          
+          **Operator**: ${{ user.entity.metadata.name }}
+          **Timestamp**: ${{ '' | now | date('iso8601') }}
+          
+          ### Configuration
+          - **App Name**: ${{ parameters.appName }}
+          - **Container Image**: ${{ parameters.containerImage }}
+          - **Namespace**: ${{ parameters.namespace || parameters.appName }}
+          - **Storage Pattern**: ${{ parameters.storagePattern }}
+          - **Ingress Pattern**: ${{ parameters.ingressPattern }}
+          - **Backup Strategy**: ${{ parameters.backupStrategy }}
+          
+          ### Generated Manifests
+          ${{ steps['generate-manifests'].output.manifestsList }}
+          
+          ### Validation
+          All manifests have been validated against Kubernetes schemas and constitutional rules.
+          
+          ---
+          *Generated by Backstage App Templating Platform*
+
+    - id: auto-merge
+      name: Request Auto-Merge (if eligible)
+      action: custom:conditional-merge
+      input:
+        prNumber: ${{ steps['create-pr'].output.pullRequestNumber }}
+        repoUrl: 'github.com?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}'
+        ingressPattern: ${{ parameters.ingressPattern }}
+
+  output:
+    links:
+      - title: Pull Request
+        url: ${{ steps['create-pr'].output.remoteUrl }}
+      - title: Repository
+        url: 'https://github.com/${{ parameters.repoOwner }}/${{ parameters.repoName }}'
+    text:
+      - title: Deployment Status
+        content: |
+          Your app deployment request has been submitted!
+          
+          **Next Steps**:
+          1. Review the pull request: ${{ steps['create-pr'].output.remoteUrl }}
+          2. Wait for CI gates to pass (usually < 2 minutes)
+          3. If all gates pass and no high-risk changes detected, PR will auto-merge
+          4. Once merged, Flux will deploy your app (usually < 5 minutes)
+          5. Access your app at: ${{ parameters.appName }}.${{ parameters.ingressPattern == 'internal-only' && 'internal.' || '' }}hypyr.space

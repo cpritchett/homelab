@@ -65,7 +65,7 @@ interface AppRequest {
   ingressPattern: 'internal-only' | 'external-via-tunnel';
   ingressConfig: {
     // For internal-only:
-    internalHostname?: string;         // Auto-generated: appName.internal.hypyr.space
+    internalHostname?: string;         // Auto-generated: appName.in.hypyr.space
     
     // For external-via-tunnel:
     externalHostname?: string;         // Auto-generated: appName.hypyr.space
@@ -101,7 +101,7 @@ interface AppRequest {
 | `containerImage` | Must be pullable (or registry check passes) | "Container image not found. Verify image name and registry access" |
 | `namespace` | If custom, must not be reserved (kube-*, backstage, etc.) | "Namespace is reserved. Choose a different namespace" |
 | `storagePattern` + `ingressPattern` | No incompatible combinations | All combinations valid (see matrix below) |
-| `ingressHostname` | Internal apps only use `*.internal.hypyr.space` | "Internal apps must use .internal.hypyr.space domain" |
+| `ingressHostname` | Internal apps only use `*.in.hypyr.space` | "Internal apps must use .in.hypyr.space domain" |
 | `ingressHostname` | External apps only use `*.hypyr.space` | "External apps must use .hypyr.space domain" |
 | `nasSubpath` | Does not contain `..` | "Subpath must not contain relative directory references" |
 | `s3UseExternalSecrets` | If true, S3 credentials must be available | "S3 credentials not configured in cluster" |
@@ -279,7 +279,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: {{appName}}.internal.hypyr.space
+    - host: {{appName}}.in.hypyr.space
       http:
         paths:
           - path: /

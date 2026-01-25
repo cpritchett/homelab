@@ -57,7 +57,7 @@ The operator chooses whether the app should be exposed internally (internal DNS 
 
 **Acceptance Scenarios**:
 
-1. **Given** the ingress pattern selection step, **When** an operator selects "Internal Only", **Then** a Service of type ClusterIP and an Ingress with internal hostname are generated (e.g., `app-name.internal.hypyr.space`).
+1. **Given** the ingress pattern selection step, **When** an operator selects "Internal Only", **Then** a Service of type ClusterIP and an Ingress with internal hostname are generated (e.g., `app-name.in.hypyr.space`).
 
 2. **Given** the ingress pattern selection step, **When** an operator selects "External via Tunnel", **Then** a Service of type ClusterIP, an Ingress with public hostname are generated (e.g., `app-name.hypyr.space`), and an ExternalDNS annotation for Cloudflare is added.
 
@@ -135,7 +135,7 @@ A separate workflow allows deploying applications directly to NAS (TrueNAS) via 
 
 - **FR-010**: System MUST provide a separate "Deploy NAS App" template that creates Komodo-compatible deployment requests.
 
-- **FR-011**: System MUST enforce constitutional DNS intent: internal apps use `*.internal.hypyr.space`, external apps use `*.hypyr.space`.
+- **FR-011**: System MUST enforce constitutional DNS intent: internal apps use `*.in.hypyr.space`, external apps use `*.hypyr.space`.
 
 - **FR-012**: System MUST log all template submissions with app name, operator identity, storage/ingress/backup choices for audit trail.
 
@@ -175,7 +175,7 @@ A separate workflow allows deploying applications directly to NAS (TrueNAS) via 
 
 9. **Repository Structure Stable**: The directory structure (`kubernetes/clusters/`, namespace patterns, kustomization layout) remains stable.
 
-10. **DNS Already Configured**: Internal (`*.internal.hypyr.space`) and external (`*.hypyr.space`) DNS zones are configured. Backstage generates names matching these patterns.
+10. **DNS Already Configured**: Internal (`*.in.hypyr.space`) and external (`*.hypyr.space`) DNS zones are configured. Backstage generates names matching these patterns.
 
 ## Success Criteria
 

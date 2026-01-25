@@ -98,5 +98,15 @@ build/
 target/
 *.log
 
+# Node.js/TypeScript artifacts
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+*.tsbuildinfo
+
 # Talos rendered configs (generated from templates)
 talos/rendered/
+.continue/

@@ -66,7 +66,7 @@ Implement Backstage with self-service app templating to enable operators to depl
    *Assessment*: Backstage itself is a management tool; runs in cluster management namespace; restricted to authenticated operators only. No impact to sacred management network boundary.
    
 2. ✅ **DNS Encodes Intent**  
-   *Assessment*: **CRITICAL** - FR-011 explicitly enforces this. Internal apps → `*.internal.hypyr.space`, external apps → `*.hypyr.space`. Manifest generation rejects mismatched configurations. Stored in template rules.
+   *Assessment*: **CRITICAL** - FR-011 explicitly enforces this. Internal apps → `*.in.hypyr.space`, external apps → `*.hypyr.space`. Manifest generation rejects mismatched configurations. Stored in template rules.
    
 3. ✅ **External Access is Identity-Gated**  
    *Assessment*: FR-001 requires Authentik authentication. All Backstage UI access gated. Generated manifests reference existing Cloudflare Tunnel annotations; Backstage generates Ingress but doesn't control tunnel itself.
