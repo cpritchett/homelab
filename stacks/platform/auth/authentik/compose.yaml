@@ -6,29 +6,67 @@ services:
       - /mnt/apps01/secrets/authentik/postgres.env
     volumes:
       - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-authentik}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - authentik
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1"]
+    volumes:
+      - /mnt/data01/appdata/authentik/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - authentik
 
   authentik-server:
-    image: ghcr.io/goauthentik/server:2024.12
+    image: ghcr.io/goauthentik/server:2025.1
     restart: unless-stopped
     env_file:
       - /mnt/apps01/secrets/authentik/authentik.env
     depends_on:
-      - postgresql
-      - redis
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - /mnt/apps01/appdata/authentik/media:/media
+      - /mnt/apps01/appdata/authentik/custom-templates:/templates
     labels:
       caddy: auth.in.hypyr.space
       caddy.reverse_proxy: "{{upstreams 9000}}"
+    networks:
+      - authentik
+      - proxy_network
 
   authentik-worker:
-    image: ghcr.io/goauthentik/server:2024.12
+    image: ghcr.io/goauthentik/server:2025.1
     restart: unless-stopped
     env_file:
       - /mnt/apps01/secrets/authentik/authentik.env
     command: worker
     depends_on:
-      - postgresql
-      - redis
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - /mnt/apps01/appdata/authentik/media:/media
+      - /mnt/apps01/appdata/authentik/custom-templates:/templates
+    networks:
+      - authentik
+
+networks:
+  authentik:
+    driver: bridge
+  proxy_network:
+    external: true
