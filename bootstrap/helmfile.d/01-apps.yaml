@@ -57,7 +57,7 @@ releases:
   - name: onepassword-store
     namespace: external-secrets
     chart: oci://ghcr.io/bjw-s-labs/helm/app-template
-    version: 4.6.0
+    version: 4.6.2
     installed: false # enable after providing values in ../values/onepassword-store.yaml
     needs: ['external-secrets/external-secrets']
     values:
