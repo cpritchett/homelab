@@ -1,6 +1,6 @@
 services:
   uptime-kuma:
-    image: louislam/uptime-kuma:1.23.13@sha256:5ed40a58b56b689ec2af50230e8d28804503351fed5eb54b1aefe530a8ea1fdc
+    image: louislam/uptime-kuma:1.23.13@sha256:96510915e6be539b76bcba2e6873591c67aca8a6075ff09f5b4723ae47f333fc
     restart: unless-stopped
     volumes:
       - /mnt/apps01/appdata/uptime-kuma:/app/data
