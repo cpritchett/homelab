@@ -22,8 +22,5 @@ jobs:
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
 
-      - name: No invariant drift in router/tool files
-        run: ./scripts/no-invariant-drift.sh
-
-      - name: Enforce repository root structure
-        run: ./scripts/enforce-root-structure.sh
+      - name: Run full guardrail suite (matches local run-all-gates)
+        run: ./scripts/run-all-gates.sh "ci: guardrails" "GitHub Actions guardrails"

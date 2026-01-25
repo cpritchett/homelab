@@ -25,6 +25,7 @@ allowed_root_dirs := {
     "constitution",
     "contracts",
     "bootstrap",
+    "specs",
     "docs",
     "infra",
     "kubernetes",
