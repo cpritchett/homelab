@@ -31,10 +31,14 @@ services:
         source: /mnt/apps01/appdata/restic/cache
         target: /cache
 
-      # scripts + exclude file live in repo (mounted from /mnt/apps01)
+      # scripts + exclude file from this stack directory
       - type: bind
-        source: /mnt/apps01/scripts/restic
-        target: /scripts
+        source: ./run.sh
+        target: /scripts/run.sh
+        read_only: true
+      - type: bind
+        source: ./excludes.txt
+        target: /scripts/excludes.txt
         read_only: true
 
     entrypoint: ["/bin/sh","-lc"]

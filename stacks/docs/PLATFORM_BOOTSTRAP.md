@@ -47,8 +47,8 @@ Run on the TrueNAS host:
 
 ```
 mkdir -p /mnt/apps01/appdata
+mkdir -p /mnt/apps01/appdata/proxy
 mkdir -p /mnt/apps01/secrets
-mkdir -p /mnt/apps01/scripts/restic
 mkdir -p /mnt/apps01/appdata/restic/cache
 
 mkdir -p /mnt/apps01/appdata/uptime-kuma
@@ -63,6 +63,7 @@ mkdir -p /mnt/data01/appdata/authentik/custom-templates
 Notes:
 - Postgres on rust (`/mnt/data01`) is fine and matches your preference.
 - Redis can be ephemeral; persistence is optional. If you want persistence, mount it (see Authentik compose notes).
+- Restic scripts (`run.sh`, `excludes.txt`) are bundled in the stack directory; Komodo handles syncing them automatically.
 
 ## Step 1: 1Password items (source of truth)
 
@@ -78,10 +79,18 @@ Fields:
 
 2) `authentik.env` (tag: `stack:authentik`)
 Fields:
-- AUTHENTIK_SECRET_KEY
-- AUTHENTIK_BOOTSTRAP_EMAIL
-- AUTHENTIK_BOOTSTRAP_PASSWORD
-- AUTHENTIK_POSTGRESQL__PASSWORD  (same value as POSTGRES_PASSWORD)
+- AUTHENTIK_SECRET_KEY (required, generate with `openssl rand -base64 32`)
+- AUTHENTIK_BOOTSTRAP_EMAIL (required for initial setup)
+- AUTHENTIK_BOOTSTRAP_PASSWORD (required for initial setup)
+- AUTHENTIK_POSTGRESQL__PASSWORD (same value as POSTGRES_PASSWORD)
+- AUTHENTIK_POSTGRESQL__USER (default: authentik)
+- AUTHENTIK_POSTGRESQL__NAME (default: authentik)
+- AUTHENTIK_POSTGRESQL__HOST (set to: postgresql)
+- AUTHENTIK_REDIS__HOST (set to: redis)
+- AUTHENTIK_DISABLE_STARTUP_ANALYTICS (set to: true)
+- AUTHENTIK_ERROR_REPORTING__ENABLED (set to: false)
+- AUTHENTIK_COOKIE_DOMAIN (set to: in.hypyr.space)
+- AUTHENTIK_HOST (set to: https://auth.in.hypyr.space)
 
 Optional (recommended later):
 - AUTHENTIK_EMAIL__HOST
@@ -183,7 +192,7 @@ Start with:
 Process:
 1) Create Authentik Proxy Provider for the app
 2) Deploy the outpost (proxy outpost)
-3) Add Caddy forward-auth labels to the app route (see docs/CADDY_FORWARD_AUTH_LABELS.md)
+3) Add Caddy forward-auth labels to the app route (see stacks/docs/CADDY_FORWARD_AUTH_LABELS.md)
 4) Confirm you can still reach the app via direct LAN address as a break-glass path (or keep a separate non-auth hostname)
 
 ## "What goes top level" rule

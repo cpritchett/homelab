@@ -16,8 +16,8 @@ services:
       - "443:443"
 
     volumes:
-      - ${APPDATA:-/mnt/apps01/appdata/proxy}/caddy-data:/data/caddy
-      - ${APPDATA:-/mnt/apps01/appdata/proxy}/caddy-config:/config
+      - /mnt/apps01/appdata/proxy/caddy-data:/data/caddy
+      - /mnt/apps01/appdata/proxy/caddy-config:/config
 
     networks:
       - proxy_network
