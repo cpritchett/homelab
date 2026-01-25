@@ -7,13 +7,23 @@ Automated secrets export from 1Password for NAS-deployed stacks.
 1. **Prepare 1Password CLI helper script** (once per host):
    ```bash
    # Copy the export script from the repository to the host
+   # For stable deployments, replace <RELEASE_TAG> with a tagged release (e.g., v1.0.0)
+   # For testing changes from a feature branch, use 'main' or manually copy the script
    mkdir -p /mnt/apps01/scripts
    curl -o /mnt/apps01/scripts/op-export-stack-env.sh \
-     https://raw.githubusercontent.com/cpritchett/homelab/main/stacks/scripts/op-export-stack-env.sh
+     https://raw.githubusercontent.com/cpritchett/homelab/refs/tags/<RELEASE_TAG>/stacks/scripts/op-export-stack-env.sh
    chmod +x /mnt/apps01/scripts/op-export-stack-env.sh
    ```
 
-   **Why this is required:** Per [ADR-0022](../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks must be deployable through Komodo without external dependencies. This helper script is shared infrastructure rather than stack-specific logic, and is therefore staged on the host once and reused by all stacks that need it.
+   **Alternatively, for testing changes from your local repo:**
+   ```bash
+   # Copy the script directly from your checked-out repository
+   mkdir -p /mnt/apps01/scripts
+   cp stacks/scripts/op-export-stack-env.sh /mnt/apps01/scripts/
+   chmod +x /mnt/apps01/scripts/op-export-stack-env.sh
+   ```
+
+   **Why this is required:** Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks must be deployable through Komodo without external dependencies. This helper script is shared infrastructure rather than stack-specific logic, and is therefore staged on the host once and reused by all stacks that need it.
 
 2. **Create 1Password secrets directory** (once per host):
    ```bash

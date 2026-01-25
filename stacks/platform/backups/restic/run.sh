@@ -58,6 +58,6 @@ case "$task" in
 
   *)
     echo "Unknown RESTIC_TASK: $task"
-    exit 2
+    exit 1
     ;;
 esac

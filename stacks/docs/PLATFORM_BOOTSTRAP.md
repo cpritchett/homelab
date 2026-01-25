@@ -53,11 +53,13 @@ mkdir -p /mnt/apps01/appdata/restic/cache
 
 mkdir -p /mnt/apps01/appdata/uptime-kuma
 
+mkdir -p /mnt/apps01/appdata/authentik
+mkdir -p /mnt/apps01/appdata/authentik/media
+mkdir -p /mnt/apps01/appdata/authentik/custom-templates
+
 mkdir -p /mnt/data01/appdata/authentik
 mkdir -p /mnt/data01/appdata/authentik/postgres
 mkdir -p /mnt/data01/appdata/authentik/redis
-mkdir -p /mnt/data01/appdata/authentik/media
-mkdir -p /mnt/data01/appdata/authentik/custom-templates
 ```
 
 Notes:

@@ -51,12 +51,30 @@ Restore order:
 - Verify komodo UI is reachable (do not gate via Authentik yet)
 
 ### 5) Re-materialize secrets (op-export)
-- Ensure service account token exists in /mnt/apps01/secrets/op/op.env (restore or re-create)
-- Run the op-export job stack via Komodo
+
+**Critical:** This step must happen before Authentik can start, since Authentik credentials come from 1Password.
+
+- Ensure service account token exists at `/mnt/apps01/secrets/op/op.env`:
+  - **Preferred:** Restore this file from Restic backup
+  - **If not in backup, manually create:**
+    1. In 1Password, locate the **service account** used for op-export (under Integrations/Service accounts) and copy its **service account token**.
+    2. On the TrueNAS host, create the directory and file:
+       ```bash
+       mkdir -p /mnt/apps01/secrets/op
+       cat > /mnt/apps01/secrets/op/op.env << 'EOF'
+       OP_SERVICE_ACCOUNT_TOKEN=<PASTE_YOUR_SERVICE_ACCOUNT_TOKEN_HERE>
+       VAULT=homelab
+       DEST_ROOT=/mnt/apps01/secrets
+       EOF
+       chmod 600 /mnt/apps01/secrets/op/op.env
+       ```
+    3. Verify permissions are restrictive (600) so only the appropriate user can read it.
+
+- Once the token file exists, run the op-export job stack via Komodo (or manually: `docker compose up`).
 
 Verify on host:
-- /mnt/apps01/secrets/authentik/*.env
-- /mnt/apps01/secrets/restic/*.env
+- `/mnt/apps01/secrets/authentik/*.env` (should contain authentik.env and postgres.env)
+- `/mnt/apps01/secrets/restic/*.env` (should contain restic.env)
 
 ### 6) Bring up Authentik
 - Deploy Authentik stack

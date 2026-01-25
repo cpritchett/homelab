@@ -4,7 +4,7 @@
 **/cache/**
 **/logs/**
 **/log/**
-**/*cache*/**
+**/.cache/**
 
 # container-ish noise (if present)
 **/node_modules/**
