@@ -513,6 +513,7 @@ Komodo exposes powerful REST and WebSocket APIs:
 Related documentation:
 - [Komodo Secrets Management](./KOMODO_SECRETS_MANAGEMENT.md) — Complete secrets procedures
 - [1Password Secrets Workflow](../../ops/runbooks/1password-secrets-workflow.md) — Script quick reference
+- [Stack Scripts Reference](../../ops/runbooks/stacks-scripts.md) — op-create and op-export documentation
 - [ADR-0022: Komodo-Managed NAS Stacks](/docs/adr/ADR-0022-truenas-komodo-stacks.md) — Architecture decision
 - [Stacks Deployment Runbook](/ops/runbooks/stacks-deployment.md) — Operational workflows
 - [NAS Stacks Overview](/docs/STACKS.md)

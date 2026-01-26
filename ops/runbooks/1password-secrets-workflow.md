@@ -423,7 +423,7 @@ op item edit caddy.env --vault homelab CADDY_DOMAIN=caddy.new.hypyr.space
 
 ## Related Documentation
 
-- [1Password Stack Scripts](../../stacks/scripts/README.md) — Script usage and examples
+- [Stack Scripts Reference](./stacks-scripts.md) — op-create and op-export script documentation
 - [Platform Bootstrap Guide](../../stacks/docs/PLATFORM_BOOTSTRAP.md) — Full platform setup
 - [ADR-0022: Komodo-Managed NAS Stacks](../../docs/adr/ADR-0022-truenas-komodo-stacks.md) — Architecture decision
 - [Stacks Deployment Procedures](../../docs/governance/procedures.md) — Operational workflows

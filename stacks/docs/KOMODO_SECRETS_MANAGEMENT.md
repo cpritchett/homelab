@@ -413,6 +413,7 @@ Without ResourceSync, enforce order yourself:
 ## Related Documentation
 
 - [1Password Secrets Workflow](../../ops/runbooks/1password-secrets-workflow.md) — Script usage and scenarios
+- [Stack Scripts Reference](../../ops/runbooks/stacks-scripts.md) — op-create and op-export script documentation
 - [Platform Bootstrap Guide](./PLATFORM_BOOTSTRAP.md) — Full platform setup order
 - [Komodo Official Documentation](https://komo.do/docs/intro)
 - [Komodo Stacks Guide](https://komo.do/docs/resources/docker-compose)
