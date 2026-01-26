@@ -131,7 +131,7 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
 7. **NAS stacks are Komodo-managed**
    - NAS/non-Kubernetes stacks are deployed from this repository via TrueNAS Komodo
    - No `stacks/registry.toml` or host-side deploy scripts are required or permitted
-   - Each stack directory must be self-contained (compose file + `.env.example`)
+   - Each stack directory must be self-contained (compose file + `<item-name>.env.example` files, where each file corresponds to one 1Password item)
 
 ## GitOps Invariants
 

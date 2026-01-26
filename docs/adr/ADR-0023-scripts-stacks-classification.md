@@ -63,7 +63,7 @@ The `/stacks` directory is **non-canonical**. Changes to stacks (adding applicat
 **ADR NOT required for:**
 - Adding new application stacks
 - Updating Docker Compose configurations
-- Modifying `.env.example` files
+- Modifying `<item-name>.env.example` files (e.g., `restic.env.example`, `postgres.env.example`)
 - Updating image versions or dependencies
 - Adding stack-specific helper scripts
 

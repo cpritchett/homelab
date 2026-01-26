@@ -241,7 +241,7 @@ Caddy will forward unauthenticated requests to Authentik for validation.
 - **Description:** Deploy PostgreSQL and Redis containers for Authentik backend
 - **Files:**
   - `stacks/platform/auth/compose.yaml` (postgres, redis services)
-  - `stacks/platform/auth/.env.example` (document required vars)
+  - `stacks/platform/auth/postgres.env.example` (document database vars)
 - **Acceptance criteria:**
   - PostgreSQL listens on :5432, healthcheck passes
   - Redis listens on :6379, healthcheck passes
@@ -252,7 +252,7 @@ Caddy will forward unauthenticated requests to Authentik for validation.
 - **Description:** Add Authentik container with environment configuration
 - **Files:**
   - `stacks/platform/auth/compose.yaml` (authentik service)
-  - `stacks/platform/auth/.env.example` (AUTHENTIK_* vars)
+  - `stacks/platform/auth/authentik.env.example` (AUTHENTIK_* vars)
 - **Acceptance criteria:**
   - Authentik starts successfully
   - Web UI accessible on :9000
@@ -336,11 +336,12 @@ export GITHUB_BASE_REF=main
 **Directory Structure:**
 ```
 stacks/platform/auth/
-├── spec.md              # Requirements (MUST use 1Password, MUST implement OIDC)
-├── plan.md              # Architecture (PostgreSQL backend, forward auth integration)
-├── tasks.md             # 4 tasks (PostgreSQL, Authentik, Caddy, secrets)
-├── compose.yaml         # Implementation
-└── .env.example         # Environment template
+├── spec.md                  # Requirements (MUST use 1Password, MUST implement OIDC)
+├── plan.md                  # Architecture (PostgreSQL backend, forward auth integration)
+├── tasks.md                 # 4 tasks (PostgreSQL, Authentik, Caddy, secrets)
+├── compose.yaml             # Implementation
+├── authentik.env.example    # Authentik environment template
+└── postgres.env.example     # PostgreSQL environment template
 ```
 
 **Workflow:**

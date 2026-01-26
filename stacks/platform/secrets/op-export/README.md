@@ -38,7 +38,7 @@ Automated secrets export from 1Password for NAS-deployed stacks.
 4. **Configure environment** in Komodo:
    - Set `STACKS` to a space-separated list of stack names (e.g., `"authentik komodo caddy"`)
    - Set `OP_SERVICE_ACCOUNT_TOKEN` via secrets (do not commit to git)
-   - Adjust `VAULT` and `DEST_ROOT` if needed (see `.env.example`)
+   - Adjust `VAULT` and `DEST_ROOT` if needed (see `op.env.example`)
 
 5. **Run the export job**:
    - Start the app through Komodo or run manually: `docker compose up`
@@ -65,11 +65,12 @@ Example: Items tagged `stack:authentik` are exported when `STACKS` includes `aut
 ├── op/
 │   └── op.env                    # 1Password token (mounted from Komodo secret)
 ├── authentik/
-│   ├── db.env                    # Exported from 1Password item tagged "stack:authentik"
-│   ├── oidc.env
-│   └── bootstrap.env
-└── komodo/
-    └── secrets.env               # Exported from 1Password items tagged "stack:komodo"
+│   ├── authentik.env             # Exported from 1Password item "authentik.env" (tagged "stack:authentik")
+│   └── postgres.env              # Exported from 1Password item "postgres.env" (tagged "stack:authentik")
+├── restic/
+│   └── restic.env                # Exported from 1Password item "restic.env" (tagged "stack:restic")
+└── caddy/
+    └── caddy.env                 # Exported from 1Password item "caddy.env" (tagged "stack:caddy")
 ```
 
 ## Prerequisites
@@ -81,7 +82,7 @@ Example: Items tagged `stack:authentik` are exported when `STACKS` includes `aut
 
 ## Environment Variables
 
-See `.env.example` for configuration options:
+See `op.env.example` for configuration options:
 - `OP_SERVICE_ACCOUNT_TOKEN` — 1Password service account token (required)
 - `VAULT` — 1Password vault name (default: `homelab`)
 - `DEST_ROOT` — Destination directory for exported files (default: `/mnt/apps01/secrets`)

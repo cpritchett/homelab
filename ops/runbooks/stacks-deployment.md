@@ -21,7 +21,7 @@ GitHub and deployed as a Compose app; no registry file or host-side deployment s
 ## Komodo deployment flow
 
 1) In TrueNAS Komodo, add a new app from GitHub and point to the stack path (e.g., `stacks/proxy`).
-2) Populate env/secret values using the stack's `.env.example` as a guide.
+2) Populate env/secret values using the stack's `*.env.example` files as a guide (each file corresponds to one 1Password item).
 3) Ensure shared prerequisites like `proxy_network` exist before deploying dependent stacks (e.g., `authentik` expects the proxy network).
 4) Deploy via Komodo UI. Repeat for additional stacks.
 
@@ -30,7 +30,7 @@ GitHub and deployed as a Compose app; no registry file or host-side deployment s
 ### Verify Komodo environment variables and secrets
 
 - In TrueNAS Komodo, open the app for the stack (e.g., `proxy`, `authentik`).
-- Review the environment variables and secrets configured for the app and compare them to the stack's `.env.example`.
+- Review the environment variables and secrets configured for the app and compare them to the stack's `*.env.example` files.
 - If you change any values, re-deploy the app from the Komodo UI so the containers pick up the updated configuration.
 - To confirm what the container sees, you can exec into a running container and inspect its environment (for example: `sudo docker exec -it <container_name> env`).
 ### Docker status

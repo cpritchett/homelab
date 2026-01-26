@@ -104,11 +104,11 @@ We establish the **Speckit Workflow** as the official process for non-canonical 
 stacks/
   platform/
     ingress/
-      spec.md          # Requirements for ingress stack
-      plan.md          # Architecture decisions
-      tasks.md         # Implementation tasks
-      compose.yaml     # Implementation
-      .env.example
+      spec.md              # Requirements for ingress stack
+      plan.md              # Architecture decisions
+      tasks.md             # Implementation tasks
+      compose.yaml         # Implementation
+      caddy.env.example    # Environment template for Caddy
 
 kubernetes/
   clusters/
