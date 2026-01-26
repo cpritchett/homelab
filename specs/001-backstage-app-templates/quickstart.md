@@ -232,7 +232,7 @@ auth:
   providers:
     oidc:
       development:
-        metadataUrl: https://auth.internal.hypyr.space/application/o/backstage/.well-known/openid-configuration
+        metadataUrl: https://auth.in.hypyr.space/application/o/backstage/.well-known/openid-configuration
         clientId: ${AUTHENTIK_CLIENT_ID}
         clientSecret: ${AUTHENTIK_CLIENT_SECRET}
         scope: openid profile email
@@ -292,7 +292,7 @@ npm start
    - Manifests should be in: `kubernetes/clusters/<cluster>/namespaces/test-nginx/`
    - Files generated: `deployment.yaml`, `service.yaml`, `ingress.yaml`
 
-**Expected**: Manifests are generated with correct DNS names (`test-nginx.internal.hypyr.space`)
+**Expected**: Manifests are generated with correct DNS names (`test-nginx.in.hypyr.space`)
 
 ### Test 3: Kubernetes Schema Validation
 
@@ -327,7 +327,7 @@ Test each pattern separately:
 ```bash
 # Test Internal-Only
 # App form: ingressPattern=internal-only
-# Expected: Service type ClusterIP, Ingress host = appname.internal.hypyr.space
+# Expected: Service type ClusterIP, Ingress host = appname.in.hypyr.space
 
 # Test External-via-Tunnel
 # App form: ingressPattern=external-via-tunnel
@@ -341,7 +341,7 @@ Test each pattern separately:
 ### Prerequisites
 
 - Kubernetes cluster access (verify: `kubectl cluster-info`)
-- Authentik instance running (verify: `curl -k https://auth.internal.hypyr.space`)
+- Authentik instance running (verify: `curl -k https://auth.in.hypyr.space`)
 - GitHub token with repo write permissions
 - Komodo API endpoint accessible (if NAS template needed)
 
@@ -446,11 +446,11 @@ metadata:
   name: backstage
   namespace: backstage
   annotations:
-    external-dns.alpha.kubernetes.io/hostname: backstage.internal.hypyr.space
+    external-dns.alpha.kubernetes.io/hostname: backstage.in.hypyr.space
 spec:
   ingressClassName: nginx
   rules:
-    - host: backstage.internal.hypyr.space
+    - host: backstage.in.hypyr.space
       http:
         paths:
           - path: /

@@ -1,0 +1,45 @@
+{
+  "name": "@homelab/backstage",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backstage App Templating Platform for homelab",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "test": "backstage-cli package test",
+    "lint": "backstage-cli package lint"
+  },
+  "dependencies": {
+    "@backstage/backend-common": "^0.21.0",
+    "@backstage/backend-plugin-api": "^0.6.0",
+    "@backstage/backend-tasks": "^0.5.0",
+    "@backstage/catalog-client": "^1.6.0",
+    "@backstage/catalog-model": "^1.4.0",
+    "@backstage/config": "^1.2.0",
+    "@backstage/core-components": "^0.14.0",
+    "@backstage/core-plugin-api": "^1.9.0",
+    "@backstage/integration": "^1.9.0",
+    "@backstage/plugin-auth-node": "^0.4.0",
+    "@backstage/plugin-catalog-backend": "^1.21.0",
+    "@backstage/plugin-catalog-react": "^1.11.0",
+    "@backstage/plugin-scaffolder-backend": "^1.22.0",
+    "@backstage/plugin-scaffolder-react": "^1.8.0",
+    "@backstage/theme": "^0.5.0",
+    "@octokit/rest": "^20.0.0",
+    "handlebars": "^4.7.8",
+    "kubernetes-models": "^4.0.0",
+    "yaml": "^2.3.4",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@backstage/cli": "^0.25.0",
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
+  "overrides": {
+    "jsonpath-plus": "^10.2.0"
+  }
+}

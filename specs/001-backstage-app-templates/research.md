@@ -181,8 +181,8 @@ try {
     throw new Error('External apps must use *.hypyr.space DNS');
   }
   
-  if (manifest.ingressPattern === 'internal' && !ingressHost.endsWith('.internal.hypyr.space')) {
-    throw new Error('Internal apps must use *.internal.hypyr.space DNS');
+  if (manifest.ingressPattern === 'internal' && !ingressHost.endsWith('.in.hypyr.space')) {
+    throw new Error('Internal apps must use *.in.hypyr.space DNS');
   }
   
 } catch (error) {
@@ -211,7 +211,7 @@ auth:
   providers:
     oidc:
       production:
-        metadataUrl: https://auth.internal.hypyr.space/application/o/backstage/.well-known/openid-configuration
+        metadataUrl: https://auth.in.hypyr.space/application/o/backstage/.well-known/openid-configuration
         clientId: ${AUTHENTIK_CLIENT_ID}
         clientSecret: ${AUTHENTIK_CLIENT_SECRET}
         scope: openid profile email
@@ -250,7 +250,7 @@ auth:
    - Blocks auto-merge if high-risk detected (remove `auto-merge` label)
 
 3. **High-Risk Criteria**:
-   - Any external ingress (domain not internal.hypyr.space)
+   - Any external ingress (domain not in.hypyr.space)
    - New `ExternalDNS` annotation
    - New Secret references (S3 credentials, etc.)
    - Changes to management namespace

@@ -1,0 +1,52 @@
+{
+  "customCommands": [
+    {
+      "name": "governance",
+      "prompt": "Review the governance authority for this project and explain what governance rules apply to my current task. Authority order: 1) constitution/constitution.md, 2) constitution/amendments/, 3) contracts/agents.md, 4) contracts/hard-stops.md, 5) contracts/invariants.md, 6) requirements/workflow/spec.md, 7) requirements/**/spec.md, 8) docs/adr/, 9) docs/governance/procedures.md"
+    },
+    {
+      "name": "ci-gates",
+      "prompt": "Before finalizing changes, check the CI gates defined in scripts/run-all-gates.sh. These gates MUST pass. The key gates are: 1) no-invariant-drift.sh, 2) require-adr-on-canonical-changes.sh, 3) adr-must-be-linked-from-spec.sh, 4) gitleaks security scanning. Help me understand if my changes will pass these gates."
+    },
+    {
+      "name": "security-scan",
+      "prompt": "Run a security scan using gitleaks to check for secrets. The command is: gitleaks detect --source . --verbose --config .gitleaks.toml. Help me identify any potential security issues in my changes."
+    },
+    {
+      "name": "symbolic-editing",
+      "prompt": "For code edits in this project, prefer using symbolic tools when available (via Serena MCP). When editing: 1) Read context in parallel where possible, 2) Apply changes in the correct order, 3) Batch independent edits together for efficiency. Help me plan the optimal edit strategy."
+    }
+  ],
+  "docs": [
+    {
+      "title": "Governance Authority",
+      "description": "Read project governance in this order",
+      "path": "constitution/constitution.md"
+    },
+    {
+      "title": "Agent Operating Rules",
+      "description": "Constraints and requirements for agents",
+      "path": "contracts/agents.md"
+    },
+    {
+      "title": "Hard Stops",
+      "description": "Actions requiring human approval",
+      "path": "contracts/hard-stops.md"
+    },
+    {
+      "title": "System Invariants",
+      "description": "What must always be true",
+      "path": "contracts/invariants.md"
+    },
+    {
+      "title": "CI Gate Validation",
+      "description": "Required checks before merge",
+      "path": "scripts/run-all-gates.sh"
+    },
+    {
+      "title": "Procedures & Workflows",
+      "description": "Change procedures and workflows",
+      "path": "docs/governance/procedures.md"
+    }
+  ]
+}

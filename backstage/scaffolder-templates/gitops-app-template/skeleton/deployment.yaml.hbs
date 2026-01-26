@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{appName}}
+  namespace: {{namespace}}
+  labels:
+    app.kubernetes.io/name: {{appName}}
+    app.kubernetes.io/managed-by: backstage
+    backstage.io/operator: {{operatorId}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{appName}}
+  template:
+    metadata:
+      labels:
+        app: {{appName}}
+        app.kubernetes.io/name: {{appName}}
+    spec:
+      containers:
+        - name: {{appName}}
+          image: {{containerImage}}
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          {{#if hasVolume}}
+          volumeMounts:
+            - name: app-data
+              mountPath: /data
+          {{/if}}
+          {{#if s3Enabled}}
+          env:
+            - name: S3_BUCKET
+              value: {{s3Bucket}}
+            - name: S3_REGION
+              value: {{s3Region}}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{appName}}-s3-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{appName}}-s3-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+          {{/if}}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop: [ALL]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      {{#if hasVolume}}
+      volumes:
+        {{#if ephemeralStorage}}
+        - name: app-data
+          emptyDir: {}
+        {{else}}
+        - name: app-data
+          persistentVolumeClaim:
+            claimName: {{appName}}-data
+        {{/if}}
+      {{/if}}

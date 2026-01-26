@@ -1,0 +1,71 @@
+{
+  "codebaseContextProvider": "repo-map",
+  "docs": [
+    {
+      "title": "Governance Authority",
+      "description": "Constitutional governance hierarchy - READ FIRST",
+      "startHeading": "# Canonical Authority",
+      "faviconUrl": "https://github.com/favicon.ico",
+      "path": "constitution/constitution.md"
+    },
+    {
+      "title": "Agent Contract",
+      "description": "Rules and constraints for this agent",
+      "startHeading": "# Agent Contract",
+      "faviconUrl": "https://github.com/favicon.ico",
+      "path": "contracts/agents.md"
+    },
+    {
+      "title": "Hard Stops",
+      "description": "Actions requiring human approval - DO NOT BYPASS",
+      "startHeading": "# Hard Stops",
+      "faviconUrl": "https://github.com/favicon.ico",
+      "path": "contracts/hard-stops.md"
+    },
+    {
+      "title": "System Invariants",
+      "description": "What must always be true",
+      "startHeading": "# Invariants",
+      "faviconUrl": "https://github.com/favicon.ico",
+      "path": "contracts/invariants.md"
+    },
+    {
+      "title": "Governance Procedures",
+      "description": "Change workflows and procedures",
+      "startHeading": "# Governance Procedures",
+      "faviconUrl": "https://github.com/favicon.ico",
+      "path": "docs/governance/procedures.md"
+    },
+    {
+      "title": "Spec-Kit Workflow",
+      "description": "Non-canonical implementation workflow",
+      "startHeading": "# Speckit Workflow",
+      "faviconUrl": "https://github.com/favicon.ico",
+      "path": "docs/governance/speckit-workflow.md"
+    },
+    {
+      "title": "CI Gates Reference",
+      "description": "Required validation gates before merge",
+      "startHeading": "#!/usr/bin/env bash",
+      "faviconUrl": "https://github.com/favicon.ico",
+      "path": "scripts/run-all-gates.sh"
+    }
+  ],
+  "customCommands": [
+    {
+      "name": "governance",
+      "description": "Review governance authority",
+      "prompt": "Review the governance authority for this task. Read in order: 1) constitution/constitution.md, 2) contracts/agents.md, 3) contracts/hard-stops.md, 4) contracts/invariants.md, 5) requirements/workflow/spec.md, 6) docs/adr/. What governance rules apply? Are there hard stops? What ADRs are needed?"
+    },
+    {
+      "name": "ci-gates",
+      "description": "Check CI gate requirements",
+      "prompt": "Check if my changes will pass the CI gates. Run: ./scripts/run-all-gates.sh \"PR title\" \"PR description\". The gates that MUST pass are: no-invariant-drift.sh, require-adr-on-canonical-changes.sh, adr-must-be-linked-from-spec.sh, and gitleaks security scanning. Help me understand potential issues."
+    },
+    {
+      "name": "security",
+      "description": "Run security scan for secrets",
+      "prompt": "Scan for secrets using gitleaks. Run: gitleaks detect --source . --verbose --config .gitleaks.toml. Help me identify any potential security issues in my changes before committing."
+    }
+  ]
+}
