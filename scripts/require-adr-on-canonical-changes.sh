@@ -41,6 +41,14 @@ if [[ -z "${PR_TEXT// }" ]]; then
   PR_TEXT="$(git log -1 --pretty=%B || true)"
 fi
 
+# Exemption for automated release PRs (ADR-0031)
+# Release-please PRs aggregate previously-approved changes and only update versions/CHANGELOGs
+if [[ "${GITHUB_ACTOR:-}" == "github-actions[bot]" ]] && [[ "${PR_TITLE:-}" =~ ^chore:\ release ]]; then
+  echo "✅ Release PR detected (created by release-please bot). Exempt from ADR requirement per ADR-0031."
+  echo "   Individual commits have already passed ADR gates before merging to main."
+  exit 0
+fi
+
 if echo "$PR_TEXT" | rg -n --pcre2 "$ADR_REGEX" >/dev/null 2>&1; then
   echo "✅ ADR reference found in PR title/body (or latest commit message)."
   exit 0
