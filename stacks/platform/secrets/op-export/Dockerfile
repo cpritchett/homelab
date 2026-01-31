@@ -2,7 +2,7 @@ FROM alpine:3.23@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f21
 
 # renovate: datasource=github-releases depName=1Password/op-cli
 ARG OP_VERSION=2.30.3
-ARG OP_SHA256=3500bcec4ae3e478d8f3fd711e00e9567e33d0bb5c9d719ed2c6e2c0172e5479
+ARG OP_SHA256=a16307ebcecb40fd091d7a6ff4f0c380c3c0897c4f4616de2c5d285e57d5ee28
 
 SHELL ["/bin/ash", "-eu", "-c"]
 
