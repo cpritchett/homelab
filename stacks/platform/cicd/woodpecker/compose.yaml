@@ -1,6 +1,6 @@
 services:
   woodpecker-server:
-    image: woodpeckerci/woodpecker-server:2.10.1
+    image: woodpeckerci/woodpecker-server:v3.13.0@sha256:428eb0965754e25e67b8b086648438858b4fa64487b1cd3cc8e4101b396e459a
     restart: unless-stopped
     environment:
       # Server configuration
@@ -34,7 +34,7 @@ services:
       - proxy_network
 
   woodpecker-agent:
-    image: woodpeckerci/woodpecker-agent:2.10.1
+    image: woodpeckerci/woodpecker-agent:v3.13.0@sha256:a983b1016217ad94cdab48d732ec97b5b1f72718725d651183d7ec885f7caf35
     restart: unless-stopped
     environment:
       WOODPECKER_SERVER: "ws://woodpecker-server:8000"

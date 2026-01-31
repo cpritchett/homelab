@@ -76,6 +76,8 @@ If any file in these canonical paths changed:
 
 Then the PR title or body must contain an ADR reference like `ADR-0004`.
 
+**Exemption:** Release PRs created by the release-please bot (`github-actions[bot]`) with titles matching `chore: release` are exempt from this check because individual commits have already passed ADR gates before merging to main. See [ADR-0031: Automated Release Process](../adr/ADR-0031-automated-release-process.md) for rationale.
+
 ### Trigger conditions
 - `pull_request` (opened, edited, synchronize, reopened)
 - `push` to `main` or `master`
