@@ -6,6 +6,7 @@
       groupName: "1Password Connect",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/1password/"],
+      semanticCommitScope: "1password",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -13,6 +14,7 @@
       groupName: "Actions Runner Controller",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/gha-runner-scale-set-controller/", "/gha-runner-scale-set/"],
+      semanticCommitScope: "ci",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -20,6 +22,7 @@
       groupName: "Cert-Manager",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/cert-manager/"],
+      semanticCommitScope: "cert-manager",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -27,6 +30,7 @@
       groupName: "Cilium",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/cilium/"],
+      semanticCommitScope: "networking",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -34,6 +38,7 @@
       groupName: "CoreDNS",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/coredns/"],
+      semanticCommitScope: "dns",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -41,6 +46,7 @@
       groupName: "External Secrets Operator",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/external-secrets/"],
+      semanticCommitScope: "secrets",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -48,6 +54,7 @@
       groupName: "Flux Operator",
       matchDatasources: ["docker", "github-releases", "helm"],
       matchPackageNames: ["/flux-operator/", "/flux-instance/", "fluxcd/flux2"],
+      semanticCommitScope: "gitops",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -55,6 +62,7 @@
       groupName: "Spegel",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/spegel/"],
+      semanticCommitScope: "registry",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -67,6 +75,7 @@
         "ghcr.io/siderolabs/talosctl",
         "ghcr.io/jfroy/tnu"
       ],
+      semanticCommitScope: "k8s",
       group: { commitMessageTopic: "{{{groupName}}} group" },
       minimumReleaseAge: "3 days"
     },
@@ -81,6 +90,7 @@
         "/alertmanager/",
         "/grafana/"
       ],
+      semanticCommitScope: "monitoring",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -88,6 +98,7 @@
       groupName: "Cloudflare",
       matchDatasources: ["docker", "helm", "github-releases"],
       matchPackageNames: ["/cloudflare/", "/cloudflared/"],
+      semanticCommitScope: "dns",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -95,6 +106,7 @@
       groupName: "VolSync",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/volsync/"],
+      semanticCommitScope: "storage",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -102,6 +114,7 @@
       groupName: "PostgreSQL",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/postgresql/", "/postgres/", "/cloudnative-pg/"],
+      semanticCommitScope: "database",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
@@ -109,6 +122,7 @@
       groupName: "Home Automation",
       matchDatasources: ["docker", "helm"],
       matchPackageNames: ["/home-assistant/", "/zigbee2mqtt/", "/mosquitto/"],
+      semanticCommitScope: "home",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     }
   ]

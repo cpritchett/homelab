@@ -1,3 +1,24 @@
 {
-  extends: ["github>cpritchett/home-ops//.renovate/semanticCommits.json5"]
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  // Enable semantic commits with proper scoping for release-please integration
+  semanticCommits: "enabled",
+  semanticCommitType: "chore",
+  semanticCommitScope: "deps",
+  // Customize PR title template to include proper conventional commit format
+  prTitle: "{{semanticPrefix}}{{#if isPin}}pin{{else}}update{{/if}} {{depName}} to {{#if isPatch}}{{newVersion}}{{else}}{{#if isMajor}}v{{newMajor}}{{else}}{{#if isRange}}{{newValue}}{{else}}v{{newVersion}}{{/if}}{{/if}}{{/if}}",
+  // Enrich PR body with detailed information
+  prBodyTemplate: "{{{header}}}\n\n{{{table}}}\n\n{{{warnings}}}\n\n{{{notes}}}\n\n---\n\n### Release Notes\n\n{{{changelogs}}}\n\n---\n\n{{{controls}}}\n\n{{{footer}}}",
+  prBodyColumns: [
+    "Package",
+    "Type",
+    "Update",
+    "Change",
+    "Pending"
+  ],
+  prBodyNotes: [
+    "{{#if hasReleaseNotes}}:scroll: [Release notes]({{releases}}){{/if}}",
+    "{{#if hasPackageUrl}}:package: [Package]({{packageUrl}}){{/if}}",
+    "{{#if sourceUrl}}:octocat: [Source]({{sourceUrl}}){{/if}}",
+    "{{#if homepage}}:house: [Homepage]({{homepage}}){{/if}}"
+  ]
 }
