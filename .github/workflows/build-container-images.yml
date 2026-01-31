@@ -7,8 +7,6 @@ on:
       - feat/**
     paths:
       - 'stacks/platform/secrets/op-export/**'
-    tags:
-      - 'op-export-v*'
   workflow_dispatch:
 
 concurrency:
