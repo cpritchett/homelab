@@ -8,6 +8,8 @@
 
 The homelab repository uses [release-please](https://github.com/googleapis/release-please) to automate version management and changelog generation. Release-please creates pull requests that update version numbers and CHANGELOGs based on conventional commit messages.
 
+Additionally, the repository uses [Renovate](https://docs.renovatebot.com/) for automated dependency updates. For release-please to properly categorize and version dependency updates, Renovate must create PRs with properly scoped conventional commit messages.
+
 However, release PRs created by release-please must pass the same CI gates as all other PRs:
 
 1. **`guardrails / no_invariant_drift`** - Ensures invariant values aren't duplicated in router files
@@ -62,6 +64,33 @@ The script `scripts/require-adr-on-canonical-changes.sh` MUST be modified to:
 3. **Standing ADR provides traceability**: This ADR (0031) documents the decision to automate releases and explains the gate exemption
 4. **Consistent with automation principles**: Automated processes should not require manual intervention for routine operations
 
+### Renovate Configuration
+
+To ensure Renovate PRs work seamlessly with release-please, Renovate MUST be configured to:
+
+1. **Use conventional commits with proper scoping**:
+   - Default scope: `deps` for general dependencies
+   - Specialized scopes: `helm`, `docker`, `ci`, `tools`, `dev-deps`, etc.
+   - Grouped updates use domain-specific scopes: `k8s`, `networking`, `monitoring`, `database`, etc.
+
+2. **Enrich PR bodies with detailed information**:
+   - Release notes and changelog links
+   - Package source and homepage links
+   - Detailed table of updates
+   - Proper warnings and notes
+
+3. **Example PR titles**:
+   - `chore(helm): update Cilium chart to v1.14.0`
+   - `chore(docker): update nginx image to v1.21.0`
+   - `chore(ci): update GitHub Action checkout to v4`
+   - `chore(k8s): update Kubernetes and Talos group`
+
+This configuration is implemented in:
+- `.renovaterc.json5` — Main configuration with extends
+- `.renovate/semanticCommits.json5` — Semantic commit templates and PR body formatting
+- `.renovate/packageRules.json5` — Dependency-specific scoping rules
+- `.renovate/groups.json5` — Grouped updates with domain-specific scopes
+
 ## Consequences
 
 ### Positive
@@ -70,6 +99,8 @@ The script `scripts/require-adr-on-canonical-changes.sh` MUST be modified to:
 - **No redundant ADR requirements**: Avoids requiring ADR references for changes that already passed ADR gates
 - **Clear documentation**: This ADR explains why release PRs are exempt from ADR gate checks
 - **Maintains governance compliance**: Individual commits still require ADR references; only the aggregate release PR is exempt
+- **Better release notes**: Properly scoped Renovate PRs enable release-please to categorize updates accurately
+- **Rich PR context**: Enhanced PR bodies provide reviewers with comprehensive information about updates
 
 ### Negative
 
@@ -83,6 +114,8 @@ The script `scripts/require-adr-on-canonical-changes.sh` MUST be modified to:
 3. Modify `scripts/require-adr-on-canonical-changes.sh` to exempt release-please PRs
 4. Test with a release-please PR
 5. Update `docs/governance/ci-gates.md` to document the exemption
+6. Configure Renovate with proper conventional commit scoping ✅
+7. Add detailed PR body templates to Renovate configuration ✅
 
 ## Related Decisions
 
@@ -92,7 +125,13 @@ The script `scripts/require-adr-on-canonical-changes.sh` MUST be modified to:
 ## References
 
 - [release-please documentation](https://github.com/googleapis/release-please)
+- [Renovate documentation](https://docs.renovatebot.com/)
+- [Conventional Commits specification](https://www.conventionalcommits.org/)
 - `.github/release-please-config.json` — Release configuration
 - `.github/workflows/release-please.yml` — Release workflow
+- `.renovaterc.json5` — Main Renovate configuration
+- `.renovate/semanticCommits.json5` — Semantic commit templates
+- `.renovate/packageRules.json5` — Package-specific rules
+- `.renovate/groups.json5` — Grouped update rules
 - `scripts/require-adr-on-canonical-changes.sh` — ADR gate check script
 - `docs/governance/ci-gates.md` — CI gate documentation
