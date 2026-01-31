@@ -1,0 +1,62 @@
+services:
+  forgejo-db:
+    image: postgres:18@sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
+    restart: unless-stopped
+    env_file:
+      - /mnt/apps01/secrets/forgejo/postgres.env
+    environment:
+      POSTGRES_DB: forgejo
+      POSTGRES_USER: "${POSTGRES_USER:-forgejo}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    volumes:
+      - /mnt/data01/appdata/forgejo/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forgejo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - forgejo
+
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:9.3.0@sha256:6e78b8f1e6f28d49fc2c6f1c6c9e8b7d8b8e8b7d8b8e8b7d8b8e8b7d8b8e8b7
+    restart: unless-stopped
+    depends_on:
+      forgejo-db:
+        condition: service_healthy
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      # Database
+      DB_TYPE: postgres
+      DB_HOST: forgejo-db
+      DB_NAME: forgejo
+      DB_USER: "${POSTGRES_USER:-forgejo}"
+      DB_PASSWD: "${POSTGRES_PASSWORD}"
+      # SSH
+      SSH_PORT: "${SSH_PORT:-3022}"
+      # Root URL and domain
+      ROOT_URL: "${ROOT_URL:-https://git.in.hypyr.space}"
+      DOMAIN: "${DOMAIN:-git.in.hypyr.space}"
+      # Container registry
+      CONTAINER_REGISTRY_ENABLED: "true"
+      CONTAINER_REGISTRY_REALM_URI: "${CONTAINER_REGISTRY_REALM_URI:-https://git.in.hypyr.space}"
+    volumes:
+      - /mnt/apps01/appdata/forgejo:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${SSH_PORT:-3022}:22"
+    labels:
+      caddy: git.in.hypyr.space
+      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+      caddy.reverse_proxy: "{{upstreamDialer \"forgejo:3000\"}}"
+    networks:
+      - forgejo
+      - proxy_network
+
+networks:
+  forgejo:
+    internal: true
+  proxy_network:
+    external: true
