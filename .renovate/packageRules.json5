@@ -2,6 +2,21 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   packageRules: [
     {
+      description: "Custom file patterns for Flux manager",
+      matchManagers: ["flux"],
+      fileMatch: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"]
+    },
+    {
+      description: "Custom file patterns for Helm-values manager",
+      matchManagers: ["helm-values"],
+      fileMatch: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"]
+    },
+    {
+      description: "Custom file patterns for Kubernetes manager",
+      matchManagers: ["kubernetes"],
+      fileMatch: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"]
+    },
+    {
       description: "Require approval for major updates",
       matchUpdateTypes: ["major"],
       dependencyDashboardApproval: true,
@@ -21,6 +36,8 @@
       description: "Container image digest updates",
       matchDatasources: ["docker"],
       matchUpdateTypes: ["digest"],
+      semanticCommitScope: "docker",
+      commitMessageTopic: "Docker digest {{depName}}",
       enabled: true,
       pinDigests: true,
       automerge: false
@@ -28,30 +45,38 @@
     {
       description: "Helm chart updates",
       matchDatasources: ["helm"],
+      semanticCommitScope: "helm",
       commitMessageTopic: "Helm chart {{depName}}",
       separateMinorPatch: true
     },
     {
       description: "GitHub Actions updates",
       matchManagers: ["github-actions"],
+      semanticCommitScope: "ci",
       pinDigests: true,
       commitMessageTopic: "GitHub Action {{depName}}"
     },
     {
       description: "GitHub Releases - follow semantic versioning",
       matchDatasources: ["github-releases"],
+      semanticCommitScope: "deps",
+      commitMessageTopic: "{{depName}}",
       separateMinorPatch: true,
       extractVersion: "^v?(?<version>.*)$"
     },
     {
       description: "Docker images - enable digest pinning",
       matchDatasources: ["docker"],
+      semanticCommitScope: "docker",
+      commitMessageTopic: "Docker image {{depName}}",
       pinDigests: true,
       separateMinorPatch: false
     },
     {
       description: "Development dependencies - lower priority",
       matchDepTypes: ["devDependencies"],
+      semanticCommitScope: "dev-deps",
+      commitMessageTopic: "dev dependency {{depName}}",
       prPriority: -1,
       automerge: true,
       automergeType: "branch"
@@ -59,6 +84,8 @@
     {
       description: "Production dependencies - higher priority",
       matchDepTypes: ["dependencies"],
+      semanticCommitScope: "deps",
+      commitMessageTopic: "dependency {{depName}}",
       prPriority: 5
     },
     {
