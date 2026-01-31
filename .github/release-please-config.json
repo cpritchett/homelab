@@ -3,18 +3,23 @@
   "packages": {
     "stacks/platform/secrets/op-export": {
       "package-name": "op-export",
-      "release-type": "docker",
+      "release-type": "simple",
       "changelog-path": "stacks/platform/secrets/op-export/CHANGELOG.md"
     },
     "stacks/platform/cicd/forgejo": {
       "package-name": "forgejo-stack",
-      "release-type": "docker",
+      "release-type": "simple",
       "changelog-path": "stacks/platform/cicd/forgejo/CHANGELOG.md"
     },
     "stacks/platform/cicd/woodpecker": {
       "package-name": "woodpecker-stack",
-      "release-type": "docker",
+      "release-type": "simple",
       "changelog-path": "stacks/platform/cicd/woodpecker/CHANGELOG.md"
+    },
+    "backstage": {
+      "package-name": "backstage",
+      "release-type": "node",
+      "changelog-path": "backstage/CHANGELOG.md"
     }
   },
   "changelog-sections": [
