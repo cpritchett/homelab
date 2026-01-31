@@ -1,6 +1,6 @@
 {
-  "stacks/platform/secrets/op-export": "0.0.0",
+  "stacks/platform/secrets/op-export": "1.0.0",
   "stacks/platform/cicd/forgejo": "0.0.0",
   "stacks/platform/cicd/woodpecker": "0.0.0",
-  "backstage": "1.0.0"
+  "backstage": "1.1.0"
 }
