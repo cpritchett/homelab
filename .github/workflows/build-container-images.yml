@@ -12,9 +12,14 @@ on:
       - 'op-export-v*'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-op-export:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       packages: write
@@ -50,6 +55,8 @@ jobs:
         with:
           context: stacks/platform/secrets/op-export
           push: ${{ steps.version.outputs.push == 'true' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ghcr.io/${{ github.repository_owner }}/homelab/op-export:${{ steps.version.outputs.version }}
             ${{ github.ref == 'refs/heads/main' && format('ghcr.io/{0}/homelab/op-export:latest', github.repository_owner) || '' }}
