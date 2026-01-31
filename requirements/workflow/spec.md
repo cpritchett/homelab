@@ -180,6 +180,32 @@ Agents and developers MUST NOT:
 - Create agent instruction files outside approved locations
 - Duplicate governance rules from canonical sources in agent instructions
 
+## Release Management
+
+All releases MUST be automated using [release-please](https://github.com/googleapis/release-please) to ensure consistency and reduce manual errors.
+
+### Release Process
+
+**Automated release workflow:**
+1. Commits using conventional commit format are merged to `main`
+2. Release-please bot analyzes commit history
+3. Release-please creates/updates a release PR with:
+   - Updated version numbers (based on semantic versioning)
+   - Generated CHANGELOG entries
+4. On merge, release-please creates a GitHub release with appropriate tags
+
+### CI Gate Exemption
+
+Release PRs created by the release-please bot (`github-actions[bot]`) are **exempt** from the `require_adr_for_canonical_changes` gate check because:
+
+- Individual commits have already passed ADR gate checks before merging to main
+- Release PRs aggregate previously-approved changes; they don't introduce new changes
+- Release PRs only update version numbers and CHANGELOGs
+
+The exemption is documented in ADR-0031 and implemented in `scripts/require-adr-on-canonical-changes.sh`.
+
+See: [ADR-0031: Automated Release Process](../../docs/adr/ADR-0031-automated-release-process.md)
+
 ## Rationale
 
 Conventional commits enable automation (changelog, semantic versioning) and provide clear commit history. Branch protection and PR workflow ensure governance compliance and peer review.
@@ -198,3 +224,4 @@ See: [ADR-0027: Agent PR/Issue Template Enforcement](../../docs/adr/ADR-0027-age
 See: [ADR-0028: Constitutional Authority for Governance Procedures](../../docs/adr/ADR-0028-constitutional-governance-authority.md)
 See: [ADR-0029: Contract Lifecycle Procedures](../../docs/adr/ADR-0029-contract-lifecycle-procedures.md)
 See: [ADR-0030: Agent Governance Steering Pattern](../../docs/adr/ADR-0030-agent-governance-steering.md)
+See: [ADR-0031: Automated Release Process](../../docs/adr/ADR-0031-automated-release-process.md)
