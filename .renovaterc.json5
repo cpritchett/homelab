@@ -10,7 +10,11 @@
     ":disableRateLimiting",
     ":gitSignOff",
     ":semanticCommits",
-    ":timezone(America/Chicago)"
+    ":timezone(America/Chicago)",
+    // Local overrides for semantic commits and PR formatting
+    "local>.renovate/semanticCommits.json5",
+    "local>.renovate/packageRules.json5",
+    "local>.renovate/groups.json5"
   ],
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   dependencyDashboardHeader: "This issue lists Renovate updates and detected dependencies. Read the Dependency Dashboard docs to learn more.",
@@ -25,8 +29,5 @@
   prHourlyLimit: 0,
   fetchChangeLogs: "pr",
   ignorePaths: ["**/resources/**"],
-  commitBody: "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
-  flux: { managerFilePatterns: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"] },
-  "helm-values": { managerFilePatterns: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"] },
-  kubernetes: { managerFilePatterns: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"] }
+  commitBody: "Signed-off-by: Renovate Bot <bot@renovateapp.com>"
 }
