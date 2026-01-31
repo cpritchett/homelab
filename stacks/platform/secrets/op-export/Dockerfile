@@ -4,7 +4,7 @@ FROM alpine:3.20
 ARG OP_VERSION=2.30.3
 ARG OP_SHA256=3500bcec4ae3e478d8f3fd711e00e9567e33d0bb5c9d719ed2c6e2c0172e5479
 
-SHELL ["/bin/ash", "-euo", "pipefail", "-c"]
+SHELL ["/bin/ash", "-eu", "-c"]
 
 RUN apk add --no-cache \
     ca-certificates \
