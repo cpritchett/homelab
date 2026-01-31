@@ -1,0 +1,97 @@
+# Forgejo Git + Container Registry Stack
+
+Self-contained Forgejo stack providing:
+- Git repository hosting
+- Built-in container registry (for `op-export` and other custom images)
+- SSH access
+- Caddy reverse proxy integration
+
+## Quick Start
+
+Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks must be deployable through Komodo without external dependencies.
+
+### Prerequisites
+
+1. **External Docker network** (create once on host):
+   ```bash
+   docker network create proxy_network
+   ```
+
+2. **Host directories**:
+   ```bash
+   mkdir -p /mnt/apps01/secrets/forgejo
+   mkdir -p /mnt/apps01/appdata/forgejo
+   mkdir -p /mnt/data01/appdata/forgejo/postgres
+   chmod 755 /mnt/apps01/appdata/forgejo
+   chmod 755 /mnt/data01/appdata/forgejo
+   ```
+
+3. **Create secrets** in 1Password:
+   - Create item "postgres.env" (tagged `stack:forgejo`):
+     ```
+     POSTGRES_USER=forgejo
+     POSTGRES_PASSWORD=<secure-password>
+     ```
+
+4. **Configure environment** in Komodo:
+   - Set `ROOT_URL`: `https://git.in.hypyr.space`
+   - Set `DOMAIN`: `git.in.hypyr.space`
+   - Set `SSH_PORT`: `3022` (or your chosen port)
+   - Set `POSTGRES_PASSWORD`: (from 1Password)
+   - Set `CLOUDFLARE_API_TOKEN`: (for Caddy)
+
+5. **Deploy via Komodo**:
+   - Add this stack directory in Komodo
+   - Populate env/secret values
+   - Deploy
+
+## Usage
+
+### Initial Setup
+
+1. Access Forgejo at `https://git.in.hypyr.space`
+2. Create initial admin account
+3. Create organization/repositories as needed
+
+### Container Registry Access
+
+Push images to the registry:
+```bash
+docker login git.in.hypyr.space
+docker tag myimage:latest git.in.hypyr.space/username/myimage:latest
+docker push git.in.hypyr.space/username/myimage:latest
+```
+
+Then reference in compose files:
+```yaml
+image: git.in.hypyr.space/username/myimage:latest
+```
+
+### SSH Access
+
+Clone repositories via SSH:
+```bash
+git clone ssh://git@git.in.hypyr.space:3022/username/repo.git
+```
+
+## Architecture Notes
+
+- **Database**: PostgreSQL 18 (persistent storage on `/mnt/data01`)
+- **Git data**: Stored on `/mnt/apps01/appdata/forgejo`
+- **Registry**: Built into Forgejo; no separate service
+- **Networking**: Connected to `proxy_network` for Caddy routing
+- **Reverse proxy**: Caddy handles HTTPS termination and DNS challenge
+
+## Troubleshooting
+
+### Container registry not working
+
+1. Verify `CONTAINER_REGISTRY_ENABLED=true` in environment
+2. Check Forgejo logs: `docker logs forgejo`
+3. Ensure DNS resolves `git.in.hypyr.space` to NAS host
+
+### SSH access failing
+
+1. Verify SSH port is correctly exposed (default 3022)
+2. Check SSH key is added to Forgejo account
+3. Test connectivity: `ssh -v git@git.in.hypyr.space -p 3022`

@@ -79,6 +79,27 @@ Example: Items tagged `stack:authentik` are exported when `STACKS` includes `aut
 - 1Password CLI helper script at `/mnt/apps01/scripts/op-export-stack-env.sh`
 - Items in the vault tagged with `stack:<stack-name>`
 
+## Container Image
+
+The `op-export` image is published to GitHub Container Registry and pulled by Komodo:
+
+```
+ghcr.io/cpritchett/homelab/op-export:latest
+```
+
+### Building and Publishing (for maintainers)
+
+To build and push a new image version:
+
+```bash
+cd stacks/platform/secrets/op-export
+docker build -t ghcr.io/cpritchett/homelab/op-export:latest .
+docker login ghcr.io  # Use GitHub PAT with `write:packages` scope
+docker push ghcr.io/cpritchett/homelab/op-export:latest
+```
+
+**Future:** This will be replaced with Forgejo's internal registry once CI/CD is set up.
+
 ## Environment Variables
 
 See `.env.example` for configuration options:

@@ -1,0 +1,57 @@
+services:
+  woodpecker-server:
+    image: woodpeckerci/woodpecker-server:2.10.1
+    restart: unless-stopped
+    environment:
+      # Server configuration
+      WOODPECKER_HOST: "${WOODPECKER_HOST:-https://ci.in.hypyr.space}"
+      WOODPECKER_SERVER_ADDR: ":8000"
+      WOODPECKER_LOG_LEVEL: info
+      # Agent communication
+      WOODPECKER_AGENT_SECRET: "${WOODPECKER_AGENT_SECRET}"
+      # Forgejo integration
+      WOODPECKER_GITEA: "true"
+      WOODPECKER_GITEA_URL: "${WOODPECKER_GITEA_URL:-https://git.in.hypyr.space}"
+      WOODPECKER_GITEA_CLIENT: "${WOODPECKER_GITEA_CLIENT}"
+      WOODPECKER_GITEA_SECRET: "${WOODPECKER_GITEA_SECRET}"
+      # Admin user
+      WOODPECKER_ADMIN: "${WOODPECKER_ADMIN:-admin}"
+      # Database (SQLite)
+      WOODPECKER_DATABASE_DRIVER: sqlite3
+      WOODPECKER_DATABASE_DATASOURCE: /data/woodpecker.db
+      # Security
+      WOODPECKER_AGENT_BACKEND: docker
+      WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - /mnt/apps01/appdata/woodpecker:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      caddy: ci.in.hypyr.space
+      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+      caddy.reverse_proxy: "{{upstreamDialer \"woodpecker-server:8000\"}}"
+    networks:
+      - woodpecker
+      - proxy_network
+
+  woodpecker-agent:
+    image: woodpeckerci/woodpecker-agent:2.10.1
+    restart: unless-stopped
+    environment:
+      WOODPECKER_SERVER: "ws://woodpecker-server:8000"
+      WOODPECKER_AGENT_SECRET: "${WOODPECKER_AGENT_SECRET}"
+      WOODPECKER_AGENT_BACKEND: docker
+      WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
+      WOODPECKER_LOG_LEVEL: info
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - woodpecker-server
+    networks:
+      - woodpecker
+      - proxy_network
+
+networks:
+  woodpecker:
+    internal: true
+  proxy_network:
+    external: true
