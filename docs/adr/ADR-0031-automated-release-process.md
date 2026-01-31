@@ -69,6 +69,11 @@ The script `scripts/require-adr-on-canonical-changes.sh` MUST be modified to:
 To ensure Renovate PRs work seamlessly with release-please, Renovate MUST be configured to:
 
 1. **Use conventional commits with proper scoping**:
+   - **Stack-specific scopes**: Match release-please package names for proper tagging
+     - `op-export` for `stacks/platform/secrets/op-export`
+     - `forgejo-stack` for `stacks/platform/cicd/forgejo`
+     - `woodpecker-stack` for `stacks/platform/cicd/woodpecker`
+     - `backstage` for `backstage`
    - Default scope: `deps` for general dependencies
    - Specialized scopes: `helm`, `docker`, `ci`, `tools`, `dev-deps`, etc.
    - Grouped updates use domain-specific scopes: `k8s`, `networking`, `monitoring`, `database`, etc.
@@ -80,16 +85,18 @@ To ensure Renovate PRs work seamlessly with release-please, Renovate MUST be con
    - Proper warnings and notes
 
 3. **Example PR titles**:
-   - `chore(helm): update Cilium chart to v1.14.0`
-   - `chore(docker): update nginx image to v1.21.0`
-   - `chore(ci): update GitHub Action checkout to v4`
-   - `chore(k8s): update Kubernetes and Talos group`
+   - `chore(op-export): update op-export stack` (triggers release-please for op-export)
+   - `chore(forgejo-stack): update forgejo stack` (triggers release-please for forgejo)
+   - `chore(helm): update Cilium chart to v1.14.0` (general k8s infrastructure)
+   - `chore(docker): update nginx image to v1.21.0` (general docker updates)
+   - `chore(ci): update GitHub Action checkout to v4` (CI infrastructure)
+   - `chore(k8s): update Kubernetes and Talos group` (grouped k8s core)
 
 This configuration is implemented in:
 - `.renovaterc.json5` — Main configuration with extends
 - `.renovate/semanticCommits.json5` — Semantic commit templates and PR body formatting
 - `.renovate/packageRules.json5` — Dependency-specific scoping rules
-- `.renovate/groups.json5` — Grouped updates with domain-specific scopes
+- `.renovate/groups.json5` — Grouped updates with stack-specific and domain-specific scopes
 
 ## Consequences
 

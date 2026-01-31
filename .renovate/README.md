@@ -34,6 +34,13 @@ This directory contains modular Renovate Bot configuration files that customize 
 
 Renovate is configured to use the following semantic commit scopes to categorize updates:
 
+### Stack-Specific Scopes (Release-Please Integration)
+These scopes match the packages defined in `.github/release-please-config.json` to ensure proper version tagging:
+- `op-export` — op-export stack dependencies (stacks/platform/secrets/op-export)
+- `forgejo-stack` — Forgejo stack dependencies (stacks/platform/cicd/forgejo)
+- `woodpecker-stack` — Woodpecker stack dependencies (stacks/platform/cicd/woodpecker)
+- `backstage` — Backstage application dependencies
+
 ### General Dependencies
 - `deps` — Default scope for general dependencies
 - `dev-deps` — Development dependencies
@@ -70,9 +77,18 @@ Renovate PRs include:
 ## Example PR Titles
 
 ```
+# Stack-specific updates (for release-please tagging)
+chore(op-export): update op-export stack
+chore(forgejo-stack): update forgejo stack  
+chore(woodpecker-stack): update woodpecker stack
+chore(backstage): update backstage dependencies
+
+# Infrastructure updates
 chore(helm): update Cilium chart to v1.14.0
 chore(docker): update nginx image to v1.21.0
 chore(ci): update GitHub Action checkout to v4
+
+# Grouped domain updates
 chore(k8s): update Kubernetes and Talos group
 chore(monitoring): update Kube-Prometheus-Stack group
 chore(deps): update eslint to v8.0.0
