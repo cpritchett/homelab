@@ -19,7 +19,7 @@ services:
       - forgejo
 
   forgejo:
-    image: codeberg.org/forgejo/forgejo:9.3.0@sha256:6e78b8f1e6f28d49fc2c6f1c6c9e8b7d8b8e8b7d8b8e8b7d8b8e8b7d8b8e8b7
+    image: codeberg.org/forgejo/forgejo:9.3.0
     restart: unless-stopped
     depends_on:
       forgejo-db:

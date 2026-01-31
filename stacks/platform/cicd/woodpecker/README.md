@@ -102,6 +102,10 @@ steps:
 - **Reverse proxy**: Caddy handles HTTPS termination
 - **Authentication**: OAuth2 via Forgejo
 
+### Security Considerations
+
+⚠️ **Docker Socket Mounting**: Both the Woodpecker server and agent mount `/var/run/docker.sock` with write access, which grants root-equivalent access to the host system. This is necessary for pipeline execution but means that anyone with write access to Woodpecker can execute arbitrary containers on the host. Ensure proper access controls are configured in Woodpecker and limit write access to trusted users only.
+
 ## Troubleshooting
 
 ### OAuth2 authorization failing
