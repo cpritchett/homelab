@@ -1,0 +1,52 @@
+{
+  "bootstrap-sha": "main",
+  "packages": {
+    "stacks/platform/secrets/op-export": {
+      "package-name": "op-export",
+      "release-type": "docker",
+      "changelog-path": "stacks/platform/secrets/op-export/CHANGELOG.md"
+    },
+    "stacks/platform/cicd/forgejo": {
+      "package-name": "forgejo-stack",
+      "release-type": "docker",
+      "changelog-path": "stacks/platform/cicd/forgejo/CHANGELOG.md"
+    },
+    "stacks/platform/cicd/woodpecker": {
+      "package-name": "woodpecker-stack",
+      "release-type": "docker",
+      "changelog-path": "stacks/platform/cicd/woodpecker/CHANGELOG.md"
+    }
+  },
+  "changelog-sections": [
+    {
+      "type": "feat",
+      "section": "Features",
+      "hidden": false
+    },
+    {
+      "type": "fix",
+      "section": "Bug Fixes",
+      "hidden": false
+    },
+    {
+      "type": "perf",
+      "section": "Performance",
+      "hidden": false
+    },
+    {
+      "type": "refactor",
+      "section": "Refactoring",
+      "hidden": false
+    },
+    {
+      "type": "docs",
+      "section": "Documentation",
+      "hidden": false
+    },
+    {
+      "type": "chore",
+      "section": "Miscellaneous",
+      "hidden": true
+    }
+  ]
+}
