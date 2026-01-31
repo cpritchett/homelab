@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 VAULT="${VAULT:-homelab}"
 DEST_ROOT="${DEST_ROOT:-/mnt/apps01/secrets}"
 
 STACK="${1:-}"
-if [[ -z "$STACK" ]]; then
+if [ -z "$STACK" ]; then
   echo "Usage: $0 <stack-name>" >&2
   exit 2
 fi
@@ -30,10 +30,10 @@ EXPORT_ERROR=0
 
 # Validate that ITEM_JSON is non-empty before processing
 validate_json() {
-  local json="$1"
-  local item_id="$2"
+  json="$1"
+  item_id="$2"
   
-  if [[ -z "$json" ]]; then
+  if [ -z "$json" ]; then
     echo "Warning: empty response for item '$item_id'; skipping" >&2
     return 1
   fi
@@ -46,8 +46,31 @@ validate_json() {
   return 0
 }
 
+# Fetch items list first
+ITEMS_JSON="$(op item list --vault "$VAULT" --format=json)" || {
+  echo "Error: failed to list items in vault '$VAULT'" >&2
+  exit 1
+}
+
+if ! echo "$ITEMS_JSON" | jq -e . >/dev/null 2>&1; then
+  echo "Error: invalid JSON response from 'op item list'" >&2
+  exit 1
+fi
+
+# Create temp file for item IDs
+TEMP_ITEMS="$(mktemp)"
+trap 'rm -f "$TEMP_ITEMS"' EXIT
+
+echo "$ITEMS_JSON" |
+  jq -r --arg tag "$TAG" '
+    .[]
+    | select((.title | endswith(".env")) and ((.tags // []) | index($tag)))
+    | .id
+  ' > "$TEMP_ITEMS"
+
+# Process each item
 while read -r ITEM_ID; do
-  [[ -z "$ITEM_ID" ]] && continue
+  [ -z "$ITEM_ID" ] && continue
   
   ITEM_JSON="$(op item get "$ITEM_ID" --vault "$VAULT" --format=json)" || {
     echo "Error: failed to fetch item '$ITEM_ID' from vault '$VAULT'" >&2
@@ -78,7 +101,7 @@ while read -r ITEM_ID; do
     continue
   fi
 
-  if [[ ! -s "$OUT" ]]; then
+  if [ ! -s "$OUT" ]; then
     echo "Warning: generated env file '$OUT' is empty; removing" >&2
     rm -f "$OUT"
     EXPORT_ERROR=$((EXPORT_ERROR + 1))
@@ -87,31 +110,16 @@ while read -r ITEM_ID; do
 
   echo "  ✓ Exported: $TITLE"
   ITEM_COUNT=$((ITEM_COUNT + 1))
-done < <(ITEMS_JSON="$(op item list --vault "$VAULT" --format=json)" || {
-  echo "Error: failed to list items in vault '$VAULT'" >&2
-  exit 1
-}
+done < "$TEMP_ITEMS"
 
-if ! echo "$ITEMS_JSON" | jq -e . >/dev/null 2>&1; then
-  echo "Error: invalid JSON response from 'op item list'" >&2
-  exit 1
-fi
-
-echo "$ITEMS_JSON" |
-  jq -r --arg tag "$TAG" '
-    .[]
-    | select((.title | endswith(".env")) and ((.tags // []) | index($tag)))
-    | .id
-  ')
-
-if [[ $ITEM_COUNT -eq 0 ]]; then
+if [ "$ITEM_COUNT" -eq 0 ]; then
   echo ""
   echo "⚠️  Warning: no items found for stack '$STACK' with tag '$TAG'" >&2
-  [[ $EXPORT_ERROR -gt 0 ]] && exit 1
+  [ "$EXPORT_ERROR" -gt 0 ] && exit 1
   exit 0
 fi
 
-if [[ $EXPORT_ERROR -gt 0 ]]; then
+if [ "$EXPORT_ERROR" -gt 0 ]; then
   echo ""
   echo "⚠️  Warning: exported $ITEM_COUNT file(s) for stack '$STACK', but $EXPORT_ERROR error(s) occurred" >&2
   exit 1
