@@ -19,18 +19,44 @@ This file is a **non-authoritative entrypoint** for humans and LLM agents.
 ## Rule of conflict
 If anything disagrees, **constitution/contracts/requirements win**. Docs are explanatory only.
 
+## PR Body Requirements for CI Gates
+
+**CRITICAL:** The `require_adr_for_canonical_changes` gate will FAIL if:
+- You modify files in `constitution/`, `contracts/`, or `requirements/`
+- AND the PR title or body does NOT contain an ADR reference matching `ADR-[0-9]{4}`
+
+### Required PR Body Format for Canonical Changes
+
+When creating or updating a PR that touches canonical paths, ALWAYS include:
+
+```markdown
+**ADR Reference:** ADR-NNNN (description)
+```
+
+Example:
+```markdown
+**ADR Reference:** ADR-0032 (1Password Connect for Docker Swarm Secrets)
+```
+
+The gate searches PR title + body for the regex pattern `ADR-[0-9]{4}`. Without this, canonical PRs will be blocked.
+
 ## Definition of Done
 Before completing any change, you MUST:
 1. **Classify change:** doc-only | non-canonical | canonical | constitutional
-2. **Run all gates:** `./scripts/run-all-gates.sh "PR title" "PR body"`
-3. **Create ADR** (if canonical): next sequential number in `docs/adr/`
+2. **Determine ADR requirement:**
+   - Canonical changes (`constitution/`, `contracts/`, `requirements/`) → ADR REQUIRED
+   - Non-canonical changes → ADR recommended for architectural decisions
+   - Doc-only changes → No ADR required
+3. **Create ADR** (if required): next sequential number in `docs/adr/`
 4. **Link ADR from spec** (if canonical): add to `requirements/<domain>/spec.md`
-5. **Provide evidence:** document gate results and classification in PR
+5. **Include ADR in PR:** Add `ADR-NNNN` reference in PR title or body
+6. **Run all gates:** `./scripts/run-all-gates.sh "PR title with ADR-NNNN" "PR body with ADR-NNNN"`
+7. **Provide evidence:** document gate results and classification in PR
 
 ## Quick Commands
 ```bash
-# Run all CI gates locally
-./scripts/run-all-gates.sh "Your PR title with ADR-NNNN" "PR description"
+# Run all CI gates locally (include ADR reference in title for canonical changes)
+./scripts/run-all-gates.sh "feat: add feature (ADR-0032)" "Implements ADR-0032"
 
 # Run individual gates
 ./scripts/no-invariant-drift.sh
@@ -42,10 +68,13 @@ gitleaks detect --source . --verbose
 ```
 
 ## Change Rubric
-- Changing `constitution/`, `contracts/`, `requirements/` → **Canonical** (ADR required)
-- Changing `infra/`, `ops/`, scripts → **Non-canonical** (ADR recommended for arch changes)
-- Changing `docs/` only → **Doc-only** (ADR not required)
-- See `docs/governance/procedures.md` for complete rubric
+| Change Type | Paths | ADR Required | Gate |
+|-------------|-------|--------------|------|
+| **Canonical** | `constitution/`, `contracts/`, `requirements/` | YES | `require_adr_for_canonical_changes` |
+| **Non-canonical** | `infra/`, `ops/`, `scripts/`, `stacks/` | Recommended | None |
+| **Doc-only** | `docs/` only | No | None |
+
+See `docs/governance/procedures.md` for complete rubric.
 
 ## GitOps Validation
 See `contracts/invariants.md` § GitOps Invariants for:
