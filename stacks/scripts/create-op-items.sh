@@ -14,7 +14,7 @@ echo ""
 # Authentik
 echo "Checking authentik-stack item..."
 if op item get authentik-stack --vault="$VAULT" >/dev/null 2>&1; then
-  echo "Authentik-stack item already exists, skipping..."
+  echo "authentik-stack item already exists, skipping..."
 else
   echo "Creating authentik-stack item..."
   op item create \
