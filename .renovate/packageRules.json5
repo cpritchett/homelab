@@ -2,21 +2,6 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   packageRules: [
     {
-      description: "Custom file patterns for Flux manager",
-      matchManagers: ["flux"],
-      fileMatch: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"]
-    },
-    {
-      description: "Custom file patterns for Helm-values manager",
-      matchManagers: ["helm-values"],
-      fileMatch: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"]
-    },
-    {
-      description: "Custom file patterns for Kubernetes manager",
-      matchManagers: ["kubernetes"],
-      fileMatch: ["/kubernetes/.*\\.ya?ml$", "/bootstrap/.*\\.ya?ml$"]
-    },
-    {
       description: "Require approval for major updates",
       matchUpdateTypes: ["major"],
       dependencyDashboardApproval: true,
