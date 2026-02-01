@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 Agent Operating Rules
+    url: https://github.com/cpritchett/homelab/blob/main/agents.md
+    about: Read the agent operating rules before creating issues
+  - name: 📚 ADR Index
+    url: https://github.com/cpritchett/homelab/tree/main/docs/adr
+    about: Browse existing Architecture Decision Records
