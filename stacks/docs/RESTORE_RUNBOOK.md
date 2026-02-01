@@ -17,8 +17,8 @@ This runbook assumes:
   - direct IP:port from a trusted network
   - temporarily disable forward-auth labels
 
-- Do not make "secrets export" depend on Authentik.
-  Secrets export must work before Authentik.
+- Do not make "1Password Connect" depend on Authentik.
+  1Password Connect must work before Authentik.
 
 ## Restore order (happy path)
 
@@ -50,31 +50,34 @@ Restore order:
 - Deploy Komodo core/mongo/periphery
 - Verify komodo UI is reachable (do not gate via Authentik yet)
 
-### 5) Re-materialize secrets (op-export)
+### 5) Deploy 1Password Connect Server
 
 **Critical:** This step must happen before Authentik can start, since Authentik credentials come from 1Password.
 
-- Ensure service account token exists at `/mnt/apps01/secrets/op/op.env`:
+- Ensure Connect Server credentials exist at `/mnt/apps01/secrets/op/1password-credentials.json`:
   - **Preferred:** Restore this file from Restic backup
-  - **If not in backup, manually create:**
-    1. In 1Password, locate the **service account** used for op-export (under Integrations/Service accounts) and copy its **service account token**.
-    2. On the TrueNAS host, create the directory and file:
-       ```bash
-       mkdir -p /mnt/apps01/secrets/op
-       cat > /mnt/apps01/secrets/op/op.env << 'EOF'
-       OP_SERVICE_ACCOUNT_TOKEN=<PASTE_YOUR_SERVICE_ACCOUNT_TOKEN_HERE>
-       VAULT=homelab
-       DEST_ROOT=/mnt/apps01/secrets
-       EOF
-       chmod 600 /mnt/apps01/secrets/op/op.env
-       ```
-    3. Verify permissions are restrictive (600) so only the appropriate user can read it.
+  - **If not in backup, regenerate on workstation:**
+    ```bash
+    # On workstation with op CLI
+    op connect server create homelab-truenas --vaults homelab > 1password-credentials.json
+    scp 1password-credentials.json truenas:/mnt/apps01/secrets/op/
+    ssh truenas "chmod 600 /mnt/apps01/secrets/op/1password-credentials.json"
+    ```
 
-- Once the token file exists, run the op-export job stack via Komodo (or manually: `docker compose up`).
+- Ensure shared Connect token exists as Swarm secret:
+  - **Preferred:** Should survive host reboot (Swarm secrets are persistent)
+  - **If missing, regenerate:**
+    ```bash
+    # On workstation
+    TOKEN=$(op connect token create homelab-stacks --server homelab-truenas --vault homelab)
+    echo "$TOKEN" | ssh truenas "docker secret create op_connect_token -"
+    ```
 
-Verify on host:
-- `/mnt/apps01/secrets/authentik/*.env` (should contain authentik.env and postgres.env)
-- `/mnt/apps01/secrets/restic/*.env` (should contain restic.env)
+- Deploy `op-connect` stack via Komodo
+
+Verify:
+- `ssh truenas "docker service ls | grep op-connect"` shows healthy services
+- `ssh truenas "curl -s http://localhost:8080/health"` returns success
 
 ### 6) Bring up Authentik
 - Deploy Authentik stack
@@ -105,7 +108,7 @@ Validate:
 
 Test with snapshots listing (no writes).
 
-### op-export cannot read vault
+### Connect Server cannot read vault
 Service account token lacks access or tags are wrong.
 Confirm the items are tagged `stack:<name>` and titles end with `.env`.
 

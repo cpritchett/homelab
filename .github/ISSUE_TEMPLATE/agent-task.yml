@@ -1,0 +1,96 @@
+name: "Agent Task"
+description: "Task for AI agents (Copilot, Claude, etc.) to implement"
+title: "task: <short description>"
+labels: ["agent-task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Agent Task Template
+        
+        This template creates well-structured tasks for AI coding agents.
+        
+        **Important:** Agents MUST read `agents.md` before starting work.
+        
+        ### Gate Requirements Reminder
+        - **Canonical changes** (`constitution/`, `contracts/`, `requirements/`) require `ADR-NNNN` in PR title/body
+        - Run `./scripts/run-all-gates.sh "PR title" "PR body"` before completing
+
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: Change classification
+      description: "What type of files will be modified?"
+      options:
+        - "Doc-only (docs/ only) - No ADR required"
+        - "Non-canonical (infra/, ops/, scripts/, stacks/) - ADR recommended for arch changes"
+        - "Canonical (constitution/, contracts/, requirements/) - ADR REQUIRED"
+    validations:
+      required: true
+
+  - type: input
+    id: adr
+    attributes:
+      label: ADR reference
+      description: "For canonical changes, provide the ADR ID. For non-canonical arch changes, provide if applicable."
+      placeholder: "ADR-NNNN (required for canonical, recommended for arch changes)"
+    validations:
+      required: false
+
+  - type: textarea
+    id: task
+    attributes:
+      label: Task description
+      description: "What should be done? Be specific about expected outcomes."
+      placeholder: |
+        ## Objective
+        ...
+        
+        ## Acceptance criteria
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+        
+        ## Files likely to change
+        - path/to/file1
+        - path/to/file2
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and constraints
+      description: "Relevant background, related ADRs, constraints, or requirements to follow."
+      placeholder: |
+        - Related to ADR-XXXX
+        - Must not violate contracts/invariants.md section Y
+        - Follow pattern in existing file Z
+    validations:
+      required: false
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification steps
+      description: "How should the agent verify the work is complete?"
+      placeholder: |
+        1. Run `./scripts/run-all-gates.sh "PR title with ADR-NNNN" "PR body"`
+        2. All gates pass
+        3. Specific verification: ...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: agent_checklist
+    attributes:
+      label: Agent requirements
+      description: "The implementing agent must complete these steps."
+      options:
+        - label: "Read `agents.md` before starting"
+          required: true
+        - label: "For canonical changes: include `ADR-NNNN` in PR title or body"
+          required: true
+        - label: "Run all gates before marking complete: `./scripts/run-all-gates.sh`"
+          required: true
+        - label: "Link ADR from relevant spec.md if canonical change"
+          required: true

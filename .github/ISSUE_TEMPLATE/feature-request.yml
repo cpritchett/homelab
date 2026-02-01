@@ -1,0 +1,96 @@
+name: "Feature Request"
+description: "Propose a new feature or enhancement (non-governance)"
+title: "feat: <short description>"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Feature Request Guidelines
+        
+        **For governance/policy changes** (constitution/, contracts/, requirements/), use the **Policy Change** template instead.
+        
+        This template is for implementation features that don't change normative governance.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Feature area
+      options:
+        - Kubernetes / GitOps
+        - Docker Swarm / Stacks
+        - Talos / Node Management
+        - DNS / Networking
+        - Secrets Management
+        - CI/CD / Automation
+        - Monitoring / Observability
+        - Documentation
+        - Tooling / Developer Experience
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: Change classification
+      description: "What type of change is this? See agents.md for definitions."
+      options:
+        - "Non-canonical (infra/, ops/, scripts/, stacks/) - ADR recommended for arch changes"
+        - "Doc-only (docs/ only) - No ADR required"
+        - "Canonical (constitution/, contracts/, requirements/) - USE POLICY CHANGE TEMPLATE"
+    validations:
+      required: true
+
+  - type: input
+    id: adr
+    attributes:
+      label: ADR reference (if applicable)
+      description: "If this implements or relates to an ADR, provide the ID (e.g., ADR-0032). Required if architectural decision."
+      placeholder: "ADR-NNNN or N/A"
+    validations:
+      required: false
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: "What problem does this solve? Why is it needed?"
+      placeholder: |
+        Currently, ...
+        
+        This causes ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: "How should this be implemented?"
+      placeholder: |
+        - Add X to Y
+        - Configure Z
+        - Expected outcome: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: "What other approaches were considered?"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Submission checklist
+      options:
+        - label: "This does NOT change constitution/, contracts/, or requirements/ (use Policy Change template for those)"
+          required: true
+        - label: "I understand architectural changes should have an ADR"
+          required: true
+        - label: "If this adds secrets handling, I've reviewed requirements/secrets/spec.md"
+          required: false
