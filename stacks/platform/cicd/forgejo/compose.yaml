@@ -7,14 +7,14 @@ services:
     secrets:
       - op_connect_token
     volumes:
-      - ./env.template:/templates/postgres.template:ro
+      - ./env.template:/templates/env.template:ro
       - forgejo-secrets:/secrets
     networks:
       - op-connect
     command: >
       sh -c "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
-      op inject -i /templates/postgres.template -o /secrets/postgres.env &&
+      op inject -i /templates/env.template -o /secrets/postgres.env &&
       echo 'Secrets injected successfully'
       "
     restart: "no"
