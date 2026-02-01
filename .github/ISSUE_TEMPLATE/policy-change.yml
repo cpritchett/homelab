@@ -1,13 +1,18 @@
 name: "Propose a Policy Change"
-description: "Change constitution/contracts/requirements (normative governance)."
-title: "Policy change: <short description>"
-labels: ["contracts"]
+description: "Change constitution/contracts/requirements (normative governance). ADR REQUIRED."
+title: "policy: <short description> (ADR-NNNN)"
+labels: ["contracts", "needs-adr"]
 body:
   - type: markdown
     attributes:
       value: |
+        ## Policy Change Template
+        
         This template is for **normative governance changes** (constitution/contracts/requirements).
-        If you're changing implementation only, use a regular issue.
+        If you're changing implementation only, use a Feature Request or Agent Task.
+        
+        **⚠️ CRITICAL:** Canonical changes require `ADR-NNNN` pattern in PR title/body.
+        The CI gate `require_adr_for_canonical_changes` will block PRs without this reference.
 
   - type: dropdown
     id: authority
@@ -21,22 +26,22 @@ body:
     validations:
       required: true
 
-  - type: textarea
-    id: invariant
-    attributes:
-      label: Invariant touched (required)
-      description: "If this changes an invariant, paste the exact bullet/section from contracts/invariants.md. If none, say 'None'."
-      placeholder: |
-        e.g. contracts/invariants.md -> Access Invariants -> "Management network has no Internet egress by default"
-    validations:
-      required: true
-
   - type: input
     id: adr
     attributes:
-      label: ADR required (required)
-      description: "Provide the ADR ID that will be created/updated (e.g., ADR-0004). CI will require an ADR reference for canonical changes."
-      placeholder: "ADR-0004"
+      label: ADR reference (REQUIRED)
+      description: "Provide the ADR ID (e.g., ADR-0032). This MUST appear in the PR title or body for gates to pass."
+      placeholder: "ADR-0032"
+    validations:
+      required: true
+
+  - type: textarea
+    id: invariant
+    attributes:
+      label: Invariant touched
+      description: "If this changes an invariant, paste the exact bullet/section from contracts/invariants.md. If none, say 'None'."
+      placeholder: |
+        e.g. contracts/invariants.md -> Access Invariants -> "Management network has no Internet egress by default"
     validations:
       required: true
 
@@ -90,11 +95,11 @@ body:
     attributes:
       label: Submission checklist
       options:
-        - label: "I understand canonical changes require an ADR reference in the PR."
+        - label: "I understand the PR title/body MUST include ADR-NNNN pattern for gates to pass"
           required: true
-        - label: "If an ADR is added/changed, I will link it from the relevant requirements/**/spec.md."
+        - label: "I will link the ADR from the relevant requirements/**/spec.md"
           required: true
-        - label: "I will not commit governance documents with `Status: Proposed` (approval required)."
+        - label: "I will not commit governance documents with `Status: Proposed` (approval required)"
           required: true
-        - label: "If this is break-glass, I will timebox it and document restoration."
+        - label: "If this is break-glass, I will timebox it and document restoration"
           required: false

@@ -1,52 +1,70 @@
 services:
+  secrets-init:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./env.template:/templates/env.template:ro
+      - forgejo-secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/env.template -o /secrets/postgres.env &&
+      echo 'Secrets injected successfully'
+      "
+    restart: "no"
+
   forgejo-db:
     image: postgres:18@sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
     restart: unless-stopped
     env_file:
-      - /mnt/apps01/secrets/forgejo/postgres.env
-    environment:
-      POSTGRES_DB: forgejo
-      POSTGRES_USER: "${POSTGRES_USER:-forgejo}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      - forgejo-secrets/postgres.env
     volumes:
       - /mnt/data01/appdata/forgejo/postgres:/var/lib/postgresql/data
+      - forgejo-secrets:/secrets:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forgejo}"]
+      test: ["CMD-SHELL", "pg_isready -U forgejo"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - forgejo
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
 
   forgejo:
     image: codeberg.org/forgejo/forgejo:14.0.2@sha256:fa8ce5aba7c20e106c649e00da1f568e8f39c58f1706bcf4f6921f16aaf5ba48
     restart: unless-stopped
+    env_file:
+      - forgejo-secrets/postgres.env
     depends_on:
       forgejo-db:
         condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
     environment:
       USER_UID: 1000
       USER_GID: 1000
-      # Database
       DB_TYPE: postgres
       DB_HOST: forgejo-db
-      DB_NAME: forgejo
-      DB_USER: "${POSTGRES_USER:-forgejo}"
-      DB_PASSWD: "${POSTGRES_PASSWORD}"
-      # SSH
-      SSH_PORT: "${SSH_PORT:-3022}"
-      # Root URL and domain
-      ROOT_URL: "${ROOT_URL:-https://git.in.hypyr.space}"
-      DOMAIN: "${DOMAIN:-git.in.hypyr.space}"
-      # Container registry
+      # Map POSTGRES_* from env_file to Forgejo's expected DB_* variables
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWD: ${POSTGRES_PASSWORD}
       CONTAINER_REGISTRY_ENABLED: "true"
-      CONTAINER_REGISTRY_REALM_URI: "${CONTAINER_REGISTRY_REALM_URI:-https://git.in.hypyr.space}"
     volumes:
       - /mnt/apps01/appdata/forgejo:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+      - forgejo-secrets:/secrets:ro
     ports:
-      - "${SSH_PORT:-3022}:22"
+      - "3022:22"
     labels:
       caddy: git.in.hypyr.space
       caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
@@ -57,6 +75,17 @@ services:
 
 networks:
   forgejo:
+    driver: overlay
     internal: true
   proxy_network:
+    external: true
+  op-connect:
+    external: true
+    name: op-connect_op-connect
+
+volumes:
+  forgejo-secrets:
+
+secrets:
+  op_connect_token:
     external: true

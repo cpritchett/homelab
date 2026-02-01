@@ -133,6 +133,30 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - No `stacks/registry.toml` or host-side deploy scripts are required or permitted
    - Each stack directory must be self-contained (compose file + `.env.example`)
 
+## Secrets Management Invariants
+
+1. **1Password is the single source of truth**
+   - All production secrets MUST be stored in 1Password
+   - No secrets in git history, commit messages, or unencrypted files
+
+2. **Kubernetes secrets MUST use External Secrets Operator**
+   - ESO pulls from 1Password Connect Server
+   - No manually created K8s secrets (except ESO bootstrap)
+
+3. **Docker Swarm secrets MUST use 1Password Connect pattern**
+   - Stacks use `secrets-init` containers with `op inject`
+   - Shared Swarm secret `op_connect_token` for all stacks
+   - Secrets hydrated at startup, never pre-materialized to host disk
+
+4. **Plaintext secrets on disk are prohibited**
+   - Exception: 1Password Connect credentials file at `/mnt/apps01/secrets/op/1password-credentials.json` (600 permissions, never committed)
+   - Exception: Kubernetes bootstrap secrets (encrypted via SOPS/age, rotated regularly)
+
+5. **Secret scanning MUST be enabled**
+   - Pre-commit hooks scan for secrets
+   - CI gates block merges with detected secrets
+   - Gitleaks or equivalent tool required
+
 ## GitOps Invariants
 
 | ID | Description | Risk | Check Script | Remediation |

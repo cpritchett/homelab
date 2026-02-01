@@ -1,7 +1,7 @@
 # ADR-0004: Secrets Management with 1Password
 
 ## Status
-Accepted
+Accepted (superseded by ADR-0032 for Docker Swarm pattern)
 
 ## Context
 Homelab infrastructure requires secure storage and distribution of secrets (API keys, passwords, certificates). Secrets scattered across multiple locations or stored in plaintext in repositories create security risks and operational complexity.
@@ -32,6 +32,8 @@ Plaintext secrets in repositories are prohibited. Automated secret scanning must
 - Requires documentation for each exception to standard pattern
 
 ## Links
+- [ADR-0032: 1Password Connect for Docker Swarm](ADR-0032-onepassword-connect-swarm.md) — Supersedes for Docker Swarm stacks
 - [requirements/secrets/spec.md](../../requirements/secrets/spec.md)
 - [External Secrets Operator](https://external-secrets.io/)
+- [1Password Connect](https://developer.1password.com/docs/connect/)
 - [1Password](https://1password.com/)

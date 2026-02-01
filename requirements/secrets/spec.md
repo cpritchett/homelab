@@ -25,16 +25,23 @@ Secrets MAY be stored in the following locations, in order of preference:
    - 1Password acts as the single source of truth
 
 2. **External Secrets Operator (ESO)** (Kubernetes integration)
-   - ESO MUST fetch secrets from 1Password for Kubernetes workloads
+   - ESO MUST fetch secrets from 1Password Connect Server for Kubernetes workloads
    - ESO configuration is the preferred method for injecting secrets into Kubernetes
    - ESO manifests themselves contain no secret values, only references
 
-3. **GitHub Secrets** (CI/CD bootstrapping only)
+3. **Docker Swarm Secrets** (Docker stack integration)
+   - Stacks MUST use 1Password Connect Server with `op inject` pattern
+   - One shared Swarm secret (`op_connect_token`) for all stacks
+   - Secrets hydrated via init containers at startup
+   - Secrets stored in volumes, never pre-materialized to host disk
+   - See: [ADR-0032](../../docs/adr/ADR-0032-onepassword-connect-swarm.md)
+
+4. **GitHub Secrets** (CI/CD bootstrapping only)
    - ONLY for bootstrapping CI/CD pipelines
    - ONLY for secrets required before 1Password/ESO are available
    - Must be documented with justification
 
-4. **Encrypted in-repo** (bootstrapping only)
+5. **Encrypted in-repo** (bootstrapping only)
    - ONLY for initial infrastructure bootstrap scenarios
    - MUST use industry-standard encryption (e.g., SOPS, age, sealed-secrets)
    - MUST be documented with justification
@@ -75,11 +82,15 @@ Exceptions to these requirements (e.g., temporary secrets for development) MUST:
 
 ## Rationale
 
-Secrets management is critical for infrastructure security. Centralizing secrets in 1Password with controlled access patterns (ESO for Kubernetes, GitHub Secrets for CI/CD bootstrap only) reduces attack surface and simplifies auditing.
+Secrets management is critical for infrastructure security. Centralizing secrets in 1Password with controlled access patterns (ESO for Kubernetes, Connect Server for Docker Swarm, GitHub Secrets for CI/CD bootstrap only) reduces attack surface and simplifies auditing.
 
 Prohibiting plaintext secrets in repositories prevents accidental exposure and credential leakage through git history.
 
-See: [ADR-0004](../../docs/adr/ADR-0004-secrets-management.md)
+Docker Swarm stacks use 1Password Connect Server instead of pre-materialized env files for dynamic secret access, better security (secrets in memory only), and simplified management (one shared token).
+
+See: 
+- [ADR-0004](../../docs/adr/ADR-0004-secrets-management.md) — Foundation
+- [ADR-0032](../../docs/adr/ADR-0032-onepassword-connect-swarm.md) — Docker Swarm implementation
 
 ## Agent Governance
 

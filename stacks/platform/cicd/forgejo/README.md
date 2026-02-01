@@ -2,7 +2,7 @@
 
 Self-contained Forgejo stack providing:
 - Git repository hosting
-- Built-in container registry (for `op-export` and other custom images)
+- Built-in container registry
 - SSH access
 - Caddy reverse proxy integration
 
@@ -19,7 +19,6 @@ Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks m
 
 2. **Host directories**:
    ```bash
-   mkdir -p /mnt/apps01/secrets/forgejo
    mkdir -p /mnt/apps01/appdata/forgejo
    mkdir -p /mnt/data01/appdata/forgejo/postgres
    chmod 755 /mnt/apps01/appdata/forgejo
@@ -27,18 +26,18 @@ Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks m
    ```
 
 3. **Create secrets** in 1Password:
-   - Create item "postgres.env" (tagged `stack:forgejo`):
+   - Create item "forgejo" (tagged `stacks`):
      ```
-     POSTGRES_USER=forgejo
-     POSTGRES_PASSWORD=<secure-password>
+     postgres_password: <secure-password>
+     FORGEJO_SECRET_KEY: <generate with forgejo generate secret SECRET_KEY>
+     FORGEJO_INTERNAL_TOKEN: <generate with forgejo generate secret INTERNAL_TOKEN>
+     FORGEJO_DB_PASSWORD: <secure-password>
      ```
+   - Ensure `cloudflare-stacks` item exists with `api_token` field
 
-4. **Configure environment** in Komodo:
-   - Set `ROOT_URL`: `https://git.in.hypyr.space`
-   - Set `DOMAIN`: `git.in.hypyr.space`
-   - Set `SSH_PORT`: `3022` (or your chosen port)
-   - Set `POSTGRES_PASSWORD`: (from 1Password)
-   - Set `CLOUDFLARE_API_TOKEN`: (for Caddy)
+4. **1Password Connect must be running**:
+   - Deploy `op-connect` stack first
+   - Ensure `op_connect_token` Swarm secret exists
 
 5. **Deploy via Komodo**:
    - Add this stack directory in Komodo

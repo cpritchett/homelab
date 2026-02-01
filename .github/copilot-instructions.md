@@ -18,6 +18,20 @@ Read in this order; later sources do not override earlier ones:
 
 ## Copilot-Specific Guidance
 
+### PR Body Requirements for CI Gates
+
+**CRITICAL:** The `require_adr_for_canonical_changes` gate will FAIL if:
+- You modify files in `constitution/`, `contracts/`, or `requirements/`
+- AND the PR title or body does NOT contain an ADR reference matching `ADR-[0-9]{4}`
+
+When creating or updating a PR that touches canonical paths, ALWAYS include in the PR body:
+
+```markdown
+**ADR Reference:** ADR-NNNN (description)
+```
+
+Example: `**ADR Reference:** ADR-0032 (1Password Connect for Docker Swarm Secrets)`
+
 ### CI Gate Execution
 Before completing any change, run locally:
 ```bash

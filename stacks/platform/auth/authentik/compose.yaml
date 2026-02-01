@@ -1,11 +1,34 @@
 services:
+  secrets-init:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./env.template:/templates/authentik.template:ro
+      - ./postgres.template:/templates/postgres.template:ro
+      - authentik-secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/authentik.template -o /secrets/authentik.env &&
+      op inject -i /templates/postgres.template -o /secrets/postgres.env &&
+      echo 'Secrets injected successfully'
+      "
+    restart: "no"
+
   postgresql:
     image: postgres:18@sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
     restart: unless-stopped
     env_file:
-      - /mnt/apps01/secrets/authentik/postgres.env
+      - authentik-secrets/postgres.env
     volumes:
       - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql/data
+      - authentik-secrets:/secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-authentik}"]
       interval: 10s
@@ -13,6 +36,9 @@ services:
       retries: 5
     networks:
       - authentik
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
 
   redis:
     image: redis:8-alpine@sha256:4eec4565e45aa0b3966554c866bc73211e281b0b3d89fe9a33c982e6faca809d
@@ -32,29 +58,22 @@ services:
     image: ghcr.io/goauthentik/server:2025.12.2@sha256:7cc1bc10aa2b11b998fb087d3ec4d32db31a3da9871d1ff08b95a6e94df991fd
     restart: unless-stopped
     env_file:
-      - /mnt/apps01/secrets/authentik/authentik.env
+      - authentik-secrets/authentik.env
+    volumes:
+      - /mnt/apps01/appdata/authentik/media:/media
+      - /mnt/apps01/appdata/authentik/custom-templates:/templates
+      - authentik-secrets:/secrets:ro
     environment:
-      # Core settings (normally from env_file, but explicit for clarity and fallbacks)
-      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}"
+      # Core connections (also in env_file but explicit for clarity)
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
-      AUTHENTIK_POSTGRESQL__USER: "${AUTHENTIK_POSTGRESQL__USER:-authentik}"
-      AUTHENTIK_POSTGRESQL__NAME: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
-      AUTHENTIK_POSTGRESQL__PASSWORD: "${AUTHENTIK_POSTGRESQL__PASSWORD}"
-      # Security and privacy
-      AUTHENTIK_DISABLE_STARTUP_ANALYTICS: "true"
-      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
-      # Public-facing configuration
-      AUTHENTIK_COOKIE_DOMAIN: "${AUTHENTIK_COOKIE_DOMAIN:-.in.hypyr.space}"
-      AUTHENTIK_HOST: "${AUTHENTIK_HOST:-https://auth.in.hypyr.space}"
     depends_on:
+      secrets-init:
+        condition: service_completed_successfully
       postgresql:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - /mnt/apps01/appdata/authentik/media:/media
-      - /mnt/apps01/appdata/authentik/custom-templates:/templates
     labels:
       caddy: auth.in.hypyr.space
       caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
@@ -67,32 +86,44 @@ services:
     image: ghcr.io/goauthentik/server:2025.12.2@sha256:7cc1bc10aa2b11b998fb087d3ec4d32db31a3da9871d1ff08b95a6e94df991fd
     restart: unless-stopped
     env_file:
-      - /mnt/apps01/secrets/authentik/authentik.env
+      - authentik-secrets/authentik.env
+    volumes:
+      - /mnt/apps01/appdata/authentik/media:/media
+      - /mnt/apps01/appdata/authentik/custom-templates:/templates
+      - authentik-secrets:/secrets:ro
     environment:
-      # Core settings (normally from env_file, but explicit for clarity and fallbacks)
-      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}"
+      # Core connections (also in env_file but explicit for clarity)
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
-      AUTHENTIK_POSTGRESQL__USER: "${AUTHENTIK_POSTGRESQL__USER:-authentik}"
-      AUTHENTIK_POSTGRESQL__NAME: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
-      AUTHENTIK_POSTGRESQL__PASSWORD: "${AUTHENTIK_POSTGRESQL__PASSWORD}"
-      # Security and privacy
-      AUTHENTIK_DISABLE_STARTUP_ANALYTICS: "true"
-      AUTHENTIK_ERROR_REPORTING__ENABLED: "false"
     command: worker
     depends_on:
+      secrets-init:
+        condition: service_completed_successfully
       postgresql:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - /mnt/apps01/appdata/authentik/media:/media
-      - /mnt/apps01/appdata/authentik/custom-templates:/templates
     networks:
       - authentik
 
 networks:
+  # NOTE: The authentik network driver has been changed from "bridge" to "overlay" to support Swarm mode.
+  # This is a breaking change: when upgrading from a previous version using a different driver,
+  # you must fully remove and redeploy the authentik stack for the new network driver to take effect.
+  # NOTE: The authentik network driver has been changed from "bridge" to "overlay" to support Swarm mode.
+  # This is a breaking change: when upgrading from a previous version using a different driver,
+  # you must fully remove and redeploy the authentik stack for the new network driver to take effect.
   authentik:
-    driver: bridge
+    driver: overlay
   proxy_network:
+    external: true
+  op-connect:
+    external: true
+    name: op-connect_op-connect
+
+volumes:
+  authentik-secrets:
+
+secrets:
+  op_connect_token:
     external: true

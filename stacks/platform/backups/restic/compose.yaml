@@ -1,21 +1,40 @@
 services:
+  secrets-init:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./env.template:/templates/restic.template:ro
+      - restic-secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/restic.template -o /secrets/restic.env &&
+      echo 'Secrets injected successfully'
+      "
+    restart: "no"
+
   restic:
     image: restic/restic:0.18.1@sha256:39d9072fb5651c80d75c7a811612eb60b4c06b32ffe87c2e9f3c7222e1797e76
     restart: "no"
     env_file:
-      - /mnt/apps01/secrets/restic/restic.env
+      - restic-secrets/restic.env
     environment:
-      # set by Komodo when you run the job: backup | prune | check | snapshots
+      # Set by Komodo when running job: backup | prune | check | snapshots
       RESTIC_TASK: backup
-
-      # tag snapshots so restores are sane
+      # Tag snapshots
       RESTIC_HOST: barbary
       RESTIC_TAGS: "homelab,barbary,truenas"
-
-      # keep cache on fast storage
+      # Cache on fast storage
       RESTIC_CACHE_DIR: /cache
 
     volumes:
+      - restic-secrets:/secrets:ro
       # read sources
       - type: bind
         source: /mnt/apps01
@@ -44,3 +63,20 @@ services:
     entrypoint: ["/bin/sh","-lc"]
     command: >
       /scripts/run.sh
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    networks:
+      - op-connect
+
+networks:
+  op-connect:
+    external: true
+    name: op-connect_op-connect
+
+volumes:
+  restic-secrets:
+
+secrets:
+  op_connect_token:
+    external: true
