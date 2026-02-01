@@ -92,15 +92,11 @@ services:
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
       - authentik-secrets:/secrets:ro
     environment:
-      # Core settings (normally from env_file, but explicit for clarity and fallbacks)
-      AUTHENTIK_SECRET_KEY: "${AUTHENTIK_SECRET_KEY}"
+      # Core connections (also in env_file but explicit for clarity)
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
-      AUTHENTIK_POSTGRESQL__USER: "${AUTHENTIK_POSTGRESQL__USER:-authentik}"
-      AUTHENTIK_POSTGRESQL__NAME: "${AUTHENTIK_POSTGRESQL__NAME:-authentik}"
-      AUTHENTIK_POSTGRESQL__PASSWORD: "${AUTHENTIK_POSTGRESQL__PASSWORD}"
-      # Security and privacy
-      secrets-init:
+    command: worker
+    depends_on:
         condition: service_completed_successfully
       postgresql:
         condition: service_healthy
