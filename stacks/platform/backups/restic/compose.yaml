@@ -24,8 +24,6 @@ services:
     restart: "no"
     env_file:
       - restic-secrets/restic.env
-    volumes:
-      - restic-secrets:/secrets:ro
     environment:
       # Set by Komodo when running job: backup | prune | check | snapshots
       RESTIC_TASK: backup
@@ -36,6 +34,7 @@ services:
       RESTIC_CACHE_DIR: /cache
 
     volumes:
+      - restic-secrets:/secrets:ro
       # read sources
       - type: bind
         source: /mnt/apps01

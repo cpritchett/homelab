@@ -29,11 +29,11 @@ if ! op item get restic --vault="$VAULT" >/dev/null 2>&1; then
     --vault="$VAULT" \
     --category=password \
     --title="restic" \
-    "repository[text]=s3:http://seaweedfs.in.hypyr.space:8333/restic" \
+    "repository[text]=s3:https://seaweedfs.in.hypyr.space:8333/restic" \
     "password[password]=$(gen_pw)" \
     "aws_access_key_id[text]=restic" \
     "aws_secret_access_key[password]=$(gen_pw)" \
-    "aws_endpoint[text]=http://seaweedfs.in.hypyr.space:8333" \
+    "aws_endpoint[text]=https://seaweedfs.in.hypyr.space:8333" \
     "aws_default_region[text]=us-east-1"
 else
   echo "Restic item already exists, skipping..."

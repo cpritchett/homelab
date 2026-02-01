@@ -88,7 +88,9 @@ networks:
   op-connect:
     external: true
     name: op-connect_op-connect
- - **RECOMMENDED**
+```
+
+### Method 2: `op inject` Pattern (Recommended)
 
 Use `op inject` to template secrets into config files at container startup with the shared Swarm secret:
 
@@ -108,20 +110,24 @@ services:
       - op-connect
     command: >
       sh -c "
-      export OP_CONNECT_TOKEN=$(cat /run/secrets/op_connect_token)
+      export OP_CONNECT_TOKEN=$(cat /run/secrets/op_connect_token) &&
       op inject -i /config.template.yaml -o /data/config.yaml &&
       exec myapp-binary --config /data/config.yaml
       "
 
 secrets:
   op_connect_token:
-    external: trueworks:
-      - op-connect
-    command: >
-      sh -c "
-      op inject -i /config.template.yaml -o /data/config.yaml &&
-      exec myapp-binary --config /data/config.yaml
-      " using the shared token:
+    external: true
+
+networks:
+  op-connect:
+    external: true
+    name: op-connect_op-connect
+```
+
+### Method 3: Periodic Secret Sync
+
+For applications that can't use `op inject` directly, use a sidecar to periodically sync secrets:
 
 ```yaml
 services:
@@ -138,24 +144,11 @@ services:
       - op-connect
     command: >
       sh -c "
-      export OP_CONNECT_TOKEN=$(cat /run/secrets/op_connect_token)
-```yaml
-services:
-  secret-sync:
-    image: 1password/op:2
-    environment:
-      OP_CONNECT_HOST: http://op-connect-api:8080
-      OP_CONNECT_TOKEN: ${OP_CONNECT_TOKEN}
-    volumes:
-      - shared-secrets:/secrets
-    networks:
-      - op-connect
-    command: >
-      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       while true; do
-        op read 'op://homelab/myapp/secret' > /secrets/SECRET_KEY
-        op read 'op://homelab/myapp/db-pass' > /secrets/DB_PASSWORD
-        sleep 300  # Refresh every 5 minutes
+        op read 'op://homelab/myapp/secret' > /secrets/SECRET_KEY &&
+        op read 'op://homelab/myapp/db-pass' > /secrets/DB_PASSWORD &&
+        sleep 300
       done
       "
     restart: unless-stopped
@@ -172,6 +165,15 @@ services:
 
 volumes:
   shared-secrets:
+
+secrets:
+  op_connect_token:
+    external: true
+
+networks:
+  op-connect:
+    external: true
+    name: op-connect_op-connect
 ```
 
 ## Creating Connect Token
@@ -187,9 +189,11 @@ op connect token create homelab-stacks --server homelab-truenas --vault homelab
 # Store as Docker Swarm secret on TrueNAS
 echo "<token-from-above>" | ssh truenas "docker secret create op_connect_token -"
 
-# Verify**: Stored as a Docker Swarm secret (`op_connect_token`), it's encrypted at rest and only accessible to services that explicitly mount it. For homelab use, one shared token is sufficient. In production, you might create separate tokens per stack for granular revocation
+# Verify
 ssh truenas "docker secret ls | grep op_connect"
 ```
+
+**Note:** The token is stored as a Docker Swarm secret (`op_connect_token`), which is encrypted at rest and only accessible to services that explicitly mount it. For homelab use, one shared token is sufficient. In production, you might create separate tokens per stack for granular revocation.
 
 Now all stacks can reference this shared secret instead of storing tokens individually in Komodo.
 
