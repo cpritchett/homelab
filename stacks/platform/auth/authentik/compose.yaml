@@ -107,6 +107,9 @@ services:
       - authentik
 
 networks:
+  # NOTE: The authentik network driver has been changed from "bridge" to "overlay" to support Swarm mode.
+  # This is a breaking change: when upgrading from a previous version using a different driver,
+  # you must fully remove and redeploy the authentik stack for the new network driver to take effect.
   authentik:
     driver: overlay
   proxy_network:

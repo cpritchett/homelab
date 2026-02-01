@@ -47,19 +47,34 @@ fi
 # Forgejo
 echo "Checking forgejo item..."
 if op item get forgejo --vault="$VAULT" >/dev/null 2>&1; then
+  # Check and add missing fields
   if ! op item get forgejo --vault="$VAULT" --fields postgres_password >/dev/null 2>&1; then
     echo "Adding postgres_password to forgejo..."
     op item edit forgejo --vault="$VAULT" "postgres_password[password]=$(gen_pw)"
-  else
-    echo "Forgejo already has postgres_password, skipping..."
   fi
+  if ! op item get forgejo --vault="$VAULT" --fields FORGEJO_SECRET_KEY >/dev/null 2>&1; then
+    echo "Adding FORGEJO_SECRET_KEY to forgejo..."
+    op item edit forgejo --vault="$VAULT" "FORGEJO_SECRET_KEY[password]=$(gen_pw)"
+  fi
+  if ! op item get forgejo --vault="$VAULT" --fields FORGEJO_INTERNAL_TOKEN >/dev/null 2>&1; then
+    echo "Adding FORGEJO_INTERNAL_TOKEN to forgejo..."
+    op item edit forgejo --vault="$VAULT" "FORGEJO_INTERNAL_TOKEN[password]=$(gen_pw)"
+  fi
+  if ! op item get forgejo --vault="$VAULT" --fields FORGEJO_DB_PASSWORD >/dev/null 2>&1; then
+    echo "Adding FORGEJO_DB_PASSWORD to forgejo..."
+    op item edit forgejo --vault="$VAULT" "FORGEJO_DB_PASSWORD[password]=$(gen_pw)"
+  fi
+  echo "Forgejo item updated with all required fields."
 else
   echo "Creating forgejo item..."
   op item create \
     --vault="$VAULT" \
     --category=password \
     --title="forgejo" \
-    "postgres_password[password]=$(gen_pw)"
+    "postgres_password[password]=$(gen_pw)" \
+    "FORGEJO_SECRET_KEY[password]=$(gen_pw)" \
+    "FORGEJO_INTERNAL_TOKEN[password]=$(gen_pw)" \
+    "FORGEJO_DB_PASSWORD[password]=$(gen_pw)"
 fi
 
 # Woodpecker

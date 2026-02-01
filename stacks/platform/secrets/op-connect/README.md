@@ -58,10 +58,23 @@ Check that both services are healthy:
 docker service ls | grep op-connect
 docker service logs op-connect_op-connect-api
 docker service logs op-connect_op-connect-sync
-
-# Test the API (from TrueNAS or any host on the overlay network)
-curl http://localhost:8080/health
 ```
+
+**Note on API Access:** The Connect API is only exposed via the overlay network and is not accessible on the TrueNAS host network. To verify the health endpoint, you can:
+
+1. Run the curl command from within a container on the `op-connect` network:
+   ```bash
+   docker run --rm --network op-connect_op-connect curlimages/curl:latest \
+     http://op-connect-api:8080/health
+   ```
+
+2. Or exec into one of the op-connect containers:
+   ```bash
+   # Get container ID
+   docker ps | grep op-connect-api
+   # Exec into container
+   docker exec -it <container-id> wget -qO- http://localhost:8080/health
+   ```
 
 You should see a healthy response from the API.
 
