@@ -97,12 +97,10 @@ if ssh "$TRUENAS_HOST" "docker secret ls | grep -q op_connect_token" 2>/dev/null
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     ssh "$TRUENAS_HOST" "docker secret rm op_connect_token" || true
-  elseVerify Swarm secret:"
-echo "   ssh $TRUENAS_HOST 'docker secret ls | grep op_connect_token'"
-echo ""
-echo "4. Update your stacks to use the shared secret (see migration guide)"
-echo ""
-echo "5
+  else
+    echo "Skipping secret creation."
+    TOKEN_CREATED=false
+  fi
 fi
 
 if [[ ${TOKEN_CREATED:-true} != false ]]; then

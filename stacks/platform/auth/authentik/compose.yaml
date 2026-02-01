@@ -97,6 +97,7 @@ services:
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
     command: worker
     depends_on:
+      secrets-init:
         condition: service_completed_successfully
       postgresql:
         condition: service_healthy
@@ -118,9 +119,5 @@ volumes:
   authentik-secrets:
 
 secrets:
-  op_connect_token
-networks:
-  authentik:
-    driver: bridge
-  proxy_network:
+  op_connect_token:
     external: true

@@ -134,7 +134,7 @@ All items live in the `homelab` vault. Use standard 1Password item format (not t
 
 ### Required items
 
-1) `authentik` item with fields:
+1) `authentik-stack` item with fields:
 - secret_key (generate with `openssl rand -base64 32`)
 - bootstrap_email (required for initial setup)
 - bootstrap_password (required for initial setup)
@@ -142,19 +142,13 @@ All items live in the `homelab` vault. Use standard 1Password item format (not t
 - postgres_user (default: authentik)
 - postgres_db (default: authentik)
 
-Reference format in templates: `op://homelab/authentik/secret_key`
+Reference format in templates: `op://homelab/authentik-stack/secret_key`
 
 2) `restic` item with fields:
 - repository (S3 URL)
 - password (restic repo password)
 - aws_access_key_id
 - aws_secret_access_key
-- aws_endpoint
-- aws_default_region
-
-Reference format in templates: `op://homelab/restic/repository`
-
-## Step 5: Deploy Authentik (with Connect integration)
 - aws_endpoint
 - aws_default_region
 
