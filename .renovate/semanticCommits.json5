@@ -4,8 +4,6 @@
   semanticCommits: "enabled",
   semanticCommitType: "chore",
   semanticCommitScope: "deps",
-  // Customize PR title template to include proper conventional commit format
-  prTitle: "{{semanticPrefix}}{{#if isPin}}pin{{else}}update{{/if}} {{depName}} to {{#if isPatch}}{{newVersion}}{{else}}{{#if isMajor}}v{{newMajor}}{{else}}{{#if isRange}}{{newValue}}{{else}}v{{newVersion}}{{/if}}{{/if}}{{/if}}",
   // Enrich PR body with detailed information
   prBodyTemplate: "{{{header}}}\n\n{{{table}}}\n\n{{{warnings}}}\n\n{{{notes}}}\n\n---\n\n### Release Notes\n\n{{{changelogs}}}\n\n---\n\n{{{controls}}}\n\n{{{footer}}}",
   prBodyColumns: [
