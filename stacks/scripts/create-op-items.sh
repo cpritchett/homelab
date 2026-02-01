@@ -12,15 +12,20 @@ echo "Creating 1Password items for Docker stacks..."
 echo ""
 
 # Authentik
-echo "Creating authentik-stack item..."
-op item create \
-  --vault="$VAULT" \
-  --category=password \
-  --title="authentik-stack" \
-  "secret_key[password]=$(gen_pw)" \
-  "bootstrap_email[email]=admin@hypyr.space" \
-  "bootstrap_password[password]=$(gen_pw)" \
-  "postgres_password[password]=$(gen_pw)"
+echo "Checking authentik-stack item..."
+if op item get authentik-stack --vault="$VAULT" >/dev/null 2>&1; then
+  echo "authentik-stack item already exists, skipping..."
+else
+  echo "Creating authentik-stack item..."
+  op item create \
+    --vault="$VAULT" \
+    --category=password \
+    --title="authentik-stack" \
+    "secret_key[password]=$(gen_pw)" \
+    "bootstrap_email[email]=admin@hypyr.space" \
+    "bootstrap_password[password]=$(gen_pw)" \
+    "postgres_password[password]=$(gen_pw)"
+fi
 
 # Restic
 if ! op item get restic --vault="$VAULT" >/dev/null 2>&1; then
