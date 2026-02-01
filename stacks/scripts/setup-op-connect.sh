@@ -27,7 +27,7 @@ fi
 # Check if server already exists
 if op connect server get "$SERVER_NAME" &>/dev/null 2>&1; then
   echo "⚠️  Connect server '$SERVER_NAME' already exists"
-  read -p "Do you want to create a new one? (y/N) " -n 1 -r
+  read -p "Do you want to create a new one? (y/N) " -n 1 -r REPLY
   echo
   if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Using existing server. You'll need to locate the credentials file manually."
@@ -93,7 +93,7 @@ TOKEN_VALUE=$(cat "$TOKEN_FILE")
 
 if ssh "$TRUENAS_HOST" "docker secret ls | grep -q op_connect_token" 2>/dev/null; then
   echo "⚠️  Swarm secret 'op_connect_token' already exists"
-  read -p "Remove and recreate? (y/N) " -n 1 -r
+  read -p "Remove and recreate? (y/N) " -n 1 -r REPLY
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     ssh "$TRUENAS_HOST" "docker secret rm op_connect_token" || true
@@ -140,7 +140,7 @@ echo "⚠️  Security Note:"
 echo "The credentials file contains full vault access. Keep it secure!"
 echo "Local copy: $CREDS_FILE"
 echo ""
-read -p "Delete local credentials file? (Y/n) " -n 1 -r
+read -p "Delete local credentials file? (Y/n) " -n 1 -r REPLY
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then
   rm -f "$CREDS_FILE"

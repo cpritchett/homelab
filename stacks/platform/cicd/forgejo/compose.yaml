@@ -53,8 +53,10 @@ services:
       USER_GID: 1000
       DB_TYPE: postgres
       DB_HOST: forgejo-db
-      # DB_NAME, DB_USER, DB_PASSWD from env_file (as POSTGRES_*)
-      # Forgejo reads them via env
+      # Map POSTGRES_* from env_file to Forgejo's expected DB_* variables
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWD: ${POSTGRES_PASSWORD}
       CONTAINER_REGISTRY_ENABLED: "true"
     volumes:
       - /mnt/apps01/appdata/forgejo:/data
