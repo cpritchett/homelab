@@ -1,88 +1,157 @@
+networks:
+  proxy_network:
+    external: True
+    name: proxy_network
+
 services:
-  caddy:
-    image: ghcr.io/cpritchett/caddy-labels:latest
-    restart: unless-stopped
-    user: "${PUID:-1701}:${PGID:-1702}"
-
+  secrets-init:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
     environment:
-      TZ: "${TZ:-America/Chicago}"
-      CADDY_EMAIL: "${CADDY_EMAIL:-you@example.com}"
-      CADDY_INGRESS_NETWORKS: proxy_network
-      CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}"
-      DOCKER_HOST: tcp://docker-socket-proxy:2375
-
-    ports:
-      - "80:80"
-      - "443:443"
-
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
     volumes:
-      - /mnt/apps01/appdata/proxy/caddy-data:/data/caddy
-      - /mnt/apps01/appdata/proxy/caddy-config:/config
-
+      - ./caddy.template:/templates/caddy.template:ro
+      - caddy-secrets:/secrets
     networks:
-      proxy_network:
-        aliases:
-          - caddy
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/caddy.template -o /secrets/caddy.env &&
+      echo 'Secrets injected successfully'
+      "
+    restart: "no"
 
+  caddy:
+    cap_add:
+      - NET_BIND_SERVICE
+    cap_drop:
+      - ALL
+    container_name: caddy
     depends_on:
       docker-socket-proxy:
         condition: service_healthy
-
-    # Optional hardening (enable if it doesn't break)
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-
-    labels:
-      caddy.email: "${CADDY_EMAIL:-you@example.com}"
-
-      # Barbary UI (TrueNAS)
-      caddy_0: barbary.in.hypyr.space
-      caddy_0.reverse_proxy: https://10.0.5.121:444
-      caddy_0.reverse_proxy.transport: http  # transport for HTTPS backend
-      caddy_0.reverse_proxy.transport.tls_server_name: barbary.in.hypyr.space
-      caddy_0.reverse_proxy.transport.tls_insecure_skip_verify: ""
-
-      # Wildcard seed / fallback
-      caddy_1: "*.in.hypyr.space in.hypyr.space"
-      caddy_1.respond: "ok 200"
-      caddy_1.tls.dns: cloudflare {env.CLOUDFLARE_API_TOKEN}
-
-  docker-socket-proxy:
-    image: ghcr.io/tecnativa/docker-socket-proxy:v0.4.2@sha256:1f3a6f303320723d199d2316a3e82b2e2685d86c275d5e3deeaf182573b47476
-    restart: unless-stopped
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-
+      secrets-init:
+        condition: service_completed_successfully
+    env_file:
+      - caddy-secrets/caddy.env
     environment:
-      CONTAINERS: "1"
-      NETWORKS: "1"
-      EVENTS: "1"
-      INFO: "1"
-      PING: "1"
-      # Enable for Docker Swarm service/task discovery (not required for standalone Compose)
-      # SERVICES: "1"
-      # TASKS: "1"
-
+      CADDY_INGRESS_NETWORKS: proxy_network
+      DOCKER_HOST: tcp://docker-socket-proxy:2375
+      TZ: America/Chicago
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    image: ghcr.io/cpritchett/caddy-labels:latest
+    labels:
+      caddy.email: admin@hypyr.space
+      caddy_10: barbary.in.hypyr.space
+      caddy_10.reverse_proxy: host.docker.internal:81
+      caddy_10.tls.dns: cloudflare {env.CLOUDFLARE_API_TOKEN}
+      caddy_90: '*.in.hypyr.space'
+      caddy_90.respond: not-found 404
+      caddy_90.tls.dns: cloudflare {env.CLOUDFLARE_API_TOKEN}
     networks:
-      proxy_network:
-        aliases:
-          - docker-socket-proxy
-
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:2375/_ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
-
-    # Optional hardening - test before enabling, socket proxy may need specific capabilities
+      - proxy_network
+    ports:
+      - host_ip: 0.0.0.0
+        mode: ingress
+        protocol: tcp
+        published: 80
+        target: 80
+      - host_ip: 0.0.0.0
+        mode: ingress
+        protocol: tcp
+        published: 443
+        target: 443
+    privileged: False
+    restart: unless-stopped
     security_opt:
-      - no-new-privileges:true
-    # cap_drop:
-    #   - ALL
-
+      - no-new-privileges=true
+    stdin_open: False
+    tty: False
+    user: '1701:1702'
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps01/appdata/proxy/caddy-data
+        target: /data/caddy
+        type: bind
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps01/appdata/proxy/caddy-config
+        target: /config
+        type: bind
+      - read_only: True
+        source: caddy-secrets
+        target: /secrets
+        type: volume
+  docker-socket-proxy:
+    container_name: docker-socket-proxy
+    environment:
+      CONTAINERS: '1'
+      EVENTS: '1'
+      INFO: '1'
+      NETWORKS: '1'
+      NODES: '1'
+      PING: '1'
+      SERVICES: '1'
+      SWARM: '1'
+      TASKS: '1'
+      TIMEOUT_CLIENT: 300s
+      TIMEOUT_CONNECT: 30s
+      TIMEOUT_SERVER: 300s
+      VERSION: '1'
+    healthcheck:
+      interval: 10s
+      retries: 10
+      test:
+        - CMD
+        - wget
+        - '-qO-'
+        - http://localhost:2375/_ping
+      timeout: 3s
+    image: ghcr.io/tecnativa/docker-socket-proxy:latest
+    networks:
+      - proxy_network
+    privileged: False
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: False
+    tty: False
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: True
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        type: bind
 networks:
-  proxy_network:
+  op-connect:
     external: true
+
+volumes:
+  caddy-secrets:
+
+secrets:
+  op_connect_token:
+    external: true
+x-notes: >
+  # Caddy + docker-socket-proxy (label-driven ingress)
+
+  - Caddy listens on 80/443 and discovers other containers through
+  docker-socket-proxy. - docker-socket-proxy is restricted to a minimal set of
+  Docker API capabilities.
+x-portals:
+  - host: 0.0.0.0
+    name: HTTPS
+    path: /
+    port: 443
+    scheme: https

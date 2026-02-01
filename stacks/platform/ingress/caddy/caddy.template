@@ -1,0 +1,2 @@
+CADDY_EMAIL=op://Homelab/caddy-admin-email/username
+CLOUDFLARE_API_TOKEN=op://Homelab/cloudflare-api-token/password

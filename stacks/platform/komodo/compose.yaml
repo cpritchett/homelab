@@ -1,0 +1,224 @@
+networks:
+  proxy_network:
+    external: True
+    name: proxy_network
+
+services:
+  secrets-init:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./komodo.template:/templates/komodo.template:ro
+      - komodo-secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/komodo.template -o /secrets/komodo.env &&
+      echo 'Secrets injected successfully'
+      "
+    restart: "no"
+
+services:
+  core:
+    cap_drop:
+      - ALL
+    depends_on:
+      mongo:
+        condition: service_healthy
+      secrets-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4096M
+    env_file:
+      - komodo-secrets/komodo.env
+    environment:
+      KOMODO_SYNC_DIRECTORY: /syncs
+      NVIDIA_VISIBLE_DEVICES: void
+      TZ: America/Chicago
+      UMASK: '002'
+      UMASK_SET: '002'
+    volumes:
+      - komodo-secrets:/secrets:ro
+    group_add:
+      - 568
+    healthcheck:
+      interval: 30s
+      retries: 10
+      start_period: 120s
+      test:
+        - CMD-SHELL
+        - curl -sS -o /dev/null http://127.0.0.1:30160/ || exit 1
+      timeout: 5s
+    image: ghcr.io/moghtech/komodo-core:2-dev
+    labels:
+      caddh_0.tls: internal
+      caddy_0: komodo.in.hypyr.space
+      caddy_0.reverse_proxy: core:30160
+    networks:
+      - proxy_network
+      - default
+    platform: linux/amd64
+    privileged: False
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: False
+    tty: False
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps01/appdata/komodo/backups
+        target: /backups
+        type: bind
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps01/appdata/komodo/sync
+        target: /syncs
+        type: bind
+      - read_only: True
+        source: /mnt/apps01/secrets
+        target: /mnt/apps01/secrets
+        type: bind
+  mongo:
+    cap_drop:
+      - ALL
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4096M
+    env_file:
+      - komodo-secrets/komodo.env
+    environment:
+      NVIDIA_VISIBLE_DEVICES: void
+      TZ: America/Chicago
+      UMASK: '002'
+      UMASK_SET: '002'
+    group_add:
+      - 568
+    healthcheck:
+      interval: 30s
+      retries: 5
+      start_interval: 2s
+      start_period: 15s
+      test:
+        - CMD
+        - mongosh
+        - '--host'
+        - 127.0.0.1
+        - '--port'
+        - '27017'
+        - komodo
+        - '--eval'
+        - db.adminCommand("ping")
+        - '--quiet'
+      timeout: 5s
+    image: mongo:8.2.3
+    labels:
+      komodo.skip: 'true'
+    platform: linux/amd64
+    privileged: False
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: False
+    stop_grace_period: 60s
+    tty: False
+    user: '568:568'
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps01/appdata/komodo/mongodb
+        target: /data/db
+        type: bind
+  periphery:
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4096M
+    env_file:
+      - komodo-secrets/komodo.env
+    environment:
+      NVIDIA_VISIBLE_DEVICES: void
+      PERIPHERY_PORT: '8120'
+      PERIPHERY_ROOT_DIRECTORY: /mnt/apps01/appdata/komodo/periphery
+      PERIPHERY_SSL_ENABLED: 'true'
+      TZ: America/Chicago
+      UMASK: '002'
+      UMASK_SET: '002'
+    group_add:
+      - 568
+      - 999
+    healthcheck:
+      disable: True
+    image: ghcr.io/moghtech/komodo-periphery:2-dev
+    labels:
+      komodo.skip: 'true'
+    networks:
+      - proxy_network
+      - default
+    platform: linux/amd64
+    privileged: False
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: False
+    tty: False
+    volumes:
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /mnt/apps01/appdata/komodo/periphery
+        target: /mnt/apps01/appdata/komodo/periphery
+        type: bind
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /proc
+        target: /proc
+        type: bind
+      - bind:
+          create_host_path: False
+          propagation: rprivate
+        read_only: False
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        type: bind
+      - read_only: True
+        source: /mnt/apps01/secrets
+        target: /mnt/apps01/secrets
+        type: bind
+
+networks:
+  op-connect:
+    external: true
+
+volumes:
+  komodo-secrets:
+
+secrets:
+  op_connect_token:
+    external: true

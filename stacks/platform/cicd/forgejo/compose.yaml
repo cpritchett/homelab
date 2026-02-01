@@ -83,7 +83,6 @@ networks:
     external: true
   op-connect:
     external: true
-    name: op-connect_op-connect
 
 volumes:
   forgejo-secrets:
