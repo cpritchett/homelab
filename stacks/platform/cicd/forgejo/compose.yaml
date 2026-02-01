@@ -49,8 +49,8 @@ services:
       secrets-init:
         condition: service_completed_successfully
     environment:
-      USER_UID: 1000
-      USER_GID: 1000
+      USER_UID: 1701
+      USER_GID: 1702
       DB_TYPE: postgres
       DB_HOST: forgejo-db
       # Map POSTGRES_* from env_file to Forgejo's expected DB_* variables
