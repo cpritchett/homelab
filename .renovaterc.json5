@@ -12,9 +12,9 @@
     ":semanticCommits",
     ":timezone(America/Chicago)",
     // Local overrides for semantic commits and PR formatting
-    "local>.renovate/semanticCommits.json5",
-    "local>.renovate/packageRules.json5",
-    "local>.renovate/groups.json5"
+    "github>cpritchett/homelab//.renovate/semanticCommits.json5",
+    "github>cpritchett/homelab//.renovate/packageRules.json5",
+    "github>cpritchett/homelab//.renovate/groups.json5"
   ],
   flux: {
     fileMatch: ["(^|/)kubernetes/.*\\.ya?ml$", "(^|/)bootstrap/.*\\.ya?ml$"]
