@@ -102,6 +102,7 @@ steps:
 - **Database**: SQLite (persistent storage at `/mnt/apps01/appdata/woodpecker/woodpecker.db`)
 - **Agent**: Docker backend; pipelines execute as containers on the NAS host
 - **Networking**: Connected to `proxy_network` for Caddy routing
+- **Proxy network alias**: `woodpecker-server`
 - **Reverse proxy**: Caddy handles HTTPS termination
 - **Authentication**: OAuth2 via Forgejo
 

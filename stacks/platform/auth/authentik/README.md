@@ -42,3 +42,4 @@ Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks m
 - Postgres runs as UID/GID `999:999`.
 - Redis runs as UID/GID `999:1000`.
 - Authentik server/worker runs as UID/GID `1000:1000`.
+- `proxy_network` alias: `authentik-server`.

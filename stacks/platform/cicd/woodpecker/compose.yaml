@@ -45,8 +45,10 @@ services:
       caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
       caddy.reverse_proxy: "{{upstreamDialer \"woodpecker-server:8000\"}}"
     networks:
-      - woodpecker
-      - proxy_network
+      woodpecker:
+      proxy_network:
+        aliases:
+          - woodpecker-server
 
   woodpecker-agent:
     image: woodpeckerci/woodpecker-agent:v3.13.0@sha256:a983b1016217ad94cdab48d732ec97b5b1f72718725d651183d7ec885f7caf35
@@ -68,8 +70,10 @@ services:
       woodpecker-server:
         condition: service_started
     networks:
-      - woodpecker
-      - proxy_network
+      woodpecker:
+      proxy_network:
+        aliases:
+          - woodpecker-agent
 
 networks:
   woodpecker:

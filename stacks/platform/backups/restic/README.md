@@ -29,3 +29,4 @@ Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks m
 
 - Restic runs as root (UID/GID `0:0`).
 - Sources are mounted read-only from `/mnt/apps01` and `/mnt/data01`.
+- `OP_CONNECT_HOST` uses the `op-connect-api` alias on the shared `op-connect` overlay network.

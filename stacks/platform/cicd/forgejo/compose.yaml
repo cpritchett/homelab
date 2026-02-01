@@ -70,8 +70,10 @@ services:
       caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
       caddy.reverse_proxy: "{{upstreamDialer \"forgejo:3000\"}}"
     networks:
-      - forgejo
-      - proxy_network
+      forgejo:
+      proxy_network:
+        aliases:
+          - forgejo
 
 networks:
   forgejo:

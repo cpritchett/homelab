@@ -8,7 +8,9 @@ services:
       caddy: status.in.hypyr.space
       caddy.reverse_proxy: "{{upstreams 3001}}"
     networks:
-      - proxy_network
+      proxy_network:
+        aliases:
+          - uptime-kuma
 
 networks:
   proxy_network:

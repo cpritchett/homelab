@@ -85,6 +85,7 @@ git clone ssh://git@git.in.hypyr.space:3022/username/repo.git
 - **Git data**: Stored on `/mnt/apps01/appdata/forgejo`
 - **Registry**: Built into Forgejo; no separate service
 - **Networking**: Connected to `proxy_network` for Caddy routing
+- **Proxy network alias**: `forgejo`
 - **Reverse proxy**: Caddy handles HTTPS termination and DNS challenge
 
 ## Troubleshooting

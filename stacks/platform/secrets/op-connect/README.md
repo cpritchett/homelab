@@ -46,8 +46,6 @@ ssh truenas "chmod 600 /mnt/apps01/secrets/op/1password-credentials.json"
 
 Optional helper (run on TrueNAS): `stacks/scripts/set-host-permissions.sh`
 
-Optional helper (run on TrueNAS): `stacks/scripts/set-host-permissions.sh`
-
 ### 3. Deploy via Komodo
 
 1. Add this stack to Komodo from GitHub (`stacks/platform/secrets/op-connect`)
@@ -66,7 +64,7 @@ docker service logs op-connect_op-connect-api
 docker service logs op-connect_op-connect-sync
 ```
 
-**Note on API Access:** The Connect API is only exposed via the overlay network and is not accessible on the TrueNAS host network. To verify the health endpoint, you can:
+**Note on API Access:** The Connect API is only exposed via the overlay network and is not accessible on the TrueNAS host network. The `op-connect` overlay provides stable aliases (`op-connect-api`, `op-connect-sync`) for cross-stack use; internal service names are stack-prefixed (`op-connect_op-connect-api`, `op-connect_op-connect-sync`). To verify the health endpoint, you can:
 
 1. Run the curl command from within a container on the `op-connect` network:
    ```bash
@@ -108,6 +106,8 @@ networks:
     external: true
     name: op-connect_op-connect
 ```
+
+**Best practice DNS:** use the `op-connect-api` alias on the `op-connect` overlay network for cross-stack access. The underlying Swarm service names remain stack-prefixed.
 
 ### Method 2: `op inject` Pattern (Recommended)
 

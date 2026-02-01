@@ -28,3 +28,4 @@ Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks m
 ## Notes
 
 - Uptime Kuma runs as UID/GID `1000:1000`.
+- `proxy_network` alias: `uptime-kuma`.

@@ -20,7 +20,9 @@ services:
       - /mnt/apps01/appdata/proxy/caddy-config:/config
 
     networks:
-      - proxy_network
+      proxy_network:
+        aliases:
+          - caddy
 
     depends_on:
       docker-socket-proxy:
@@ -65,7 +67,9 @@ services:
       # TASKS: "1"
 
     networks:
-      - proxy_network
+      proxy_network:
+        aliases:
+          - docker-socket-proxy
 
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:2375/_ping"]
