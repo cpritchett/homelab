@@ -50,7 +50,7 @@ chown_recursive 1701:1702 /mnt/apps01/appdata/proxy/caddy-config
 # op-connect credentials file
 ensure_dir /mnt/apps01/secrets/op
 if [ -f /mnt/apps01/secrets/op/1password-credentials.json ]; then
-  chown 1701:1702 /mnt/apps01/secrets/op/1password-credentials.json
+  chown 999:999 /mnt/apps01/secrets/op/1password-credentials.json
   chmod 600 /mnt/apps01/secrets/op/1password-credentials.json
 else
   warn "/mnt/apps01/secrets/op/1password-credentials.json not found; skipping."
@@ -61,7 +61,7 @@ if command -v docker >/dev/null 2>&1; then
   if docker volume inspect op-connect_op-connect-data >/dev/null 2>&1; then
     vol_path="$(docker volume inspect op-connect_op-connect-data --format '{{.Mountpoint}}')"
     if [ -n "$vol_path" ] && [ -d "$vol_path" ]; then
-      chown -R 1701:1702 "$vol_path"
+      chown -R 999:999 "$vol_path"
     else
       warn "op-connect volume mountpoint not found; skipping."
     fi
@@ -73,7 +73,7 @@ else
 fi
 
 # Forgejo
-chown_recursive 1701:1702 /mnt/apps01/appdata/forgejo
+chown_recursive 1000:1000 /mnt/apps01/appdata/forgejo
 chown_recursive 999:999 /mnt/data01/appdata/forgejo/postgres
 
 # Authentik
