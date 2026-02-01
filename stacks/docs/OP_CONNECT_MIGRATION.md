@@ -37,15 +37,17 @@ Fields:
   AUTHENTIK_POSTGRESQL__PASSWORD=yyyyy
 ```
 
-New format (standard items):
+New format (standard items with stacks tag):
 ```
-Item: "authentik"
+Item: "authentik-stack" (tag: stacks)
 Fields:
   secret_key: xxxxx
   postgres_password: yyyyy
+  bootstrap_email: admin@example.com
+  bootstrap_password: xxxxx
 ```
 
-Reference in templates as: `op://homelab/authentik/secret_key`
+Reference in templates as: `op://homelab/authentik-stack/secret_key`
 
 ### 3. Create Shared Connect Token
 

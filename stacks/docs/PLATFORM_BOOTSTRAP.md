@@ -35,7 +35,8 @@ Relevant layout:
 - `stacks/platform/auth/authentik/compose.yaml`
 - `stacks/platform/observability/uptime-kuma/compose.yaml`
 - `stacks/platform/backups/restic/compose.yaml`
-- `stacks/scripts/op-export-stack-env.sh`
+- `stacks/scripts/create-op-items.sh`
+- `stacks/scripts/setup-op-connect.sh`
 - `stacks/scripts/restic/run.sh`
 - `stacks/docs/PLATFORM_BOOTSTRAP.md`
 - `stacks/docs/RESTORE_RUNBOOK.md`

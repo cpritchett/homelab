@@ -88,14 +88,23 @@ else
     "admin_username[text]=admin"
 fi
 
-# Cloudflare check
+# Cloudflare-stacks check
 echo ""
-echo "Verifying cloudflare item..."
-if ! op item get cloudflare --vault="$VAULT" --fields api_token >/dev/null 2>&1; then
-  echo "⚠️  Cloudflare item missing 'api_token' field"
-  echo "   Add it: op item edit cloudflare --vault=$VAULT 'api_token[password]=<token>'"
+echo "Verifying cloudflare-stacks item..."
+if ! op item get cloudflare-stacks --vault="$VAULT" >/dev/null 2>&1; then
+  echo "Creating cloudflare-stacks item..."
+  echo "⚠️  You need to provide your Cloudflare API token"
+  read -p "Enter Cloudflare API Token: " -s CF_TOKEN
+  echo ""
+  op item create \
+    --vault="$VAULT" \
+    --category=password \
+    --title="cloudflare-stacks" \
+    --tags="stacks" \
+    "api_token[password]=$CF_TOKEN"
+  echo "✅ Created cloudflare-stacks"
 else
-  echo "✓ Cloudflare api_token exists"
+  echo "✓ cloudflare-stacks exists"
 fi
 
 echo ""
@@ -103,6 +112,5 @@ echo "✅ Done!"
 echo ""
 echo "Manual steps:"
 echo "  1. Update woodpecker.gitea_client with OAuth client ID from Forgejo"
-echo "  2. Verify cloudflare.api_token is set"
 echo ""
 echo "Test with: cd stacks/platform/auth/authentik && op inject -i env.template -o test.env"
