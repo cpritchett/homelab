@@ -6,7 +6,7 @@ Bootstrap the TrueNAS + Komodo "platform services" layer (non-Kubernetes) that s
 
 Platform services included:
 - Caddy (already running)
-- 1Password -> env materializer (op-export job)
+- 1Password Connect Server (secret management via HTTP API)
 - Authentik (SSO/MFA)
 - Uptime Kuma (basic monitoring)
 - Restic -> S3 (backups)
@@ -20,7 +20,7 @@ This is intentionally small. Everything else belongs in application stacks.
 - Caddy is already deployed and attached to the external Docker network `proxy_network`
 - DNS works for `*.in.hypyr.space`
 - `/mnt/apps01` is fast storage, `/mnt/data01` is spinning rust
-- Secrets are stored in 1Password and materialized to `/mnt/apps01/secrets/<stack>/*.env`
+- Secrets are stored in 1Password and accessed via Connect Server API (no pre-materialization needed)
 
 ## Repo conventions (this repo)
 
@@ -31,7 +31,7 @@ Your repo contains Kubernetes homelab content at the root. Docker/Komodo stacks 
 
 Relevant layout:
 
-- `stacks/platform/secrets/op-export/compose.yaml`
+- `stacks/platform/secrets/op-connect/compose.yaml`
 - `stacks/platform/auth/authentik/compose.yaml`
 - `stacks/platform/observability/uptime-kuma/compose.yaml`
 - `stacks/platform/backups/restic/compose.yaml`
@@ -67,77 +67,102 @@ Notes:
 - Redis can be ephemeral; persistence is optional. If you want persistence, mount it (see Authentik compose notes).
 - Restic scripts (`run.sh`, `excludes.txt`) are bundled in the stack directory; Komodo handles syncing them automatically.
 
-## Step 1: 1Password items (source of truth)
+## Step 1: 1Password Connect Server credentials
 
-All items live in the `homelab` vault.
+On your **workstation** (where `op` CLI is installed):
 
-### Required items
+```bash
+# List vaults to get vault ID
+op vault list
 
-1) `op.env` (tag: `stack:op`)
-Fields:
-- OP_SERVICE_ACCOUNT_TOKEN
-- VAULT=homelab
-- DEST_ROOT=/mnt/apps01/secrets
+# Create Connect server credentials
+op connect server create homelab-truenas --vaults homelab
 
-2) `authentik.env` (tag: `stack:authentik`)
-Fields:
-- AUTHENTIK_SECRET_KEY (required, generate with `openssl rand -base64 32`)
-- AUTHENTIK_BOOTSTRAP_EMAIL (required for initial setup)
-- AUTHENTIK_BOOTSTRAP_PASSWORD (required for initial setup)
-- AUTHENTIK_POSTGRESQL__PASSWORD (same value as POSTGRES_PASSWORD)
-- AUTHENTIK_POSTGRESQL__USER (default: authentik)
-- AUTHENTIK_POSTGRESQL__NAME (default: authentik)
-- AUTHENTIK_POSTGRESQL__HOST (set to: postgresql)
-- AUTHENTIK_REDIS__HOST (set to: redis)
-- AUTHENTIK_DISABLE_STARTUP_ANALYTICS (set to: true)
-- AUTHENTIK_ERROR_REPORTING__ENABLED (set to: false)
-- AUTHENTIK_COOKIE_DOMAIN (set to: in.hypyr.space)
-- AUTHENTIK_HOST (set to: https://auth.in.hypyr.space)
+# Save the output JSON as 1password-credentials.json
+```
 
-Optional (recommended later):
-- AUTHENTIK_EMAIL__HOST
-- AUTHENTIK_EMAIL__PORT
-- AUTHENTIK_EMAIL__USERNAME
-- AUTHENTIK_EMAIL__PASSWORD
-- AUTHENTIK_EMAIL__USE_TLS
-- AUTHENTIK_EMAIL__FROM
+Copy credentials to TrueNAS:
 
-3) `postgres.env` (tag: `stack:authentik`)
-Fields:
-- POSTGRES_DB=authentik
-- POSTGRES_USER=authentik
-- POSTGRES_PASSWORD
+```bash
+# Create secrets directory
+ssh truenas "mkdir -p /mnt/apps01/secrets/op"
 
-4) `restic.env` (tag: `stack:restic`)
-Fields:
-- RESTIC_REPOSITORY
-- RESTIC_PASSWORD
-- AWS_ACCESS_KEY_ID
-- AWS_SECRET_ACCESS_KEY
-- AWS_ENDPOINT
-- AWS_DEFAULT_REGION
+# Copy credentials
+scp 1password-credentials.json truenas:/mnt/apps01/secrets/op/
 
-## Step 2: Materialize env files (op-export job)
+# Set permissions
+ssh truenas "chmod 600 /mnt/apps01/secrets/op/1password-credentials.json"
+```
 
-In Komodo, deploy and run:
+**Important:** This credentials file provides full vault access. Keep it secure and never commit to git.
 
-- `stacks/platform/secrets/op-export/compose.yaml`
+## Step 2: Deploy 1Password Connect Server
+
+In Komodo, deploy:
+
+- `stacks/platform/secrets/op-connect/compose.yaml`
 
 Verify on host:
 
+```bash
+docker service ls | grep op-connect
+curl http://localhost:8080/health
 ```
-ls /mnt/apps01/secrets/authentik
-ls /mnt/apps01/secrets/restic
+
+Both `op-connect-api` and `op-connect-sync` should be healthy.
+
+## Step 3: Create shared Connect token
+
+Create one token and store as a Swarm secret for all stacks to use:
+
+```bash
+# On your workstation
+op connect token create homelab-stacks --server homelab-truenas --vault homelab
+
+# Store as Swarm secret on TrueNAS
+echo "<token-from-above>" | ssh truenas "docker secret create op_connect_token -"
+
+# Verify
+ssh truenas "docker secret ls | grep op_connect_token"
 ```
 
-Expected:
-- `/mnt/apps01/secrets/authentik/authentik.env`
-- `/mnt/apps01/secrets/authentik/postgres.env`
-- `/mnt/apps01/secrets/restic/restic.env`
+All stacks will reference this shared `op_connect_token` secret.
 
-If missing: stop and fix op-export and 1Password items before proceeding.
+## Step 4: Configure 1Password items (secret source)
 
-## Step 3: Deploy Authentik (do not gate anything yet)
+All items live in the `homelab` vault. Use standard 1Password item format (not tagged for export).
+
+### Required items
+
+1) `authentik` item with fields:
+- secret_key (generate with `openssl rand -base64 32`)
+- bootstrap_email (required for initial setup)
+- bootstrap_password (required for initial setup)
+- postgres_password (for database)
+- postgres_user (default: authentik)
+- postgres_db (default: authentik)
+
+Reference format in templates: `op://homelab/authentik/secret_key`
+
+2) `restic` item with fields:
+- repository (S3 URL)
+- password (restic repo password)
+- aws_access_key_id
+- aws_secret_access_key
+- aws_endpoint
+- aws_default_region
+
+Reference format in templates: `op://homelab/restic/repository`
+
+## Step 5: Deploy Authentik (with Connect integration)
+- aws_endpoint
+- aws_default_region
+
+Reference format in templates: `op://homelab/restic/repository`
+
+## Step 5: Deploy Authentik (with Connect integration)
+
+**Note:** For now, Authentik still uses env files. Full migration to `op inject` pattern is documented in `stacks/platform/auth/authentik/MIGRATION.md`.
 
 Deploy:
 
@@ -148,11 +173,8 @@ Verify:
 - Bootstrap login works
 - Create a second admin user immediately
 - Enable MFA for both admin users
-- Create an "Operators" group (or similar) and only grant admin roles to that group
 
-Do not protect Komodo until Authentik is stable and you have two admin identities with MFA.
-
-## Step 4: Deploy observability (Uptime Kuma)
+## Step 6: Deploy Uptime Kuma (basic monitoring)
 
 Deploy:
 
@@ -166,7 +188,7 @@ Verify:
   - barbary.in.hypyr.space
   - any other "tier-0" UIs
 
-## Step 5: Deploy backups (Restic) - run manually first
+## Step 7: Deploy backups (Restic) - run manually first
 
 Deploy:
 
@@ -184,7 +206,7 @@ Only after that should you schedule:
 - Weekly: prune
 - Monthly: check
 
-## Step 6: Protect apps with Authentik (per-app opt-in)
+## Step 8: Protect apps with Authentik (per-app opt-in)
 
 Use forward-auth in Caddy only on apps you choose.
 

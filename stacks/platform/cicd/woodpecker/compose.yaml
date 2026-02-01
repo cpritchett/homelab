@@ -1,30 +1,45 @@
 services:
+  secrets-init:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./env.template:/templates/woodpecker.template:ro
+      - woodpecker-secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/woodpecker.template -o /secrets/woodpecker.env &&
+      echo 'Secrets injected successfully'
+      "
+    restart: "no"
+
   woodpecker-server:
     image: woodpeckerci/woodpecker-server:v3.13.0@sha256:428eb0965754e25e67b8b086648438858b4fa64487b1cd3cc8e4101b396e459a
     restart: unless-stopped
-    environment:
-      # Server configuration
-      WOODPECKER_HOST: "${WOODPECKER_HOST:-https://ci.in.hypyr.space}"
-      WOODPECKER_SERVER_ADDR: ":8000"
-      WOODPECKER_LOG_LEVEL: info
-      # Agent communication
-      WOODPECKER_AGENT_SECRET: "${WOODPECKER_AGENT_SECRET}"
-      # Forgejo integration
-      WOODPECKER_GITEA: "true"
-      WOODPECKER_GITEA_URL: "${WOODPECKER_GITEA_URL:-https://git.in.hypyr.space}"
-      WOODPECKER_GITEA_CLIENT: "${WOODPECKER_GITEA_CLIENT}"
-      WOODPECKER_GITEA_SECRET: "${WOODPECKER_GITEA_SECRET}"
-      # Admin user
-      WOODPECKER_ADMIN: "${WOODPECKER_ADMIN:-admin}"
-      # Database (SQLite)
-      WOODPECKER_DATABASE_DRIVER: sqlite3
-      WOODPECKER_DATABASE_DATASOURCE: /data/woodpecker.db
-      # Security
-      WOODPECKER_AGENT_BACKEND: docker
-      WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
+    env_file:
+      - woodpecker-secrets/woodpecker.env
     volumes:
       - /mnt/apps01/appdata/woodpecker:/data
       - /var/run/docker.sock:/var/run/docker.sock
+      - woodpecker-secrets:/secrets:ro
+    environment:
+      # Most config from env_file, these are runtime-only
+      WOODPECKER_SERVER_ADDR: ":8000"
+      WOODPECKER_LOG_LEVEL: info
+      WOODPECKER_GITEA: "true"
+      WOODPECKER_DATABASE_DRIVER: sqlite3
+      WOODPECKER_DATABASE_DATASOURCE: /data/woodpecker.db
+      WOODPECKER_AGENT_BACKEND: docker
+      WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
     labels:
       caddy: ci.in.hypyr.space
       caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
@@ -36,22 +51,39 @@ services:
   woodpecker-agent:
     image: woodpeckerci/woodpecker-agent:v3.13.0@sha256:a983b1016217ad94cdab48d732ec97b5b1f72718725d651183d7ec885f7caf35
     restart: unless-stopped
+    env_file:
+      - woodpecker-secrets/woodpecker.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - woodpecker-secrets:/secrets:ro
     environment:
       WOODPECKER_SERVER: "ws://woodpecker-server:8000"
-      WOODPECKER_AGENT_SECRET: "${WOODPECKER_AGENT_SECRET}"
+      # WOODPECKER_AGENT_SECRET loaded from env_file
       WOODPECKER_AGENT_BACKEND: docker
       WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
       WOODPECKER_LOG_LEVEL: info
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - woodpecker-server
+      secrets-init:
+        condition: service_completed_successfully
+      woodpecker-server:
+        condition: service_started
     networks:
       - woodpecker
       - proxy_network
 
 networks:
   woodpecker:
+    driver: overlay
     internal: true
   proxy_network:
+    external: true
+  op-connect:
+    external: true
+    name: op-connect_op-connect
+
+volumes:
+  woodpecker-secrets:
+
+secrets:
+  op_connect_token:
     external: true
