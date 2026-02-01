@@ -17,7 +17,7 @@ environments:
 releases:
   - name: cilium
     namespace: kube-system
-    chart: oci://ghcr.io/cilium/charts/cilium
+    chart: oci://quay.io/cilium/charts/cilium
     version: 1.18.5
     values:
       - ../values/cilium.yaml
@@ -65,7 +65,7 @@ releases:
 
   - name: kube-vip
     namespace: kube-system
-    chart: ghcr.io/kube-vip/helm-charts/kube-vip
+    chart: oci://ghcr.io/kube-vip/helm-charts/kube-vip
     version: 0.6.4
     needs: ['external-secrets/onepassword-store']
     values:
