@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/cpritchett/homelab/compare/backstage-v1.1.0...backstage-v1.1.1) (2026-02-01)
+
+
+### Bug Fixes
+
+* **deps:** update backstage monorepo ([#87](https://github.com/cpritchett/homelab/issues/87)) ([dc00295](https://github.com/cpritchett/homelab/commit/dc002956ea29a7a0f42291d4e6867a73c4c62be3))
+* **deps:** update dependency @backstage/plugin-scaffolder-backend to v3 [security] ([#95](https://github.com/cpritchett/homelab/issues/95)) ([b2a66d0](https://github.com/cpritchett/homelab/commit/b2a66d051d6486bdefff178788f2a1eae63df866))
+
 ## [1.1.0](https://github.com/cpritchett/homelab/compare/backstage-v1.0.0...backstage-v1.1.0) (2026-01-31)
 
 
