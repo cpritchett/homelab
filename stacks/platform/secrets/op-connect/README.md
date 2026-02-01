@@ -38,16 +38,20 @@ ssh truenas "mkdir -p /mnt/apps01/secrets/op"
 scp 1password-credentials.json truenas:/mnt/apps01/secrets/op/
 
 # Set appropriate permissions
+ssh truenas "chown 1701:1702 /mnt/apps01/secrets/op/1password-credentials.json"
 ssh truenas "chmod 600 /mnt/apps01/secrets/op/1password-credentials.json"
 ```
 
 **Important:** Keep the credentials file secure. It provides full access to the configured vaults. Do not commit it to git.
+
+Optional helper (run on TrueNAS): `stacks/scripts/set-host-permissions.sh`
 
 ### 3. Deploy via Komodo
 
 1. Add this stack to Komodo from GitHub (`stacks/platform/secrets/op-connect`)
 2. Configure environment variables (optional - defaults are usually fine)
 3. Deploy the stack
+4. If you change the container user (defaults overridden to `1701:1702` in compose), ensure the shared data volume is owned by that UID/GID.
 
 ### 4. Verify Deployment
 

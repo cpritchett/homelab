@@ -20,8 +20,11 @@ Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks m
 2. **Host directories**:
    ```bash
    mkdir -p /mnt/apps01/appdata/woodpecker
+   chown -R 1000:1000 /mnt/apps01/appdata/woodpecker
    chmod 755 /mnt/apps01/appdata/woodpecker
    ```
+
+   Optional helper (run on TrueNAS): `stacks/scripts/set-host-permissions.sh`
 
 3. **Forgejo OAuth2 Application** (one-time setup):
    - Log into Forgejo at `https://git.in.hypyr.space` as admin
