@@ -14,7 +14,7 @@ services:
     command: >
       sh -c "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
-      op inject -i /templates/woodpecker.template -o /secrets/woodpecker.env &&
+      op inject -i /templates/woodpecker.template -o /secrets/woodpecker.env -f &&
       echo 'Secrets injected successfully'
       "
     restart: "no"
