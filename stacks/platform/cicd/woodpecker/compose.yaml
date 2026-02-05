@@ -8,7 +8,7 @@ services:
       - op_connect_token
     volumes:
       - ./env.template:/templates/woodpecker.template:ro
-      - woodpecker-secrets:/secrets
+      - /mnt/apps01/appdata/woodpecker/secrets:/secrets
     networks:
       - op-connect
     command: >
@@ -23,11 +23,11 @@ services:
     image: woodpeckerci/woodpecker-server:v3.13.0@sha256:428eb0965754e25e67b8b086648438858b4fa64487b1cd3cc8e4101b396e459a
     restart: unless-stopped
     env_file:
-      - woodpecker-secrets/woodpecker.env
+      - /mnt/apps01/appdata/woodpecker/secrets/woodpecker.env
     volumes:
       - /mnt/apps01/appdata/woodpecker:/data
       - /var/run/docker.sock:/var/run/docker.sock
-      - woodpecker-secrets:/secrets:ro
+      - /mnt/apps01/appdata/woodpecker/secrets:/secrets:ro
     environment:
       # Most config from env_file, these are runtime-only
       WOODPECKER_SERVER_ADDR: ":8000"
@@ -53,10 +53,10 @@ services:
     image: woodpeckerci/woodpecker-agent:v3.13.0@sha256:a983b1016217ad94cdab48d732ec97b5b1f72718725d651183d7ec885f7caf35
     restart: unless-stopped
     env_file:
-      - woodpecker-secrets/woodpecker.env
+      - /mnt/apps01/appdata/woodpecker/secrets/woodpecker.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - woodpecker-secrets:/secrets:ro
+      - /mnt/apps01/appdata/woodpecker/secrets:/secrets:ro
     environment:
       WOODPECKER_SERVER: "ws://woodpecker-server:8000"
       # WOODPECKER_AGENT_SECRET loaded from env_file
@@ -81,8 +81,7 @@ networks:
   op-connect:
     external: true
 
-volumes:
-  woodpecker-secrets:
+
 
 secrets:
   op_connect_token:

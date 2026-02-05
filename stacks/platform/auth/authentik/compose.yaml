@@ -9,7 +9,7 @@ services:
     volumes:
       - ./env.template:/templates/authentik.template:ro
       - ./postgres.template:/templates/postgres.template:ro
-      - authentik-secrets:/secrets
+      - /mnt/apps01/appdata/authentik/secrets:/secrets
     networks:
       - op-connect
     command: >
@@ -25,10 +25,10 @@ services:
     image: postgres:18@sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
     restart: unless-stopped
     env_file:
-      - authentik-secrets/postgres.env
+      - /mnt/apps01/appdata/authentik/secrets/postgres.env
     volumes:
       - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql/data
-      - authentik-secrets:/secrets:ro
+      - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-authentik}"]
       interval: 10s
@@ -57,11 +57,11 @@ services:
     image: ghcr.io/goauthentik/server:2025.12.2@sha256:7cc1bc10aa2b11b998fb087d3ec4d32db31a3da9871d1ff08b95a6e94df991fd
     restart: unless-stopped
     env_file:
-      - authentik-secrets/authentik.env
+      - /mnt/apps01/appdata/authentik/secrets/authentik.env
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
-      - authentik-secrets:/secrets:ro
+      - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
     environment:
       # Core connections (also in env_file but explicit for clarity)
       AUTHENTIK_REDIS__HOST: "redis"
@@ -84,11 +84,11 @@ services:
     image: ghcr.io/goauthentik/server:2025.12.2@sha256:7cc1bc10aa2b11b998fb087d3ec4d32db31a3da9871d1ff08b95a6e94df991fd
     restart: unless-stopped
     env_file:
-      - authentik-secrets/authentik.env
+      - /mnt/apps01/appdata/authentik/secrets/authentik.env
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
-      - authentik-secrets:/secrets:ro
+      - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
     environment:
       # Core connections (also in env_file but explicit for clarity)
       AUTHENTIK_REDIS__HOST: "redis"
@@ -116,8 +116,7 @@ networks:
     external: true
     name: op-connect_op-connect
 
-volumes:
-  authentik-secrets:
+
 
 secrets:
   op_connect_token:

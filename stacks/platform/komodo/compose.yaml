@@ -8,7 +8,7 @@ services:
       - op_connect_token
     volumes:
       - ./komodo.template:/templates/komodo.template:ro
-      - komodo-secrets:/secrets
+      - /mnt/apps01/appdata/komodo/secrets:/secrets
     networks:
       - op-connect
     command: >
@@ -31,7 +31,7 @@ services:
           cpus: '2'
           memory: 4096M
     env_file:
-      - komodo-secrets/komodo.env
+      - /mnt/apps01/appdata/komodo/secrets/komodo.env
     environment:
       KOMODO_SYNC_DIRECTORY: /syncs
       NVIDIA_VISIBLE_DEVICES: void
@@ -64,7 +64,7 @@ services:
     stdin_open: False
     tty: False
     volumes:
-      - komodo-secrets:/secrets:ro
+      - /mnt/apps01/appdata/komodo/secrets:/secrets:ro
       - bind:
           create_host_path: False
           propagation: rprivate
@@ -94,7 +94,7 @@ services:
           cpus: '2'
           memory: 4096M
     env_file:
-      - komodo-secrets/komodo.env
+      - /mnt/apps01/appdata/komodo/secrets/komodo.env
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
@@ -148,7 +148,7 @@ services:
           cpus: '2'
           memory: 4096M
     env_file:
-      - komodo-secrets/komodo.env
+      - /mnt/apps01/appdata/komodo/secrets/komodo.env
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       PERIPHERY_PORT: '8120'
@@ -210,8 +210,7 @@ networks:
   default:
     driver: overlay
 
-volumes:
-  komodo-secrets:
+
 
 secrets:
   op_connect_token:

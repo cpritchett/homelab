@@ -8,7 +8,7 @@ services:
       - op_connect_token
     volumes:
       - ./env.template:/templates/env.template:ro
-      - forgejo-secrets:/secrets
+      - /mnt/apps01/appdata/forgejo/secrets:/secrets
     networks:
       - op-connect
     command: >
@@ -23,10 +23,10 @@ services:
     image: postgres:18@sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
     restart: unless-stopped
     env_file:
-      - forgejo-secrets/postgres.env
+      - /mnt/apps01/appdata/forgejo/secrets/postgres.env
     volumes:
       - /mnt/data01/appdata/forgejo/postgres:/var/lib/postgresql/data
-      - forgejo-secrets:/secrets:ro
+      - /mnt/apps01/appdata/forgejo/secrets:/secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U forgejo"]
       interval: 10s
@@ -41,7 +41,7 @@ services:
     image: codeberg.org/forgejo/forgejo:14.0.2@sha256:fa8ce5aba7c20e106c649e00da1f568e8f39c58f1706bcf4f6921f16aaf5ba48
     restart: unless-stopped
     env_file:
-      - forgejo-secrets/postgres.env
+      - /mnt/apps01/appdata/forgejo/secrets/postgres.env
     depends_on:
       - forgejo-db
       - secrets-init
@@ -59,7 +59,7 @@ services:
       - /mnt/apps01/appdata/forgejo:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - forgejo-secrets:/secrets:ro
+      - /mnt/apps01/appdata/forgejo/secrets:/secrets:ro
     ports:
       - "3022:22"
     labels:
@@ -81,8 +81,7 @@ networks:
   op-connect:
     external: true
 
-volumes:
-  forgejo-secrets:
+
 
 secrets:
   op_connect_token:

@@ -8,7 +8,7 @@ services:
       - op_connect_token
     volumes:
       - ./env.template:/templates/restic.template:ro
-      - restic-secrets:/secrets
+      - /mnt/apps01/appdata/restic/secrets:/secrets
     networks:
       - op-connect
     command: >
@@ -23,7 +23,7 @@ services:
     image: restic/restic:0.18.1@sha256:39d9072fb5651c80d75c7a811612eb60b4c06b32ffe87c2e9f3c7222e1797e76
     restart: "no"
     env_file:
-      - restic-secrets/restic.env
+      - /mnt/apps01/appdata/restic/secrets/restic.env
     environment:
       # Set by Komodo when running job: backup | prune | check | snapshots
       RESTIC_TASK: backup
@@ -34,7 +34,7 @@ services:
       RESTIC_CACHE_DIR: /cache
 
     volumes:
-      - restic-secrets:/secrets:ro
+      - /mnt/apps01/appdata/restic/secrets:/secrets:ro
       # read sources
       - type: bind
         source: /mnt/apps01
@@ -72,8 +72,7 @@ networks:
   op-connect:
     external: true
 
-volumes:
-  restic-secrets:
+
 
 secrets:
   op_connect_token:

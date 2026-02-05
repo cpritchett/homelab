@@ -8,7 +8,7 @@ services:
       - op_connect_token
     volumes:
       - ./caddy.template:/templates/caddy.template:ro
-      - caddy-secrets:/secrets
+      - /mnt/apps01/appdata/proxy/caddy-secrets:/secrets
     networks:
       - op-connect
     command: >
@@ -29,7 +29,7 @@ services:
       - docker-socket-proxy
       - secrets-init
     env_file:
-      - caddy-secrets/caddy.env
+      - /mnt/apps01/appdata/proxy/caddy-secrets/caddy.env
     environment:
       CADDY_INGRESS_NETWORKS: proxy_network
       DOCKER_HOST: tcp://docker-socket-proxy:2375
@@ -81,9 +81,9 @@ services:
         target: /config
         type: bind
       - read_only: True
-        source: caddy-secrets
+        source: /mnt/apps01/appdata/proxy/caddy-secrets
         target: /secrets
-        type: volume
+        type: bind
   docker-socket-proxy:
     container_name: docker-socket-proxy
     environment:
@@ -132,8 +132,7 @@ networks:
   op-connect:
     external: true
 
-volumes:
-  caddy-secrets:
+
 
 secrets:
   op_connect_token:
