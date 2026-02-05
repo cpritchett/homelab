@@ -17,6 +17,8 @@ services:
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/authentik.template -o /secrets/authentik.env -f &&
       op inject -i /templates/postgres.template -o /secrets/postgres.env -f &&
+      chmod 644 /secrets/*.env &&
+      chmod 755 /secrets &&
       echo 'Secrets injected successfully'
       "
     restart: "no"
