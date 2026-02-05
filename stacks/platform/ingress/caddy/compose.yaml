@@ -28,8 +28,6 @@ services:
     depends_on:
       - docker-socket-proxy
       - secrets-init
-    env_file:
-      - /mnt/apps01/appdata/proxy/caddy-secrets/caddy.env
     environment:
       CADDY_INGRESS_NETWORKS: proxy_network
       DOCKER_HOST: tcp://docker-socket-proxy:2375
@@ -84,6 +82,11 @@ services:
         source: /mnt/apps01/appdata/proxy/caddy-secrets
         target: /secrets
         type: bind
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/caddy.env ] && . /secrets/caddy.env && set +a &&
+       exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"
   docker-socket-proxy:
     container_name: docker-socket-proxy
     environment:

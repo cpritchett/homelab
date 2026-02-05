@@ -22,14 +22,12 @@ services:
   woodpecker-server:
     image: woodpeckerci/woodpecker-server:v3.13.0@sha256:428eb0965754e25e67b8b086648438858b4fa64487b1cd3cc8e4101b396e459a
     restart: unless-stopped
-    env_file:
-      - /mnt/apps01/appdata/woodpecker/secrets/woodpecker.env
     volumes:
       - /mnt/apps01/appdata/woodpecker:/data
       - /var/run/docker.sock:/var/run/docker.sock
       - /mnt/apps01/appdata/woodpecker/secrets:/secrets:ro
     environment:
-      # Most config from env_file, these are runtime-only
+      # Runtime config
       WOODPECKER_SERVER_ADDR: ":8000"
       WOODPECKER_LOG_LEVEL: info
       WOODPECKER_GITEA: "true"
@@ -48,18 +46,20 @@ services:
       proxy_network:
         aliases:
           - woodpecker-server
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/woodpecker.env ] && . /secrets/woodpecker.env && set +a &&
+       exec /bin/woodpecker-server"
 
   woodpecker-agent:
     image: woodpeckerci/woodpecker-agent:v3.13.0@sha256:a983b1016217ad94cdab48d732ec97b5b1f72718725d651183d7ec885f7caf35
     restart: unless-stopped
-    env_file:
-      - /mnt/apps01/appdata/woodpecker/secrets/woodpecker.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /mnt/apps01/appdata/woodpecker/secrets:/secrets:ro
     environment:
       WOODPECKER_SERVER: "ws://woodpecker-server:8000"
-      # WOODPECKER_AGENT_SECRET loaded from env_file
       WOODPECKER_AGENT_BACKEND: docker
       WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
       WOODPECKER_LOG_LEVEL: info
@@ -71,6 +71,11 @@ services:
       proxy_network:
         aliases:
           - woodpecker-agent
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/woodpecker.env ] && . /secrets/woodpecker.env && set +a &&
+       exec /bin/woodpecker-agent"
 
 networks:
   woodpecker:

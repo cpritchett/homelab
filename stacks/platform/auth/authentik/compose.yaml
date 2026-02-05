@@ -24,8 +24,6 @@ services:
   postgresql:
     image: postgres:18@sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
     restart: unless-stopped
-    env_file:
-      - /mnt/apps01/appdata/authentik/secrets/postgres.env
     volumes:
       - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql/data
       - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
@@ -38,6 +36,11 @@ services:
       - authentik
     depends_on:
       - secrets-init
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
+       exec docker-entrypoint.sh postgres"
 
   redis:
     image: redis:8-alpine@sha256:4eec4565e45aa0b3966554c866bc73211e281b0b3d89fe9a33c982e6faca809d
@@ -56,14 +59,12 @@ services:
   authentik-server:
     image: ghcr.io/goauthentik/server:2025.12.2@sha256:7cc1bc10aa2b11b998fb087d3ec4d32db31a3da9871d1ff08b95a6e94df991fd
     restart: unless-stopped
-    env_file:
-      - /mnt/apps01/appdata/authentik/secrets/authentik.env
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
       - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
     environment:
-      # Core connections (also in env_file but explicit for clarity)
+      # Core connections
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
     depends_on:
@@ -79,27 +80,34 @@ services:
       proxy_network:
         aliases:
           - authentik-server
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/authentik.env ] && . /secrets/authentik.env && set +a &&
+       exec /lifecycle/ak server"
 
   authentik-worker:
     image: ghcr.io/goauthentik/server:2025.12.2@sha256:7cc1bc10aa2b11b998fb087d3ec4d32db31a3da9871d1ff08b95a6e94df991fd
     restart: unless-stopped
-    env_file:
-      - /mnt/apps01/appdata/authentik/secrets/authentik.env
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
       - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
     environment:
-      # Core connections (also in env_file but explicit for clarity)
+      # Core connections
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
-    command: worker
     depends_on:
       - secrets-init
       - postgresql
       - redis
     networks:
       - authentik
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/authentik.env ] && . /secrets/authentik.env && set +a &&
+       exec /lifecycle/ak worker"
 
 networks:
   # NOTE: The authentik network driver has been changed from "bridge" to "overlay" to support Swarm mode.

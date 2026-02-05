@@ -30,8 +30,6 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-    env_file:
-      - /mnt/apps01/appdata/komodo/secrets/komodo.env
     environment:
       KOMODO_SYNC_DIRECTORY: /syncs
       NVIDIA_VISIBLE_DEVICES: void
@@ -83,6 +81,11 @@ services:
         source: /mnt/apps01/secrets
         target: /mnt/apps01/secrets
         type: bind
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/komodo.env ] && . /secrets/komodo.env && set +a &&
+       exec /app/core"
   mongo:
     cap_drop:
       - ALL
@@ -93,8 +96,6 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-    env_file:
-      - /mnt/apps01/appdata/komodo/secrets/komodo.env
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
@@ -139,6 +140,12 @@ services:
         source: /mnt/apps01/appdata/komodo/mongodb
         target: /data/db
         type: bind
+      - /mnt/apps01/appdata/komodo/secrets:/secrets:ro
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/komodo.env ] && . /secrets/komodo.env && set +a &&
+       exec docker-entrypoint.sh mongod"
   periphery:
     cap_drop:
       - ALL
@@ -147,8 +154,6 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-    env_file:
-      - /mnt/apps01/appdata/komodo/secrets/komodo.env
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       PERIPHERY_PORT: '8120'
@@ -201,6 +206,12 @@ services:
         source: /mnt/apps01/secrets
         target: /mnt/apps01/secrets
         type: bind
+      - /mnt/apps01/appdata/komodo/secrets:/secrets:ro
+    # env_file removed - using entrypoint wrapper to load env at runtime
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/komodo.env ] && . /secrets/komodo.env && set +a &&
+       exec /app/periphery"
 
 networks:
   proxy_network:
