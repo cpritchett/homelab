@@ -37,8 +37,7 @@ services:
     networks:
       - authentik
     depends_on:
-      secrets-init:
-        condition: service_completed_successfully
+      - secrets-init
 
   redis:
     image: redis:8-alpine@sha256:4eec4565e45aa0b3966554c866bc73211e281b0b3d89fe9a33c982e6faca809d
@@ -68,12 +67,9 @@ services:
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
     depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-      postgresql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - secrets-init
+      - postgresql
+      - redis
     labels:
       caddy: auth.in.hypyr.space
       caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
@@ -99,12 +95,9 @@ services:
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
     command: worker
     depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-      postgresql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - secrets-init
+      - postgresql
+      - redis
     networks:
       - authentik
 

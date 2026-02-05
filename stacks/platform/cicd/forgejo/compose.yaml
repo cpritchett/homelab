@@ -35,8 +35,7 @@ services:
     networks:
       - forgejo
     depends_on:
-      secrets-init:
-        condition: service_completed_successfully
+      - secrets-init
 
   forgejo:
     image: codeberg.org/forgejo/forgejo:14.0.2@sha256:fa8ce5aba7c20e106c649e00da1f568e8f39c58f1706bcf4f6921f16aaf5ba48
@@ -44,10 +43,8 @@ services:
     env_file:
       - forgejo-secrets/postgres.env
     depends_on:
-      forgejo-db:
-        condition: service_healthy
-      secrets-init:
-        condition: service_completed_successfully
+      - forgejo-db
+      - secrets-init
     environment:
       USER_UID: 1000
       USER_GID: 1000

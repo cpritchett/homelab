@@ -38,8 +38,7 @@ services:
       WOODPECKER_AGENT_BACKEND: docker
       WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
     depends_on:
-      secrets-init:
-        condition: service_completed_successfully
+      - secrets-init
     labels:
       caddy: ci.in.hypyr.space
       caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
@@ -65,10 +64,8 @@ services:
       WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
       WOODPECKER_LOG_LEVEL: info
     depends_on:
-      secrets-init:
-        condition: service_completed_successfully
-      woodpecker-server:
-        condition: service_started
+      - secrets-init
+      - woodpecker-server
     networks:
       woodpecker:
       proxy_network:

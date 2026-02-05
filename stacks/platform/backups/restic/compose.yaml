@@ -64,8 +64,7 @@ services:
     command: >
       /scripts/run.sh
     depends_on:
-      secrets-init:
-        condition: service_completed_successfully
+      - secrets-init
     networks:
       - op-connect
 
