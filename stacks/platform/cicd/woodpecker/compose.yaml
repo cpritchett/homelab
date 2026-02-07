@@ -35,11 +35,14 @@ services:
       WOODPECKER_DATABASE_DATASOURCE: /data/woodpecker.db
       WOODPECKER_AGENT_BACKEND: docker
       WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
+    secrets:
+      - CLOUDFLARE_API_TOKEN
     depends_on:
       - secrets-init
     labels:
       caddy: ci.in.hypyr.space
-      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+      caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN_FILE}"
       caddy.reverse_proxy: "{{upstreamDialer \"woodpecker-server:8000\"}}"
     networks:
       woodpecker:
@@ -90,4 +93,6 @@ networks:
 
 secrets:
   op_connect_token:
+    external: true
+  CLOUDFLARE_API_TOKEN:
     external: true

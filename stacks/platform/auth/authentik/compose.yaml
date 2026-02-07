@@ -69,13 +69,16 @@ services:
       # Core connections
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
+    secrets:
+      - CLOUDFLARE_API_TOKEN
     depends_on:
       - secrets-init
       - postgresql
       - redis
     labels:
       caddy: auth.in.hypyr.space
-      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+      caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN_FILE}"
       caddy.reverse_proxy: "{{upstreams 9000}}"
     networks:
       authentik:
@@ -130,4 +133,6 @@ networks:
 
 secrets:
   op_connect_token:
+    external: true
+  CLOUDFLARE_API_TOKEN:
     external: true

@@ -32,6 +32,9 @@ services:
       CADDY_INGRESS_NETWORKS: proxy_network
       DOCKER_HOST: tcp://docker-socket-proxy:2375
       TZ: America/Chicago
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
+    secrets:
+      - CLOUDFLARE_API_TOKEN
     extra_hosts:
       - host.docker.internal:host-gateway
     image: ghcr.io/cpritchett/caddy-labels:latest
@@ -139,6 +142,8 @@ networks:
 
 secrets:
   op_connect_token:
+    external: true
+  CLOUDFLARE_API_TOKEN:
     external: true
 x-notes: >
   # Caddy + docker-socket-proxy (label-driven ingress)

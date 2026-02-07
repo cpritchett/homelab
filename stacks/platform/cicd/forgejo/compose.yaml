@@ -52,6 +52,9 @@ services:
       DB_TYPE: postgres
       DB_HOST: forgejo-db
       CONTAINER_REGISTRY_ENABLED: "true"
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
+    secrets:
+      - CLOUDFLARE_API_TOKEN
     volumes:
       - /mnt/apps01/appdata/forgejo:/data
       - /etc/timezone:/etc/timezone:ro
@@ -61,7 +64,7 @@ services:
       - "3022:22"
     labels:
       caddy: git.in.hypyr.space
-      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+      caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN_FILE}"
       caddy.reverse_proxy: "{{upstreamDialer \"forgejo:3000\"}}"
     networks:
       forgejo:
@@ -87,4 +90,6 @@ networks:
 
 secrets:
   op_connect_token:
+    external: true
+  CLOUDFLARE_API_TOKEN:
     external: true
