@@ -1,0 +1,125 @@
+services:
+  secrets-init:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ../ingress/caddy/caddy.template:/templates/caddy.template:ro
+      - /mnt/apps01/appdata/proxy/caddy-secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/caddy.template -o /secrets/caddy.env -f &&
+      echo 'Secrets injected successfully'
+      "
+    restart: "no"
+
+  caddy:
+    cap_add:
+      - NET_BIND_SERVICE
+    cap_drop:
+      - ALL
+    container_name: caddy
+    depends_on:
+      - docker-socket-proxy
+      - secrets-init
+    environment:
+      CADDY_INGRESS_NETWORKS: proxy_network
+      DOCKER_HOST: tcp://docker-socket-proxy:2375
+      TZ: America/Chicago
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
+    secrets:
+      - CLOUDFLARE_API_TOKEN
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    image: ghcr.io/cpritchett/caddy-labels:latest
+    labels:
+      caddy.email: admin@hypyr.space
+      caddy_10: barbary.in.hypyr.space
+      caddy_10.reverse_proxy: host.docker.internal:81
+      caddy_10.tls.dns: cloudflare ${CLOUDFLARE_API_TOKEN_FILE}
+      caddy_90: '*.in.hypyr.space'
+      caddy_90.respond: not-found 404
+      caddy_90.tls.dns: cloudflare ${CLOUDFLARE_API_TOKEN_FILE}
+    networks:
+      - proxy_network
+    ports:
+      - host_ip: 0.0.0.0
+        mode: ingress
+        protocol: tcp
+        published: 80
+        target: 80
+      - host_ip: 0.0.0.0
+        mode: ingress
+        protocol: tcp
+        published: 443
+        target: 443
+    privileged: False
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: False
+    tty: False
+    user: '1701:1702'
+    volumes:
+      - /mnt/apps01/appdata/proxy/caddy-data:/data/caddy
+      - /mnt/apps01/appdata/proxy/caddy-config:/config
+      - /mnt/apps01/appdata/proxy/caddy-secrets:/secrets:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/caddy.env ] && . /secrets/caddy.env && set +a &&
+       exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"
+
+  docker-socket-proxy:
+    container_name: docker-socket-proxy
+    environment:
+      CONTAINERS: '1'
+      EVENTS: '1'
+      INFO: '1'
+      NETWORKS: '1'
+      NODES: '1'
+      PING: '1'
+      SERVICES: '1'
+      SWARM: '1'
+      TASKS: '1'
+      TIMEOUT_CLIENT: 300s
+      TIMEOUT_CONNECT: 30s
+      TIMEOUT_SERVER: 300s
+      VERSION: '1'
+    healthcheck:
+      interval: 10s
+      retries: 10
+      test:
+        - CMD
+        - wget
+        - '-qO-'
+        - http://localhost:2375/_ping
+      timeout: 3s
+    image: ghcr.io/tecnativa/docker-socket-proxy:latest
+    networks:
+      - proxy_network
+    privileged: False
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    stdin_open: False
+    tty: False
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  proxy_network:
+    external: true
+  op-connect:
+    external: true
+
+secrets:
+  op_connect_token:
+    external: true
+  CLOUDFLARE_API_TOKEN:
+    external: true
