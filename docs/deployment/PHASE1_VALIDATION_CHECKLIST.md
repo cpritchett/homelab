@@ -30,6 +30,11 @@ Run this checklist **before** attempting the bootstrap for the first time.
   ls -la /mnt/apps01/
   ls -la /mnt/data01/
   ```
+- [ ] ZFS properties configured:
+  ```bash
+  zfs get acltype,aclinherit,casesensitivity apps01/appdata
+  # Should show: acltype=posixacl, aclinherit=passthrough, casesensitivity=sensitive
+  ```
 
 ### Docker Configuration
 
@@ -42,6 +47,43 @@ Run this checklist **before** attempting the bootstrap for the first time.
 - [ ] Docker CLI accessible:
   ```bash
   docker info
+  ```
+
+### Permissions and ACL Configuration
+
+- [ ] Service users/groups created:
+  ```bash
+  id komodo  # Should show: uid=568(komodo) gid=568(komodo)
+  id opuser  # Should show: uid=999(opuser) gid=999(opuser)
+  id caddy   # Should show: uid=1701(caddy) gid=1701(caddy)
+  ```
+- [ ] Directory structure created with ownership:
+  ```bash
+  ls -ld /mnt/apps01/appdata/op-connect
+  # Should show: drwxr-xr-x ... 999 999 ... op-connect
+  ls -ld /mnt/apps01/appdata/komodo
+  # Should show: drwxr-xr-x ... 568 568 ... komodo
+  ls -ld /mnt/apps01/appdata/proxy
+  # Should show: drwxr-xr-x ... 1701 1702 ... proxy
+  ```
+- [ ] Base permissions set correctly:
+  ```bash
+  stat -c '%a %U:%G' /mnt/apps01/appdata
+  # Should show: 755 root:root
+  stat -c '%a %U:%G' /mnt/apps01/secrets
+  # Should show: 750 root:root
+  ```
+- [ ] ACLs configured on secrets:
+  ```bash
+  getfacl /mnt/apps01/secrets/op/1password-credentials.json | grep 'user:999'
+  # Should show: user:999:r--
+  getfacl /mnt/apps01/secrets/op/connect-token | grep 'user:568'
+  # Should show: user:568:r--
+  ```
+- [ ] Permissions verification script passes:
+  ```bash
+  /tmp/verify-permissions.sh
+  # All checks should show ✓
   ```
 
 ### Repository Setup
@@ -60,6 +102,11 @@ Run this checklist **before** attempting the bootstrap for the first time.
   ls -la /mnt/apps01/repos/homelab/stacks/infrastructure/
   ```
 - [ ] Repository on correct branch (typically `main`)
+- [ ] Repository ownership correct:
+  ```bash
+  ls -ld /mnt/apps01/repos/homelab
+  # Should show: drwxr-xr-x ... root docker ... homelab
+  ```
 
 ### 1Password Connect Credentials
 
@@ -75,14 +122,23 @@ Run this checklist **before** attempting the bootstrap for the first time.
 - [ ] Credentials copied to TrueNAS:
   - [ ] `/mnt/apps01/secrets/op/1password-credentials.json` exists
   - [ ] `/mnt/apps01/secrets/op/connect-token` exists
-- [ ] Credentials file permissions set:
+- [ ] Credentials file permissions and ACLs set:
   ```bash
-  chmod 600 /mnt/apps01/secrets/op/*
   ls -la /mnt/apps01/secrets/op/
+  # Both files should show: -rw------- root root
+  getfacl /mnt/apps01/secrets/op/1password-credentials.json
+  # Should include: user:999:r-- (op-connect)
+  getfacl /mnt/apps01/secrets/op/connect-token
+  # Should include: user:568:r-- (komodo) and user:999:r-- (op-connect)
   ```
 - [ ] Credentials file is valid JSON:
   ```bash
   cat /mnt/apps01/secrets/op/1password-credentials.json | jq .
+  ```
+- [ ] Service accounts can read credentials:
+  ```bash
+  sudo -u '#999' cat /mnt/apps01/secrets/op/1password-credentials.json >/dev/null && echo "✓ opuser OK"
+  sudo -u '#568' cat /mnt/apps01/secrets/op/connect-token >/dev/null && echo "✓ komodo OK"
   ```
 
 ### Cloudflare Configuration
@@ -91,10 +147,16 @@ Run this checklist **before** attempting the bootstrap for the first time.
 - [ ] API token created with permissions:
   - Zone:DNS:Edit for hypyr.space
   - Zone:Zone:Read for hypyr.space
-- [ ] Token saved to TrueNAS:
+- [ ] Token saved to TrueNAS with ACLs:
   ```bash
   echo "YOUR_TOKEN" > /mnt/apps01/secrets/cloudflare/api-token
   chmod 600 /mnt/apps01/secrets/cloudflare/api-token
+  chown root:root /mnt/apps01/secrets/cloudflare/api-token
+  setfacl -m u:1701:r-- /mnt/apps01/secrets/cloudflare/api-token
+  ```
+- [ ] Caddy can read token:
+  ```bash
+  sudo -u '#1701' cat /mnt/apps01/secrets/cloudflare/api-token >/dev/null && echo "✓ caddy OK"
   ```
 - [ ] Token tested (optional):
   ```bash
@@ -329,12 +391,25 @@ Run this checklist **during** the first bootstrap deployment.
   ls -la /mnt/apps01/appdata/komodo/mongodb/
   ls -la /mnt/apps01/appdata/proxy/caddy-data/
   ```
-- [ ] Permissions correct:
+- [ ] Permissions and ownership correct:
   ```bash
   stat /mnt/apps01/appdata/proxy | grep Uid
   # Should show: Uid: ( 1701/...)
   stat /mnt/apps01/appdata/komodo | grep Uid
   # Should show: Uid: (  568/...)
+  stat /mnt/apps01/appdata/op-connect | grep Uid
+  # Should show: Uid: (  999/...)
+  ```
+- [ ] Service accounts can write to their directories:
+  ```bash
+  sudo -u '#568' touch /mnt/apps01/appdata/komodo/mongodb/.test && \
+  sudo -u '#568' rm /mnt/apps01/appdata/komodo/mongodb/.test && echo "✓ komodo write OK"
+
+  sudo -u '#1701' touch /mnt/apps01/appdata/proxy/caddy-data/.test && \
+  sudo -u '#1701' rm /mnt/apps01/appdata/proxy/caddy-data/.test && echo "✓ caddy write OK"
+
+  sudo -u '#999' touch /mnt/apps01/appdata/op-connect/.test && \
+  sudo -u '#999' rm /mnt/apps01/appdata/op-connect/.test && echo "✓ opuser write OK"
   ```
 - [ ] Volumes contain data:
   ```bash

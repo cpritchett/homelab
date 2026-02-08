@@ -41,18 +41,184 @@ zfs create apps01/appdata
 zfs create apps01/secrets
 zfs create apps01/repos
 zfs create data01/data
+
+# Set dataset properties for performance and compatibility
+zfs set acltype=posixacl apps01/appdata
+zfs set acltype=posixacl apps01/secrets
+zfs set acltype=posixacl apps01/repos
+zfs set acltype=posixacl data01/data
+
+# Enable ACL inheritance
+zfs set aclinherit=passthrough apps01/appdata
+zfs set aclinherit=passthrough apps01/secrets
+zfs set aclinherit=passthrough data01/data
+
+# Set case sensitivity (important for Docker)
+zfs set casesensitivity=sensitive apps01/appdata
+zfs set casesensitivity=sensitive apps01/repos
+zfs set casesensitivity=sensitive data01/data
+
+# Verify
+zfs get acltype,aclinherit,casesensitivity apps01/appdata
 ```
 
-### 3. Repository Cloned
+### 3. Permissions and ACL Configuration
+
+Docker containers run with specific UIDs/GIDs. TrueNAS needs proper permissions and ACLs configured:
+
+#### Create Service Users/Groups
+
+```bash
+# Create groups (if they don't exist)
+groupadd -g 568 komodo 2>/dev/null || true
+groupadd -g 999 opuser 2>/dev/null || true
+groupadd -g 1701 caddy 2>/dev/null || true
+groupadd -g 1702 caddyshared 2>/dev/null || true
+
+# Create users (if they don't exist)
+useradd -u 568 -g 568 -m -s /bin/bash komodo 2>/dev/null || true
+useradd -u 999 -g 999 -m -s /bin/bash opuser 2>/dev/null || true
+useradd -u 1701 -g 1701 -m -s /bin/bash caddy 2>/dev/null || true
+
+# Add users to docker group for socket access
+usermod -aG docker komodo
+usermod -aG docker opuser
+usermod -aG docker caddy
+```
+
+#### Set Base Permissions
+
+```bash
+# Create directory structure with proper ownership
+mkdir -p /mnt/apps01/appdata/{op-connect,komodo,proxy}
+mkdir -p /mnt/apps01/appdata/komodo/{mongodb,sync,backups,secrets,periphery}
+mkdir -p /mnt/apps01/appdata/proxy/{caddy-data,caddy-config,caddy-secrets}
+mkdir -p /mnt/apps01/secrets/{op,cloudflare}
+mkdir -p /mnt/apps01/repos
+
+# Set ownership
+chown -R 999:999 /mnt/apps01/appdata/op-connect
+chown -R 568:568 /mnt/apps01/appdata/komodo
+chown -R 1701:1702 /mnt/apps01/appdata/proxy
+chown -R root:root /mnt/apps01/secrets
+chown -R root:root /mnt/apps01/repos
+
+# Set base permissions
+chmod 755 /mnt/apps01/appdata
+chmod 750 /mnt/apps01/secrets
+chmod 755 /mnt/apps01/repos
+
+# Secrets should be read-only for service accounts
+chmod 700 /mnt/apps01/secrets/op
+chmod 700 /mnt/apps01/secrets/cloudflare
+```
+
+#### Configure ACLs for Shared Access
+
+Some directories need to be accessed by multiple services (e.g., secrets directory):
+
+```bash
+# Allow op-connect (999) to read its own credentials
+setfacl -m u:999:r-x /mnt/apps01/secrets/op
+setfacl -m u:999:r-- /mnt/apps01/secrets/op/1password-credentials.json
+setfacl -m u:999:r-- /mnt/apps01/secrets/op/connect-token
+
+# Allow caddy (1701) to read Cloudflare token
+setfacl -m u:1701:r-x /mnt/apps01/secrets/cloudflare
+setfacl -m u:1701:r-- /mnt/apps01/secrets/cloudflare/api-token
+
+# Allow komodo (568) to read secrets for injection
+setfacl -m u:568:r-x /mnt/apps01/secrets/op
+setfacl -m u:568:r-- /mnt/apps01/secrets/op/connect-token
+
+# Set default ACLs for new files in appdata (inherit parent permissions)
+setfacl -d -m u::rwx /mnt/apps01/appdata/komodo
+setfacl -d -m g::r-x /mnt/apps01/appdata/komodo
+setfacl -d -m o::--- /mnt/apps01/appdata/komodo
+
+# Verify ACLs
+getfacl /mnt/apps01/secrets/op
+getfacl /mnt/apps01/appdata/komodo
+```
+
+#### MongoDB Data Directory Permissions
+
+MongoDB requires specific permissions on its data directory:
+
+```bash
+# MongoDB data directory must be owned by mongodb user inside container (568)
+chown -R 568:568 /mnt/apps01/appdata/komodo/mongodb
+chmod 700 /mnt/apps01/appdata/komodo/mongodb
+
+# Secrets directory for environment injection
+chown 568:568 /mnt/apps01/appdata/komodo/secrets
+chmod 770 /mnt/apps01/appdata/komodo/secrets
+
+# Verify MongoDB can write
+sudo -u komodo touch /mnt/apps01/appdata/komodo/mongodb/test
+sudo -u komodo rm /mnt/apps01/appdata/komodo/mongodb/test
+```
+
+#### Docker Socket Permissions
+
+Ensure containers can access Docker socket:
+
+```bash
+# Docker socket should be accessible by docker group
+chmod 660 /var/run/docker.sock
+chown root:docker /var/run/docker.sock
+
+# Verify service users can access socket
+sudo -u komodo docker ps >/dev/null 2>&1 && echo "✓ Komodo can access Docker" || echo "✗ Komodo CANNOT access Docker"
+```
+
+#### Verify Permissions Summary
+
+```bash
+# Create verification script
+cat > /tmp/verify-permissions.sh <<'EOF'
+#!/bin/bash
+echo "=== Directory Ownership ==="
+ls -la /mnt/apps01/ | grep -E 'appdata|secrets|repos'
+echo ""
+echo "=== Appdata Subdirectories ==="
+ls -la /mnt/apps01/appdata/
+echo ""
+echo "=== Secrets Directories ==="
+ls -la /mnt/apps01/secrets/
+echo ""
+echo "=== ACLs on Critical Paths ==="
+getfacl /mnt/apps01/secrets/op 2>/dev/null | grep -E '^user:|^group:'
+getfacl /mnt/apps01/appdata/komodo 2>/dev/null | grep -E '^user:|^group:'
+echo ""
+echo "=== Docker Socket ==="
+ls -l /var/run/docker.sock
+echo ""
+echo "=== Service User Access Tests ==="
+sudo -u opuser test -r /mnt/apps01/secrets/op/1password-credentials.json && echo "✓ opuser can read 1Password credentials" || echo "✗ opuser CANNOT read credentials"
+sudo -u komodo test -r /mnt/apps01/secrets/op/connect-token && echo "✓ komodo can read op_connect_token" || echo "✗ komodo CANNOT read token"
+sudo -u caddy test -r /mnt/apps01/secrets/cloudflare/api-token && echo "✓ caddy can read Cloudflare token" || echo "✗ caddy CANNOT read token"
+sudo -u komodo docker ps >/dev/null 2>&1 && echo "✓ komodo can access Docker socket" || echo "✗ komodo CANNOT access Docker"
+EOF
+
+chmod +x /tmp/verify-permissions.sh
+/tmp/verify-permissions.sh
+```
+
+### 4. Repository Cloned
 
 Clone the homelab repository to the designated location:
 
 ```bash
 cd /mnt/apps01/repos
 git clone https://github.com/YOUR_USERNAME/homelab.git
+
+# Set proper ownership
+chown -R root:docker /mnt/apps01/repos/homelab
+chmod -R 755 /mnt/apps01/repos/homelab
 ```
 
-### 4. Secrets Prepared
+### 5. Secrets Prepared
 
 Generate and save the required secrets:
 
@@ -77,8 +243,21 @@ Copy these files to TrueNAS:
 scp /tmp/op-credentials/1password-credentials.json root@barbary:/mnt/apps01/secrets/op/
 scp /tmp/op-credentials/token root@barbary:/mnt/apps01/secrets/op/connect-token
 
-# On TrueNAS, set proper permissions
-chmod 600 /mnt/apps01/secrets/op/*
+# On TrueNAS, set proper permissions and ACLs
+chmod 600 /mnt/apps01/secrets/op/1password-credentials.json
+chmod 600 /mnt/apps01/secrets/op/connect-token
+chown root:root /mnt/apps01/secrets/op/*
+
+# Set ACLs to allow op-connect (UID 999) to read credentials
+setfacl -m u:999:r-- /mnt/apps01/secrets/op/1password-credentials.json
+setfacl -m u:999:r-- /mnt/apps01/secrets/op/connect-token
+
+# Allow komodo (UID 568) to read token for secret injection
+setfacl -m u:568:r-- /mnt/apps01/secrets/op/connect-token
+
+# Verify ACLs
+getfacl /mnt/apps01/secrets/op/1password-credentials.json
+getfacl /mnt/apps01/secrets/op/connect-token
 ```
 
 #### Cloudflare API Token
@@ -98,9 +277,16 @@ Save the token to TrueNAS:
 mkdir -p /mnt/apps01/secrets/cloudflare
 echo "YOUR_CLOUDFLARE_TOKEN" > /mnt/apps01/secrets/cloudflare/api-token
 chmod 600 /mnt/apps01/secrets/cloudflare/api-token
+chown root:root /mnt/apps01/secrets/cloudflare/api-token
+
+# Set ACL to allow caddy (UID 1701) to read token
+setfacl -m u:1701:r-- /mnt/apps01/secrets/cloudflare/api-token
+
+# Verify
+getfacl /mnt/apps01/secrets/cloudflare/api-token
 ```
 
-### 5. DNS Configuration
+### 6. DNS Configuration
 
 Create DNS records pointing to your TrueNAS IP:
 
@@ -336,17 +522,111 @@ docker service inspect SERVICE_NAME --format '{{json .Spec.TaskTemplate.Networks
 
 ### Permission Issues
 
-Fix directory permissions:
+Fix directory permissions and ACLs:
 
 ```bash
 # Caddy (UID/GID 1701:1702)
 chown -R 1701:1702 /mnt/apps01/appdata/proxy
+chmod 755 /mnt/apps01/appdata/proxy
+chmod 700 /mnt/apps01/appdata/proxy/caddy-data
 
 # Komodo/MongoDB (UID/GID 568:568)
 chown -R 568:568 /mnt/apps01/appdata/komodo
+chmod 755 /mnt/apps01/appdata/komodo
+chmod 700 /mnt/apps01/appdata/komodo/mongodb
 
-# Verify
+# op-connect (UID/GID 999:999)
+chown -R 999:999 /mnt/apps01/appdata/op-connect
+chmod 755 /mnt/apps01/appdata/op-connect
+
+# Verify base permissions
 ls -la /mnt/apps01/appdata/
+
+# Verify ACLs on secrets
+getfacl /mnt/apps01/secrets/op/1password-credentials.json
+getfacl /mnt/apps01/secrets/op/connect-token
+getfacl /mnt/apps01/secrets/cloudflare/api-token
+```
+
+**Common Permission Errors:**
+
+1. **"Permission denied" when reading credentials**
+   - Check file ownership: `ls -l /mnt/apps01/secrets/op/`
+   - Check ACLs: `getfacl /mnt/apps01/secrets/op/1password-credentials.json`
+   - Should show: `user:999:r--` for op-connect
+   - Fix: Re-run ACL commands from Prerequisites section 3
+
+2. **MongoDB fails with "Data directory not writable"**
+   - Check ownership: `stat /mnt/apps01/appdata/komodo/mongodb`
+   - Should be: `Uid: ( 568/ ...)`
+   - Fix: `chown -R 568:568 /mnt/apps01/appdata/komodo/mongodb && chmod 700 /mnt/apps01/appdata/komodo/mongodb`
+
+3. **"Could not open file for writing" errors**
+   - Check parent directory permissions
+   - Ensure no immutable flags: `lsattr /mnt/apps01/appdata/`
+   - Check ZFS properties: `zfs get readonly,mountpoint apps01/appdata`
+
+4. **Secrets injection fails with "Permission denied"**
+   - Container needs both:
+     - ACL read permission on secret file
+     - Execute permission on parent directories
+   - Fix:
+     ```bash
+     chmod 755 /mnt/apps01/secrets
+     chmod 750 /mnt/apps01/secrets/op
+     setfacl -m u:568:r-x /mnt/apps01/secrets/op
+     setfacl -m u:568:r-- /mnt/apps01/secrets/op/connect-token
+     ```
+
+5. **Docker socket access denied**
+   - Check socket permissions: `ls -l /var/run/docker.sock`
+   - Should be: `srw-rw---- 1 root docker`
+   - Fix:
+     ```bash
+     chmod 660 /var/run/docker.sock
+     chown root:docker /var/run/docker.sock
+     usermod -aG docker komodo
+     ```
+
+**Permission Testing Script:**
+
+```bash
+cat > /tmp/test-permissions.sh <<'EOF'
+#!/bin/bash
+echo "=== Testing Service Account Permissions ==="
+
+# Test op-connect can read credentials
+echo -n "op-connect (999) credentials: "
+sudo -u '#999' test -r /mnt/apps01/secrets/op/1password-credentials.json && echo "✓ OK" || echo "✗ FAIL"
+
+# Test komodo can read op token
+echo -n "komodo (568) op token: "
+sudo -u '#568' test -r /mnt/apps01/secrets/op/connect-token && echo "✓ OK" || echo "✗ FAIL"
+
+# Test caddy can read cloudflare token
+echo -n "caddy (1701) cloudflare token: "
+sudo -u '#1701' test -r /mnt/apps01/secrets/cloudflare/api-token && echo "✓ OK" || echo "✗ FAIL"
+
+# Test komodo can write to mongodb directory
+echo -n "komodo (568) mongodb write: "
+sudo -u '#568' touch /mnt/apps01/appdata/komodo/mongodb/.test 2>/dev/null && \
+sudo -u '#568' rm /mnt/apps01/appdata/komodo/mongodb/.test 2>/dev/null && echo "✓ OK" || echo "✗ FAIL"
+
+# Test caddy can write to caddy-data
+echo -n "caddy (1701) caddy-data write: "
+sudo -u '#1701' touch /mnt/apps01/appdata/proxy/caddy-data/.test 2>/dev/null && \
+sudo -u '#1701' rm /mnt/apps01/appdata/proxy/caddy-data/.test 2>/dev/null && echo "✓ OK" || echo "✗ FAIL"
+
+# Test docker socket access
+echo -n "komodo (568) docker socket: "
+sudo -u '#568' docker ps >/dev/null 2>&1 && echo "✓ OK" || echo "✗ FAIL"
+
+echo ""
+echo "If any tests show ✗ FAIL, review ACL and ownership settings"
+EOF
+
+chmod +x /tmp/test-permissions.sh
+/tmp/test-permissions.sh
 ```
 
 ## Maintenance
