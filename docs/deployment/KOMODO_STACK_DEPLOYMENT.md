@@ -2,7 +2,31 @@
 
 This guide explains how to deploy platform and application stacks using the Komodo UI instead of direct `docker stack deploy` commands.
 
-**Note**: This guide is written for Komodo v2-dev. The exact UI navigation may differ from older versions. This guide focuses on concepts and configuration requirements rather than specific menu locations.
+**Version**: Written for Komodo v2-dev (images: `ghcr.io/moghtech/komodo-core:2-dev`, `ghcr.io/moghtech/komodo-periphery:2-dev`)
+
+## Komodo v2 Stack Configuration UI
+
+The Stack configuration UI is organized into sections:
+
+**GENERAL Section:**
+- **Source**: Configure Git repository settings (Files, Config Files, Auto Update, Links, Webhooks)
+  - Clone Path: Where to clone repo on host
+  - Reclone: Whether to delete and reclone (vs git pull)
+
+**ADVANCED Section:**
+- Project Name, Pre/Post Deploy hooks, Wrapper, Extra Args
+- Ignore Services, Pull Images, Destroy options
+
+**Files Section:**
+- **Run Directory**: Working directory for `docker compose` command (relative to repo root)
+- **File Paths**: Compose files to include with `-f` flag (defaults to compose.yaml if empty)
+
+**Config Files Section:**
+- Additional files to manage and edit in Komodo UI
+
+**Auto Update Section:**
+- Poll For Updates: Check registries for new image versions
+- Auto Update: Automatically redeploy on new images
 
 ## Why Use Komodo UI?
 
@@ -159,54 +183,110 @@ networks:
 
 Navigate to https://komodo.in.hypyr.space and log in with admin credentials.
 
-### Step 2: Add Repository (One-Time Setup)
+### Step 2: Create a Stack
 
-You need to configure Komodo to access your Git repository. The exact location in the UI may vary, but you're looking to create a **Git Provider** or **Resource Sync** with these settings:
+1. Navigate to **Stacks** in Komodo UI
+2. Click **Create Stack** (or similar button)
+3. Enter a **Stack Name** (e.g., `platform_homepage`)
+4. Select **Server**: `barbary-periphery` (your Swarm manager)
 
-**Configuration:**
-- **Name**: `homelab-repo`
-- **Repository URL**: `https://github.com/cpritchett/homelab`
-- **Branch**: `main`
-- **Auto-sync**: Enabled (check for updates every 5 minutes or on webhook)
+### Step 3: Configure Stack Source
 
-This allows Komodo to pull compose files directly from your repository.
+In the **GENERAL** section:
 
-### Step 3: Create a Stack
+**Source Settings:**
+- **Source Type**: Select "Files" (for Git repository)
+- **Clone Path**: Can specify custom path on host, or leave default
+  - Path is relative to `$root_directory/stacks/platform_homepage`
+  - If absolute (starts with `/`), uses that exact path
+- **Reclone**: DISABLED (uses `git pull` for updates instead of recloning)
 
-Create a new **Stack** resource with these key settings:
+### Step 4: Configure Files
 
-**Essential Configuration:**
-- **Stack Name**: Descriptive name (e.g., `platform_homepage`)
-- **Target Server**: `barbary-periphery` (your Swarm manager)
-- **Compose File Source**: Choose Git repository option
-  - **Repository/Provider**: `homelab-repo` (from Step 2)
-  - **File Path**: Relative path to compose file (e.g., `stacks/platform/observability/homepage/homepage-compose.yaml`)
-  - **Branch**: `main`
-- **Auto-deploy**: Enable if you want automatic deployment on git push
+In the **Files** section:
 
-**Optional Configuration:**
-- **Environment Variables**: Add any stack-specific variables if needed
-- **Additional Compose Files**: For advanced multi-file setups
+**Run Directory:**
+- Set the working directory for `docker compose` command
+- Path is relative to the repository root
+- Example: `stacks/platform/observability/homepage/`
 
-### Step 4: Deploy the Stack
+**File Paths:**
+- Add compose files to include using `docker compose -f`
+- If left empty, uses `compose.yaml` by default
+- Paths are relative to **Run Directory**
+- Examples:
+  - Leave empty → uses `compose.yaml`
+  - Add `homepage-compose.yaml` → uses that specific file
+  - Add multiple files for multi-file compose setups
 
-Once the stack is created and configured:
-1. Locate your stack in the Komodo UI
-2. Find the deploy/redeploy action (button, menu item, or similar)
-3. Execute the deployment
-4. Monitor the deployment progress - Komodo should show real-time status
+**Config Files** (optional):
+- Add other config files to associate with the Stack
+- These can be edited directly in Komodo UI
+- Paths are relative to **Run Directory**
+- Useful for managing service configuration files
 
-### Step 5: Verify Deployment
+### Step 5: Configure Auto Update (Optional)
+
+In the **Auto Update** section:
+
+**Poll For Updates:**
+- Enable to check for Docker image updates on an interval
+- Useful for tracking when new versions are available
+
+**Auto Update:**
+- Enable to trigger automatic redeployment when newer images are found
+- Recommended for dev environments, use caution in production
+
+**Full Stack Auto Update:**
+- Additional auto-update options
+
+### Step 6: Advanced Options (Optional)
+
+In the **ADVANCED** section:
+
+- **Project Name**: Override the default project name
+- **Pre Deploy**: Scripts/commands to run before deployment
+- **Post Deploy**: Scripts/commands to run after deployment
+- **Wrapper**: Wrapper command for the compose execution
+- **Extra Args**: Additional arguments to pass to `docker compose`
+- **Ignore Services**: Services to exclude from deployment
+- **Pull Images**: Force pull images before deploying
+- **Destroy**: Full stack destruction options
+
+### Step 7: Save and Deploy
+
+1. Click **Save** to save the stack configuration
+2. Click **Deploy** (or **Redeploy** if already deployed)
+3. Monitor deployment progress in real-time
+
+### Step 8: Verify Deployment
 
 **In Komodo UI:**
-- Check that all services within the stack show as running
-- Review service logs if any issues are detected
+- Check service status - all should show as running (e.g., 1/1)
+- Review service logs if issues are detected
 - Verify configuration was applied correctly
 
 **External Access:**
 - Test the configured domain (e.g., https://home.in.hypyr.space)
 - Verify TLS certificate is valid
 - Confirm the application loads correctly
+
+## Example: Deploying Homepage Stack
+
+**Stack Configuration:**
+- **Name**: `platform_homepage`
+- **Server**: `barbary-periphery`
+
+**Files Section:**
+- **Run Directory**: `stacks/platform/observability/homepage/`
+- **File Paths**: `homepage-compose.yaml` (or leave empty for compose.yaml)
+
+**Config Files** (optional):
+- `config/services.yaml`
+- `config/settings.yaml`
+- `config/bookmarks.yaml`
+
+This allows you to edit Homepage configuration directly in Komodo UI without SSH access.
 
 ## Stack Deployment Order (Recommended)
 
@@ -237,17 +317,34 @@ Deploy in this order to satisfy dependencies:
 
 ### Updating a Stack
 
+**Manual Update:**
 1. Push changes to GitHub repository
 2. In Komodo UI, navigate to the stack
-3. Click **Redeploy** (will pull latest from Git)
-4. Or enable **Auto-Update** to deploy on every Git push
+3. Click **Redeploy** button
+4. Komodo will pull latest changes from Git and redeploy
+
+**Automatic Updates (Image):**
+1. Enable **Poll For Updates** in Auto Update section
+2. Enable **Auto Update** to trigger automatic redeployment
+3. Komodo will monitor Docker Hub/registries for new image versions
+4. Automatically redeploy when newer images are available
+
+**Automatic Updates (Git):**
+- Configure webhooks to trigger redeployment on Git push
+- See **Webhooks** section in GENERAL settings
 
 ### Rolling Back
 
-1. Navigate to stack in Komodo UI
-2. Click **Actions → Rollback**
-3. Select previous version
-4. Confirm rollback
+Komodo tracks deployment history:
+1. Navigate to your stack in Komodo UI
+2. Look for deployment history or versions
+3. Select a previous deployment to restore
+4. Confirm rollback action
+
+Note: Specific rollback UI may vary in v2-dev. You can also manually:
+- Revert Git commits and redeploy
+- Specify older image tags in compose file
+- Use `docker service rollback` via CLI if needed
 
 ## Troubleshooting Stack Deployments
 
