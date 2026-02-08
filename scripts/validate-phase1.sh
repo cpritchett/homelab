@@ -40,8 +40,10 @@ echo ""
 echo "=== Docker Swarm ==="
 if docker info | grep -q "Swarm: active"; then
     check_pass "Docker Swarm is active"
-    ADVERTISE_ADDR=$(docker info | grep "Advertise" | awk '{print $3}')
-    echo "  Advertise address: $ADVERTISE_ADDR"
+    ADVERTISE_ADDR=$(docker info | grep "Advertise" | awk '{print $3}' || echo "unknown")
+    if [ -n "$ADVERTISE_ADDR" ] && [ "$ADVERTISE_ADDR" != "unknown" ]; then
+        echo "  Advertise address: $ADVERTISE_ADDR"
+    fi
 else
     check_fail "Docker Swarm is not active"
 fi
