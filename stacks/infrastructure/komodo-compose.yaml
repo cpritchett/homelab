@@ -7,13 +7,18 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "set -a &&
-       [ -f /secrets/komodo.env ] && . /secrets/komodo.env || true &&
-       set +a &&
-       exec entrypoint.sh core"
     environment:
+      KOMODO_DATABASE_ADDRESS: mongo:27017
+      KOMODO_DATABASE_DB_NAME: komodo
+      KOMODO_DATABASE_USERNAME: admin
+      KOMODO_DATABASE_PASSWORD_FILE: /run/secrets/komodo_db_password
+      KOMODO_DISABLE_USER_REGISTRATION: "false"
+      KOMODO_ENABLE_NEW_USERS: "true"
+      KOMODO_FIRST_SERVER: https://periphery:8120
+      KOMODO_HOST: https://komodo.in.hypyr.space
+      KOMODO_LOCAL_AUTH: "true"
+      KOMODO_PASSKEY_FILE: /run/secrets/komodo_passkey
+      KOMODO_PORT: "30160"
       KOMODO_SYNC_DIRECTORY: /syncs
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
@@ -35,7 +40,6 @@ services:
     networks:
       - proxy_network
       - default
-      - op-connect
     privileged: false
     security_opt:
       - no-new-privileges=true
@@ -44,10 +48,9 @@ services:
     volumes:
       - /mnt/apps01/appdata/komodo/backups:/backups
       - /mnt/apps01/appdata/komodo/sync:/syncs
-      - /mnt/apps01/repos/homelab/stacks/platform/komodo/komodo.template:/templates/komodo.template:ro
-      - /mnt/apps01/appdata/komodo/secrets:/secrets
     secrets:
-      - op_connect_token
+      - komodo_db_password
+      - komodo_passkey
 
   mongo:
     cap_drop: [ALL]
@@ -56,14 +59,10 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "set -a &&
-       op inject -i /templates/komodo.template -o /secrets/komodo.env -f 2>/dev/null || true &&
-       [ -f /secrets/komodo.env ] && . /secrets/komodo.env || true &&
-       set +a &&
-       exec docker-entrypoint.sh mongod"
     environment:
+      MONGO_INITDB_DATABASE: komodo
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/komodo_db_password
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
       UMASK: '002'
@@ -97,10 +96,8 @@ services:
     user: '568:568'
     volumes:
       - /mnt/apps01/appdata/komodo/mongodb:/data/db
-      - /mnt/apps01/appdata/komodo/secrets:/secrets
-      - /mnt/apps01/repos/homelab/stacks/platform/komodo/komodo.template:/templates/komodo.template:ro
     secrets:
-      - op_connect_token
+      - komodo_db_password
 
   periphery:
     cap_drop: [ALL]
@@ -109,18 +106,12 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "set -a &&
-       op inject -i /templates/komodo.template -o /secrets/komodo.env -f 2>/dev/null || true &&
-       [ -f /secrets/komodo.env ] && . /secrets/komodo.env || true &&
-       set +a &&
-       exec entrypoint.sh periphery"
     environment:
-      NVIDIA_VISIBLE_DEVICES: void
-      PERIPHERY_PORT: 8120
+      PERIPHERY_PASSKEYS_FILE: /run/secrets/komodo_passkey
+      PERIPHERY_PORT: "8120"
       PERIPHERY_ROOT_DIRECTORY: /mnt/apps01/repos
-      PERIPHERY_SSL_ENABLED: 'true'
+      PERIPHERY_SSL_ENABLED: "true"
+      NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
       UMASK: '002'
       UMASK_SET: '002'
@@ -132,7 +123,6 @@ services:
     networks:
       - proxy_network
       - default
-      - op-connect
     privileged: false
     security_opt:
       - no-new-privileges=true
@@ -142,10 +132,8 @@ services:
       - /mnt/apps01/repos:/mnt/apps01/repos
       - /proc:/proc:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/apps01/appdata/komodo/secrets:/secrets
-      - /mnt/apps01/repos/homelab/stacks/platform/komodo/komodo.template:/templates/komodo.template:ro
     secrets:
-      - op_connect_token
+      - komodo_passkey
 
 networks:
   proxy_network:
@@ -157,5 +145,7 @@ networks:
     driver: overlay
 
 secrets:
-  op_connect_token:
+  komodo_db_password:
+    external: true
+  komodo_passkey:
     external: true
