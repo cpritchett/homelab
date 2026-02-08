@@ -30,8 +30,6 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-      group_add:
-        - 568
     environment:
       KOMODO_SYNC_DIRECTORY: /syncs
       NVIDIA_VISIBLE_DEVICES: void
@@ -83,8 +81,6 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-      group_add:
-        - 568
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
@@ -137,9 +133,6 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
-      group_add:
-        - 568
-        - 999
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       PERIPHERY_PORT: 8120
