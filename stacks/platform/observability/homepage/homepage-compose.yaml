@@ -25,11 +25,7 @@ services:
       - /mnt/apps01/appdata/homepage/icons:/app/public/icons
       - /mnt/apps01/appdata/homepage/images:/app/public/images
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      disable: true
 
   docker-socket-proxy:
     image: ghcr.io/tecnativa/docker-socket-proxy:latest
