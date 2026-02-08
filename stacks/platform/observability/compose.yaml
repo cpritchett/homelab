@@ -77,6 +77,39 @@ services:
       proxy_network:
         aliases:
           - uptime-kuma
+      observability_internal:
+
+  # AutoKuma - Auto-create monitors from Docker labels
+  autokuma:
+    image: ghcr.io/bigboot/autokuma:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      # Uptime Kuma connection
+      AUTOKUMA__KUMA__URL: http://uptime-kuma:3001
+      # Docker provider configuration
+      AUTOKUMA__DOCKER__SOCKET_PATH: tcp://docker-socket-proxy:2375
+      # Label prefix (e.g., kuma.example.http.url)
+      AUTOKUMA__DOCKER__LABEL_PREFIX: kuma
+      # Sync settings
+      AUTOKUMA__SYNC_INTERVAL: 60
+      # Tag all auto-created monitors
+      AUTOKUMA__TAG: autokuma
+      AUTOKUMA__TAG_NAME: Source
+      AUTOKUMA__TAG_COLOR: "#42C0FB"
+    networks:
+      - observability_internal
+    depends_on:
+      - uptime-kuma
+      - docker-socket-proxy
 
 networks:
   proxy_network:

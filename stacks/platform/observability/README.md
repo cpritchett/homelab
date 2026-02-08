@@ -14,9 +14,17 @@ Combined stack for homelab observability and monitoring services.
 - **URL**: https://status.in.hypyr.space
 - **Purpose**: Uptime monitoring and status page
 - **Data**: `/mnt/apps01/appdata/uptime-kuma/`
+- **Integration**: AutoKuma for label-based monitor auto-creation
+
+### AutoKuma
+- **Purpose**: Automatically create Uptime Kuma monitors from Docker labels
+- **Source**: https://github.com/BigBoot/AutoKuma
+- **Label Pattern**: `kuma.<monitor-id>.<type>.<setting>`
+- **Sync Interval**: 60 seconds
+- **Tag**: All auto-created monitors tagged with "autokuma"
 
 ### Docker Socket Proxy
-- **Purpose**: Secure, read-only access to Docker API for Homepage
+- **Purpose**: Secure, read-only access to Docker API for Homepage and AutoKuma
 - **Permissions**: Containers, Services, Tasks, Networks, Nodes, Info, Version
 - **Internal only** - not exposed externally
 
@@ -80,18 +88,71 @@ sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
 
 ## Post-Deployment
 
-### Configure Homepage
+### 1. Configure Uptime Kuma (First Time)
+1. Access https://status.in.hypyr.space
+2. Complete initial setup (create admin user)
+3. **Important**: After creating admin account, AutoKuma will automatically connect
+4. Monitors will be auto-created from Docker labels
+
+### 2. Configure Homepage
 1. Access https://home.in.hypyr.space
 2. Edit config files in Komodo UI or via SSH
 3. Homepage auto-reloads on config changes
 
-### Configure Uptime Kuma
-1. Access https://status.in.hypyr.space
-2. Complete initial setup (create admin user)
-3. Add monitors:
-   - Komodo: https://komodo.in.hypyr.space
-   - 1Password Connect: http://op-connect-api:8080/health
-   - Homepage: https://home.in.hypyr.space
+### 3. Add AutoKuma Labels to Services
+
+AutoKuma reads Docker labels to automatically create monitors. Add labels to your service's `deploy.labels` section:
+
+**HTTP Monitor Example:**
+```yaml
+services:
+  myapp:
+    deploy:
+      labels:
+        # Caddy ingress labels
+        caddy: myapp.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8080}}"
+
+        # AutoKuma monitor labels
+        kuma.myapp.http.name: "My Application"
+        kuma.myapp.http.url: "https://myapp.in.hypyr.space"
+        kuma.myapp.http.interval: "60"
+        kuma.myapp.http.retryInterval: "60"
+        kuma.myapp.http.maxretries: "3"
+```
+
+**TCP Port Monitor Example:**
+```yaml
+kuma.database.port.name: "PostgreSQL Database"
+kuma.database.port.hostname: "postgres"
+kuma.database.port.port: "5432"
+kuma.database.port.interval: "60"
+```
+
+**Docker Container Monitor Example:**
+```yaml
+kuma.container.docker.name: "Redis Container"
+kuma.container.docker.docker_container: "redis"
+kuma.container.docker.docker_host: "1"  # Use AutoKuma's Docker connection
+```
+
+**Monitor Types Supported:**
+- `http` / `https` - HTTP(S) endpoint monitoring
+- `port` - TCP port checks
+- `ping` - ICMP ping
+- `keyword` - HTTP with keyword search
+- `docker` - Docker container status
+- `dns` - DNS record checking
+- And many more (see [AutoKuma docs](https://github.com/BigBoot/AutoKuma))
+
+**Common Settings:**
+- `name` - Monitor display name (required)
+- `interval` - Check interval in seconds (default: 60)
+- `retryInterval` - Retry interval in seconds (default: 60)
+- `maxretries` - Max retry attempts (default: 3)
+- `notificationIDList` - Comma-separated notification IDs
+
+AutoKuma scans for labels every 60 seconds and auto-creates/updates monitors.
 
 ## Monitoring
 
