@@ -101,9 +101,27 @@ services:
           cpus: '1'
           memory: 1024M
       labels:
+        # Homepage: Platform dashboard
+        homepage.group: "Platform"
+        homepage.name: "Authentik"
+        homepage.icon: "authentik.png"
+        homepage.href: "https://auth.in.hypyr.space"
+        homepage.description: "SSO & Authentication"
+        homepage.widget.type: "authentik"
+        homepage.widget.url: "https://auth.in.hypyr.space"
+        homepage.widget.key: "{{HOMEPAGE_VAR_AUTHENTIK_API_KEY}}"
+
+        # Caddy: Public reverse proxy
         caddy: auth.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 9000}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma: External monitoring (accepts redirects)
+        kuma.authentik.http.name: "Authentik SSO"
+        kuma.authentik.http.url: "https://auth.in.hypyr.space"
+        kuma.authentik.http.interval: "60"
+        kuma.authentik.http.maxretries: "3"
+        kuma.authentik.http.accepted_statuscodes: "200-299,301,302"
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
