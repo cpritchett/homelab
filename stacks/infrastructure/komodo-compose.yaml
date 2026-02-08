@@ -1,35 +1,18 @@
 services:
-  secrets-init:
-    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
-    environment:
-      OP_CONNECT_HOST: http://op-connect-api:8080
-      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
-    secrets:
-      - op_connect_token
-    volumes:
-      - ../platform/komodo/komodo.template:/templates/komodo.template:ro
-      - /mnt/apps01/appdata/komodo/secrets:/secrets
-    networks:
-      - op-connect
-    command: >
-      sh -c "
-      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
-      op inject -i /templates/komodo.template -o /secrets/komodo.env -f &&
-      echo 'Secrets injected successfully'
-      "
-    restart: "no"
-
   core:
     cap_drop:
       - ALL
-    depends_on:
-      - mongo
-      - secrets-init
     deploy:
       resources:
         limits:
           cpus: '2'
           memory: 4096M
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a &&
+       [ -f /secrets/komodo.env ] && . /secrets/komodo.env || true &&
+       set +a &&
+       exec /app/core"
     environment:
       KOMODO_SYNC_DIRECTORY: /syncs
       NVIDIA_VISIBLE_DEVICES: void
@@ -46,38 +29,40 @@ services:
       timeout: 5s
     image: ghcr.io/moghtech/komodo-core:2-dev
     labels:
-      caddh_0.tls: internal
+      caddy_0.tls: internal
       caddy_0: komodo.in.hypyr.space
       caddy_0.reverse_proxy: core:30160
     networks:
       - proxy_network
       - default
-    privileged: False
-    restart: unless-stopped
+      - op-connect
+    privileged: false
     security_opt:
       - no-new-privileges=true
-    stdin_open: False
-    tty: False
+    stdin_open: false
+    tty: false
     volumes:
-      - /mnt/apps01/appdata/komodo/secrets:/secrets:ro
       - /mnt/apps01/appdata/komodo/backups:/backups
       - /mnt/apps01/appdata/komodo/sync:/syncs
-      - /mnt/apps01/secrets:/mnt/apps01/secrets:ro
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "set -a && [ -f /secrets/komodo.env ] && . /secrets/komodo.env && set +a &&
-       exec /app/core"
+      - /mnt/apps01/repos/homelab/stacks/platform/komodo/komodo.template:/templates/komodo.template:ro
+      - /mnt/apps01/appdata/komodo/secrets:/secrets
+    secrets:
+      - op_connect_token
 
   mongo:
-    cap_drop:
-      - ALL
-    depends_on:
-      - secrets-init
+    cap_drop: [ALL]
     deploy:
       resources:
         limits:
           cpus: '2'
           memory: 4096M
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a &&
+       op inject -i /templates/komodo.template -o /secrets/komodo.env -f 2>/dev/null || true &&
+       [ -f /secrets/komodo.env ] && . /secrets/komodo.env || true &&
+       set +a &&
+       exec docker-entrypoint.sh mongod"
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
@@ -103,30 +88,34 @@ services:
     image: mongo:8.2.3
     labels:
       komodo.skip: 'true'
-    privileged: False
-    restart: unless-stopped
+    privileged: false
     security_opt:
       - no-new-privileges=true
-    stdin_open: False
+    stdin_open: false
     stop_grace_period: 60s
-    tty: False
+    tty: false
     user: '568:568'
     volumes:
       - /mnt/apps01/appdata/komodo/mongodb:/data/db
-      - /mnt/apps01/appdata/komodo/secrets:/secrets:ro
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "set -a && [ -f /secrets/komodo.env ] && . /secrets/komodo.env && set +a &&
-       exec docker-entrypoint.sh mongod"
+      - /mnt/apps01/appdata/komodo/secrets:/secrets
+      - /mnt/apps01/repos/homelab/stacks/platform/komodo/komodo.template:/templates/komodo.template:ro
+    secrets:
+      - op_connect_token
 
   periphery:
-    cap_drop:
-      - ALL
+    cap_drop: [ALL]
     deploy:
       resources:
         limits:
           cpus: '2'
           memory: 4096M
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a &&
+       op inject -i /templates/komodo.template -o /secrets/komodo.env -f 2>/dev/null || true &&
+       [ -f /secrets/komodo.env ] && . /secrets/komodo.env || true &&
+       set +a &&
+       exec /app/periphery"
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       PERIPHERY_PORT: 8120
@@ -136,35 +125,34 @@ services:
       UMASK: '002'
       UMASK_SET: '002'
     healthcheck:
-      disable: True
+      disable: true
     image: ghcr.io/moghtech/komodo-periphery:2-dev
     labels:
       komodo.skip: 'true'
     networks:
       - proxy_network
       - default
-    privileged: False
-    restart: unless-stopped
+      - op-connect
+    privileged: false
     security_opt:
       - no-new-privileges=true
-    stdin_open: False
-    tty: False
+    stdin_open: false
+    tty: false
     volumes:
       - /mnt/apps01/repos:/mnt/apps01/repos
       - /proc:/proc:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/apps01/secrets:/mnt/apps01/secrets:ro
-      - /mnt/apps01/appdata/komodo/secrets:/secrets:ro
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "set -a && [ -f /secrets/komodo.env ] && . /secrets/komodo.env && set +a &&
-       exec /app/periphery"
+      - /mnt/apps01/appdata/komodo/secrets:/secrets
+      - /mnt/apps01/repos/homelab/stacks/platform/komodo/komodo.template:/templates/komodo.template:ro
+    secrets:
+      - op_connect_token
 
 networks:
   proxy_network:
     external: true
   op-connect:
-    external: true
+    external:
+      name: op-connect_op-connect
   default:
     driver: overlay
 
