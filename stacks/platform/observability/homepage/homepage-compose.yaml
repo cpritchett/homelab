@@ -1,0 +1,65 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v0.9.10
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+    environment:
+      PUID: '1000'
+      PGID: '1000'
+      TZ: America/Chicago
+      # Enable Docker integration
+      HOMEPAGE_VAR_DOCKER_HOST: tcp://docker-socket-proxy:2375
+    labels:
+      # Caddy ingress
+      caddy: home.in.hypyr.space
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+    networks:
+      - proxy_network
+      - homepage_internal
+    volumes:
+      - /mnt/apps01/appdata/homepage/config:/app/config
+      - /mnt/apps01/appdata/homepage/icons:/app/public/icons
+      - /mnt/apps01/appdata/homepage/images:/app/public/images
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  docker-socket-proxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:latest
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      # Minimal permissions for Homepage
+      CONTAINERS: '1'
+      SERVICES: '1'
+      TASKS: '1'
+      NETWORKS: '1'
+      NODES: '1'
+      INFO: '1'
+      VERSION: '1'
+      PING: '1'
+    networks:
+      - homepage_internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:2375/_ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+networks:
+  proxy_network:
+    external: true
+  homepage_internal:
+    driver: overlay

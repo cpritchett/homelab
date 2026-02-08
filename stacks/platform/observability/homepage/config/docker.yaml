@@ -1,0 +1,6 @@
+---
+# Docker integration via socket proxy
+docker-socket-proxy:
+  host: tcp://docker-socket-proxy:2375
+  # Socket proxy doesn't support TLS
+  tls: false

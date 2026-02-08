@@ -1,0 +1,22 @@
+---
+- Infrastructure:
+    - TrueNAS Scale:
+        - abbr: TN
+          href: https://barbary.hypyr.space
+
+    - GitHub:
+        - abbr: GH
+          href: https://github.com/cpritchett/homelab
+
+- Documentation:
+    - Homepage Docs:
+        - abbr: HP
+          href: https://gethomepage.dev
+
+    - Docker Swarm:
+        - abbr: DS
+          href: https://docs.docker.com/engine/swarm/
+
+    - Komodo Docs:
+        - abbr: KD
+          href: https://github.com/moghtech/komodo

@@ -1,0 +1,22 @@
+---
+# System widgets displayed at the top of the dashboard
+- logo:
+    icon: https://github.com/walkxcode.png
+
+- greeting:
+    text_size: xl
+    text: "Barbary Homelab"
+
+- datetime:
+    text_size: l
+    format:
+      timeStyle: short
+      dateStyle: short
+      hour12: false
+
+- search:
+    provider: google
+    target: _blank
+
+# No resources widget since Homepage runs in container
+# Use Grafana for host resource monitoring

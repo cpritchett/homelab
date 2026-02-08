@@ -1,0 +1,91 @@
+---
+# Infrastructure Tier
+- Infrastructure:
+    - Komodo:
+        icon: mdi-docker
+        href: https://komodo.in.hypyr.space
+        description: Infrastructure orchestration
+        widget:
+          type: komodo
+          url: https://komodo.in.hypyr.space
+          key: "{{HOMEPAGE_VAR_KOMODO_API_KEY}}"
+
+    - 1Password Connect:
+        icon: 1password.png
+        href: http://op-connect-api:8080
+        description: Secrets management
+        widget:
+          type: customapi
+          url: http://op-connect-api:8080/health
+          mappings:
+            - field: name
+              label: Service
+            - field: version
+              label: Version
+
+    - Caddy:
+        icon: caddy.png
+        href: https://barbary.in.hypyr.space
+        description: Reverse proxy & TLS
+        server: docker-socket-proxy
+        container: caddy_caddy
+
+# Platform Tier
+- Platform:
+    - Homepage:
+        icon: homepage.png
+        href: https://home.in.hypyr.space
+        description: Homelab dashboard
+        server: docker-socket-proxy
+        container: homepage_homepage
+
+    - Authentik:
+        icon: authentik.png
+        href: https://auth.in.hypyr.space
+        description: SSO & Authentication
+        widget:
+          type: authentik
+          url: https://auth.in.hypyr.space
+          key: "{{HOMEPAGE_VAR_AUTHENTIK_API_KEY}}"
+
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: https://status.in.hypyr.space
+        description: Uptime monitoring
+        widget:
+          type: uptimekuma
+          url: https://status.in.hypyr.space
+          slug: homelab
+
+# Monitoring
+- Monitoring:
+    - Prometheus:
+        icon: prometheus.png
+        href: https://prometheus.in.hypyr.space
+        description: Metrics collection
+        widget:
+          type: prometheus
+          url: http://prometheus:9090
+
+    - Grafana:
+        icon: grafana.png
+        href: https://grafana.in.hypyr.space
+        description: Metrics visualization
+        widget:
+          type: grafana
+          url: https://grafana.in.hypyr.space
+          username: "{{HOMEPAGE_VAR_GRAFANA_USER}}"
+          password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+
+    - Loki:
+        icon: grafana-loki.png
+        href: https://loki.in.hypyr.space
+        description: Log aggregation
+        server: docker-socket-proxy
+        container: loki_loki
+
+# Applications (placeholder for future)
+- Applications:
+    - Placeholder:
+        icon: mdi-apps
+        description: Applications will appear here

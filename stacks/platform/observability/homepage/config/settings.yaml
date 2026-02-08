@@ -1,0 +1,37 @@
+---
+# Homepage settings
+title: Barbary Homelab
+favicon: https://github.com/walkxcode.png
+theme: dark
+color: slate
+headerStyle: clean
+layout:
+  Infrastructure:
+    style: row
+    columns: 3
+  Platform:
+    style: row
+    columns: 3
+  Applications:
+    style: row
+    columns: 4
+  Monitoring:
+    style: row
+    columns: 3
+
+providers:
+  # Disable OpenWeatherMap (requires API key)
+  openweathermap: false
+  # Disable Weather API (requires API key)
+  weatherapi: false
+
+# Background and styling
+background:
+  blur: sm
+  brightness: 50
+
+# Enable quick launch with /
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: true
+  hideVisitURL: true
