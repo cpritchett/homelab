@@ -6,15 +6,15 @@ services:
         limits:
           cpus: '1'
           memory: 512M
+      labels:
+        # Caddy ingress
+        caddy: home.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3000}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
     environment:
       TZ: America/Chicago
       # Enable Docker integration
       HOMEPAGE_VAR_DOCKER_HOST: tcp://docker-socket-proxy:2375
-    labels:
-      # Caddy ingress
-      caddy: home.in.hypyr.space
-      caddy.reverse_proxy: "{{upstreams 3000}}"
-      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
     networks:
       - proxy_network
       - homepage_internal

@@ -100,6 +100,10 @@ services:
         reservations:
           cpus: '1'
           memory: 1024M
+      labels:
+        caddy: auth.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 9000}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
@@ -108,10 +112,6 @@ services:
       # Core connections
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
-    labels:
-      caddy: auth.in.hypyr.space
-      caddy.reverse_proxy: "{{upstreams 9000}}"
-      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
     networks:
       authentik:
       proxy_network:
