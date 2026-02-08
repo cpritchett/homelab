@@ -10,6 +10,7 @@ services:
       DOCKER_HOST: tcp://docker-socket-proxy:2375
       TZ: America/Chicago
       CADDY_EMAIL: admin@hypyr.space
+      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
     secrets:
       - CLOUDFLARE_API_TOKEN
     extra_hosts:
@@ -38,10 +39,6 @@ services:
     volumes:
       - /mnt/apps01/appdata/proxy/caddy-data:/data/caddy
       - /mnt/apps01/appdata/proxy/caddy-config:/config
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "export CLOUDFLARE_API_TOKEN=$$(cat /run/secrets/CLOUDFLARE_API_TOKEN) &&
-       exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile"
 
   docker-socket-proxy:
     deploy:
