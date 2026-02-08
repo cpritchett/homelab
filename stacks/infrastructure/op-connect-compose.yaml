@@ -1,0 +1,56 @@
+services:
+  op-connect-api:
+    image: 1password/connect-api:1.7.3
+    hostname: op-connect-api
+    volumes:
+      - op-connect-data:/home/opuser/.op/data
+      - /mnt/apps01/secrets/op/1password-credentials.json:/home/opuser/.op/1password-credentials.json:ro
+    environment:
+      OP_SESSION: /home/opuser/.op/1password-credentials.json
+      OP_LOG_LEVEL: ${OP_LOG_LEVEL:-info}
+    secrets:
+      - CLOUDFLARE_API_TOKEN
+    labels:
+      caddy: op-connect.in.hypyr.space
+      caddy.reverse_proxy: "op-connect-api:8080"
+      caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN_FILE}"
+    networks:
+      op-connect:
+        aliases:
+          - op-connect-api
+      proxy_network:
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+
+  op-connect-sync:
+    image: 1password/connect-sync:1.7.3
+    hostname: op-connect-sync
+    volumes:
+      - op-connect-data:/home/opuser/.op/data
+      - /mnt/apps01/secrets/op/1password-credentials.json:/home/opuser/.op/1password-credentials.json:ro
+    environment:
+      OP_SESSION: /home/opuser/.op/1password-credentials.json
+      OP_LOG_LEVEL: ${OP_LOG_LEVEL:-info}
+    networks:
+      op-connect:
+        aliases:
+          - op-connect-sync
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+
+networks:
+  op-connect:
+    driver: overlay
+    attachable: true
+  proxy_network:
+    external: true
+
+volumes:
+  op-connect-data:
+    driver: local
+
+secrets:
+  CLOUDFLARE_API_TOKEN:
+    external: true

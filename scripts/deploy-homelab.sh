@@ -11,6 +11,12 @@ echo "Started at: $(date)"
 echo ""
 echo "--- Deploying infrastructure ---"
 
+echo "Deploying op-connect stack (required by komodo and others)..."
+docker stack deploy -c ${STACKS_DIR}/infrastructure/op-connect-compose.yaml op-connect || echo "op-connect deploy failed (may already exist)"
+
+echo "Waiting for op-connect to be ready..."
+sleep 30
+
 echo "Deploying komodo stack..."
 docker stack deploy -c ${STACKS_DIR}/infrastructure/komodo-compose.yaml komodo || echo "Komodo deploy failed (may already exist)"
 
