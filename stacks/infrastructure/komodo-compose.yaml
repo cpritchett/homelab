@@ -5,6 +5,28 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
+      labels:
+        # Homepage dashboard
+        homepage.group: "Infrastructure"
+        homepage.name: "Komodo"
+        homepage.icon: "mdi-docker"
+        homepage.href: "https://komodo.in.hypyr.space"
+        homepage.description: "Infrastructure orchestration"
+        homepage.widget.type: "komodo"
+        homepage.widget.url: "https://komodo.in.hypyr.space"
+        homepage.widget.key: "{{HOMEPAGE_VAR_KOMODO_API_KEY}}"
+
+        # Caddy reverse proxy
+        caddy_0: komodo.in.hypyr.space
+        caddy_0.reverse_proxy: core:30160
+        caddy_0.tls: internal
+
+        # AutoKuma monitoring
+        kuma.komodo.http.name: "Komodo UI"
+        kuma.komodo.http.url: "https://komodo.in.hypyr.space"
+        kuma.komodo.http.interval: "60"
+        kuma.komodo.http.maxretries: "3"
+
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "export KOMODO_DATABASE_PASSWORD=$$(cat /run/secrets/komodo_db_password) &&
@@ -34,10 +56,6 @@ services:
         - curl -sS -o /dev/null http://127.0.0.1:30160/ || exit 1
       timeout: 5s
     image: ghcr.io/moghtech/komodo-core:2-dev
-    labels:
-      caddy_0.tls: internal
-      caddy_0: komodo.in.hypyr.space
-      caddy_0.reverse_proxy: core:30160
     networks:
       - proxy_network
       - default

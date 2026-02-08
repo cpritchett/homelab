@@ -5,6 +5,29 @@ services:
         limits:
           cpus: '2'
           memory: 2048M
+      labels:
+        # Homepage dashboard
+        homepage.group: "Infrastructure"
+        homepage.name: "Caddy"
+        homepage.icon: "caddy.png"
+        homepage.href: "https://barbary.in.hypyr.space"
+        homepage.description: "Reverse proxy & TLS"
+
+        # Caddy self-configuration
+        caddy.email: admin@hypyr.space
+        caddy_10: barbary.in.hypyr.space
+        caddy_10.reverse_proxy: host.docker.internal:81
+        caddy_10.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy_90: '*.in.hypyr.space'
+        caddy_90.respond: not-found 404
+        caddy_90.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma monitoring (via proxied service to test Caddy is working)
+        kuma.caddy.http.name: "Caddy Reverse Proxy"
+        kuma.caddy.http.url: "https://home.in.hypyr.space"
+        kuma.caddy.http.interval: "60"
+        kuma.caddy.http.maxretries: "3"
+
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "export CLOUDFLARE_API_TOKEN=$$(cat /run/secrets/CLOUDFLARE_API_TOKEN) &&
@@ -19,14 +42,6 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     image: ghcr.io/cpritchett/caddy-labels:latest
-    labels:
-      caddy.email: admin@hypyr.space
-      caddy_10: barbary.in.hypyr.space
-      caddy_10.reverse_proxy: host.docker.internal:81
-      caddy_10.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
-      caddy_90: '*.in.hypyr.space'
-      caddy_90.respond: not-found 404
-      caddy_90.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
     networks:
       - proxy_network
     ports:

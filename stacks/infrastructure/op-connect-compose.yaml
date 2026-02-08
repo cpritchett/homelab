@@ -10,6 +10,31 @@ services:
       placement:
         constraints:
           - node.hostname == barbary
+      labels:
+        # Homepage dashboard
+        homepage.group: "Infrastructure"
+        homepage.name: "1Password Connect"
+        homepage.icon: "1password.png"
+        homepage.href: "http://op-connect-api:8080"
+        homepage.description: "Secrets management"
+        homepage.widget.type: "customapi"
+        homepage.widget.url: "http://op-connect-api:8080/health"
+        homepage.widget.mappings.0.field: "name"
+        homepage.widget.mappings.0.label: "Service"
+        homepage.widget.mappings.1.field: "version"
+        homepage.widget.mappings.1.label: "Version"
+
+        # Caddy reverse proxy (optional - usually internal only)
+        caddy: op-connect.in.hypyr.space
+        caddy.reverse_proxy: "op-connect-api:8080"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma monitoring (internal health check)
+        kuma.op-connect.http.name: "1Password Connect API"
+        kuma.op-connect.http.url: "http://op-connect-api:8080/health"
+        kuma.op-connect.http.interval: "60"
+        kuma.op-connect.http.maxretries: "5"
+
     volumes:
       - op-connect-data:/home/opuser/.op/data
       - /mnt/apps01/secrets/op/1password-credentials.json:/home/opuser/.op/1password-credentials.json:ro
@@ -18,10 +43,6 @@ services:
       OP_LOG_LEVEL: ${OP_LOG_LEVEL:-info}
     secrets:
       - CLOUDFLARE_API_TOKEN
-    labels:
-      caddy: op-connect.in.hypyr.space
-      caddy.reverse_proxy: "op-connect-api:8080"
-      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
     networks:
       op-connect:
         aliases:
