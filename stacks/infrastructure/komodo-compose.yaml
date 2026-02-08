@@ -7,17 +7,20 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "export KOMODO_DATABASE_PASSWORD=$$(cat /run/secrets/komodo_db_password) &&
+       export KOMODO_PASSKEY=$$(cat /run/secrets/komodo_passkey) &&
+       exec entrypoint.sh core"
     environment:
       KOMODO_DATABASE_ADDRESS: mongo:27017
       KOMODO_DATABASE_DB_NAME: komodo
       KOMODO_DATABASE_USERNAME: admin
-      KOMODO_DATABASE_PASSWORD_FILE: /run/secrets/komodo_db_password
       KOMODO_DISABLE_USER_REGISTRATION: "false"
       KOMODO_ENABLE_NEW_USERS: "true"
       KOMODO_FIRST_SERVER: https://periphery:8120
       KOMODO_HOST: https://komodo.in.hypyr.space
       KOMODO_LOCAL_AUTH: "true"
-      KOMODO_PASSKEY_FILE: /run/secrets/komodo_passkey
       KOMODO_PORT: "30160"
       KOMODO_SYNC_DIRECTORY: /syncs
       NVIDIA_VISIBLE_DEVICES: void
@@ -59,10 +62,13 @@ services:
         limits:
           cpus: '2'
           memory: 4096M
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "export MONGO_INITDB_ROOT_PASSWORD=$$(cat /run/secrets/komodo_db_password) &&
+       exec docker-entrypoint.sh mongod"
     environment:
       MONGO_INITDB_DATABASE: komodo
       MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/komodo_db_password
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
       UMASK: '002'
