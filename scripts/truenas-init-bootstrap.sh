@@ -118,40 +118,25 @@ else
 fi
 
 # komodo_db_password (MongoDB root password)
+# Note: This secret must be created manually before first bootstrap
+# Example: echo "your_password" | docker secret create komodo_db_password -
 if ! docker secret inspect komodo_db_password >/dev/null 2>&1; then
-    # Generate or retrieve from 1Password via op-connect
-    # For bootstrap, we'll retrieve from op-connect if available
-    if command -v op >/dev/null 2>&1 && [ -f "${SECRETS_PATH}/op/connect-token" ]; then
-        export OP_CONNECT_TOKEN=$(cat "${SECRETS_PATH}/op/connect-token")
-        export OP_CONNECT_HOST="http://op-connect-api:8080"
-        # Try to get from 1Password, fallback to generating random
-        if timeout 5 op read "op://homelab/Komodo - Barbary/Database" 2>/dev/null | docker secret create komodo_db_password - 2>/dev/null; then
-            log "Created secret: komodo_db_password (from 1Password)"
-        else
-            log "Warning: Could not retrieve from 1Password, using existing value or skipping"
-        fi
-    else
-        log "Warning: komodo_db_password secret not found and op CLI not available"
-        log "Please create this secret manually: docker secret create komodo_db_password -"
-    fi
+    log_error "Required secret 'komodo_db_password' not found"
+    log_error "Create it with: echo 'your_password' | docker secret create komodo_db_password -"
+    log_error "Or use 1Password: op read 'op://homelab/Komodo - Barbary/Database' | docker secret create komodo_db_password -"
+    exit 1
 else
     log "Secret already exists: komodo_db_password"
 fi
 
 # komodo_passkey (Komodo authentication passkey)
+# Note: This secret must be created manually before first bootstrap
+# Example: echo "your_passkey" | docker secret create komodo_passkey -
 if ! docker secret inspect komodo_passkey >/dev/null 2>&1; then
-    if command -v op >/dev/null 2>&1 && [ -f "${SECRETS_PATH}/op/connect-token" ]; then
-        export OP_CONNECT_TOKEN=$(cat "${SECRETS_PATH}/op/connect-token")
-        export OP_CONNECT_HOST="http://op-connect-api:8080"
-        if timeout 5 op read "op://homelab/Komodo - Barbary/credential" 2>/dev/null | docker secret create komodo_passkey - 2>/dev/null; then
-            log "Created secret: komodo_passkey (from 1Password)"
-        else
-            log "Warning: Could not retrieve from 1Password, using existing value or skipping"
-        fi
-    else
-        log "Warning: komodo_passkey secret not found and op CLI not available"
-        log "Please create this secret manually: docker secret create komodo_passkey -"
-    fi
+    log_error "Required secret 'komodo_passkey' not found"
+    log_error "Create it with: echo 'your_passkey' | docker secret create komodo_passkey -"
+    log_error "Or use 1Password: op read 'op://homelab/Komodo - Barbary/credential' | docker secret create komodo_passkey -"
+    exit 1
 else
     log "Secret already exists: komodo_passkey"
 fi
