@@ -12,7 +12,7 @@ services:
       "set -a &&
        [ -f /secrets/komodo.env ] && . /secrets/komodo.env || true &&
        set +a &&
-       exec /app/core"
+       exec entrypoint.sh core"
     environment:
       KOMODO_SYNC_DIRECTORY: /syncs
       NVIDIA_VISIBLE_DEVICES: void
@@ -115,7 +115,7 @@ services:
        op inject -i /templates/komodo.template -o /secrets/komodo.env -f 2>/dev/null || true &&
        [ -f /secrets/komodo.env ] && . /secrets/komodo.env || true &&
        set +a &&
-       exec /app/periphery"
+       exec entrypoint.sh periphery"
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       PERIPHERY_PORT: 8120
