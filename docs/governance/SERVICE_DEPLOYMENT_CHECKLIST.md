@@ -125,6 +125,10 @@ networks:
 
 **Allowed Scripts**:
 - ✅ **Pre-deployment validation** - Checks prerequisites, creates directories, verifies connectivity
+  - MUST be idempotent (safe to run multiple times)
+  - MUST NOT pull from git (Komodo handles git sync)
+  - MUST NOT deploy stacks (Komodo handles deployment)
+  - Should be configured as Komodo pre-deploy hooks
 - ✅ **Setup/prerequisite scripts** - One-time environment preparation (permissions, directories)
 - ❌ **Deployment scripts** - Scripts that run `docker stack deploy` are NOT allowed (except infrastructure bootstrap)
 
@@ -132,8 +136,18 @@ networks:
 
 **Decision Rule**:
 - Actual deployment (`docker stack deploy`) MUST be done via Komodo UI
-- Scripts can validate and prepare, but CANNOT deploy
-- If a script runs `docker stack deploy`, it violates ADR-0022
+- Git operations (`git pull`, `git clone`) MUST be done via Komodo UI
+- Scripts can validate and prepare, but CANNOT deploy or sync git
+- If a script runs `docker stack deploy` or `git pull`, it violates ADR-0022
+
+**Pre-Deployment Hook Requirements**:
+- [ ] Script is idempotent (checks before creating/modifying)
+- [ ] Script does NOT run git commands
+- [ ] Script does NOT run docker stack deploy
+- [ ] Script validates prerequisites and fails fast if not met
+- [ ] Script creates directories only if they don't exist
+- [ ] Script sets permissions only if incorrect
+- [ ] Script is fast enough to run before every deployment (< 10 seconds)
 
 ### 9. Label-Driven Pattern Compliance (ADR-0034)
 

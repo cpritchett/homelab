@@ -101,79 +101,47 @@ zfs list | grep -E 'apps01|data01'
 df -h /mnt/apps01 /mnt/data01
 ```
 
-## Deployment Methods
+## Deployment Method
 
-Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), deployment is done via Komodo UI. Pre-deployment validation scripts prepare the environment.
+Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), deployment is done via Komodo UI. Pre-deployment validation runs automatically as a Komodo hook.
 
-### Method 1: Via Komodo UI (Recommended)
-
-**Step 1: Run Pre-Deployment Validation**
-
-```bash
-# SSH to TrueNAS
-ssh root@barbary
-
-# Pull latest code
-cd /mnt/apps01/repos/homelab
-git pull origin main
-
-# Run validation and setup script
-sudo ./scripts/validate-authentik-setup.sh
-```
-
-This script:
-1. Verifies all prerequisites (infrastructure tier, networks, secrets)
-2. Creates directories with correct permissions
-3. Tests 1Password Connect connectivity
-4. Validates environment is ready for deployment
-
-**Step 2: Deploy via Komodo UI**
+### Deploy via Komodo UI
 
 1. Access https://komodo.in.hypyr.space
 2. Navigate to **Stacks** → **Add Stack**
 3. Configure stack:
-   - **Repository**: homelab (should auto-populate from Git integration)
+   - **Repository**: homelab
    - **Path**: stacks/platform/auth/authentik
    - **File**: compose.yaml (default)
    - **Server**: barbary-periphery
+   - **Pre-Deploy Hook** (optional): `scripts/validate-authentik-setup.sh`
 4. Click **Deploy**
 5. Monitor deployment in Komodo UI
 
-**Duration:** ~2 minutes validation + ~3 minutes deployment = ~5 minutes total
+**What happens automatically:**
+- Komodo syncs the repository (pulls latest code)
+- Pre-deployment hook validates prerequisites (if configured)
+- Directories are created with correct permissions
+- Stack is deployed via `docker stack deploy`
+- Services start and are monitored
 
-### Method 2: Manual Prerequisites + Komodo Deploy
+**Duration:** ~3-5 minutes total
 
-If you prefer manual deployment:
+### Manual Prerequisite Validation (Optional)
+
+The pre-deployment hook runs automatically in Komodo. If you want to test it manually first:
 
 ```bash
 # SSH to TrueNAS
 ssh root@barbary
 
-# Pull latest code
-cd /mnt/apps01/repos/homelab
-git pull origin main
-
-# Create directories
-sudo mkdir -p /mnt/data01/appdata/authentik/{postgres,redis}
-sudo mkdir -p /mnt/apps01/appdata/authentik/{media,custom-templates,secrets}
-
-# Set ownership
-sudo chown -R 999:999 /mnt/data01/appdata/authentik/postgres
-sudo chown -R 999:1000 /mnt/data01/appdata/authentik/redis
-sudo chown -R 1000:1000 /mnt/apps01/appdata/authentik/media
-sudo chown -R 1000:1000 /mnt/apps01/appdata/authentik/custom-templates
-sudo chown -R 999:999 /mnt/apps01/appdata/authentik/secrets
-
-# Set permissions
-sudo chmod 700 /mnt/data01/appdata/authentik/postgres
-sudo chmod 700 /mnt/data01/appdata/authentik/redis
-sudo chmod 755 /mnt/apps01/appdata/authentik/{media,custom-templates,secrets}
-
-# Deploy via Komodo UI (see Method 1 above)
-# Do NOT run: docker stack deploy (violates ADR-0022)
+# Komodo already synced the repo, so just run validation
+sudo /mnt/apps01/repos/homelab/scripts/validate-authentik-setup.sh
 ```
 
-**Note:** Per ADR-0022, do not use `docker stack deploy` directly. Use Komodo UI for all platform tier deployments.
+This is idempotent and safe to run multiple times. Komodo can be configured to run this automatically before every deployment.
+
+**Note:** Do NOT run `docker stack deploy` directly. Use Komodo UI per ADR-0022.
 
 ## Post-Deployment
 
