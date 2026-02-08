@@ -7,8 +7,9 @@ Combined stack for homelab observability and monitoring services.
 ### Homepage Dashboard
 - **URL**: https://home.in.hypyr.space
 - **Purpose**: Centralized dashboard for monitoring all homelab services
-- **Integration**: Docker socket proxy for service discovery
-- **Config**: `/mnt/apps01/appdata/homepage/config/`
+- **Integration**: Docker socket proxy for label-based auto-discovery
+- **Config**: `/mnt/apps01/appdata/homepage/config/` (manual config in services.yaml is optional - labels are preferred)
+- **Pattern**: Auto-discovers services with `homepage.*` labels
 
 ### Uptime Kuma
 - **URL**: https://status.in.hypyr.space
@@ -94,31 +95,76 @@ sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
 3. **Important**: After creating admin account, AutoKuma will automatically connect
 4. Monitors will be auto-created from Docker labels
 
-### 2. Configure Homepage
+### 2. Configure Homepage (Optional)
+
+Homepage auto-discovers services from Docker labels. Manual configuration is optional.
+
+**Auto-Discovery (Recommended)**:
+- Services with `homepage.*` labels automatically appear
+- No manual `services.yaml` editing needed
+- See `COMPLETE_LABEL_EXAMPLES.md` for examples
+
+**Manual Configuration** (for services without labels):
 1. Access https://home.in.hypyr.space
-2. Edit config files in Komodo UI or via SSH
+2. Edit `services.yaml` via Komodo UI or SSH
 3. Homepage auto-reloads on config changes
 
-### 3. Add AutoKuma Labels to Services
+### 3. Add Labels to Services
 
-AutoKuma reads Docker labels to automatically create monitors. Add labels to your service's `deploy.labels` section:
+**ALL services should include these three label sets** for complete integration:
 
-**HTTP Monitor Example:**
+#### Complete Label Example
+
 ```yaml
 services:
   myapp:
     deploy:
       labels:
-        # Caddy ingress labels
+        # Homepage: Dashboard display
+        homepage.group: "Applications"
+        homepage.name: "My Application"
+        homepage.icon: "myapp.png"
+        homepage.href: "https://myapp.in.hypyr.space"
+        homepage.description: "Application description"
+
+        # Caddy: Reverse proxy (if publicly accessible)
         caddy: myapp.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 8080}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
 
-        # AutoKuma monitor labels
+        # AutoKuma: Uptime monitoring
         kuma.myapp.http.name: "My Application"
         kuma.myapp.http.url: "https://myapp.in.hypyr.space"
         kuma.myapp.http.interval: "60"
-        kuma.myapp.http.retryInterval: "60"
-        kuma.myapp.http.maxretries: "3"
+```
+
+See `COMPLETE_LABEL_EXAMPLES.md` for comprehensive examples.
+
+#### Homepage Label Patterns
+
+Add labels to your service's `deploy.labels` section:
+
+**Homepage Dashboard Labels:**
+```yaml
+homepage.group: "Applications"
+homepage.name: "My Application"
+homepage.icon: "myapp.png"  # or mdi-* for Material Design Icons
+homepage.href: "https://myapp.in.hypyr.space"
+homepage.description: "Application description"
+# Optional widget:
+homepage.widget.type: "customapi"
+homepage.widget.url: "https://myapp.in.hypyr.space/api"
+```
+
+#### AutoKuma Label Patterns
+
+**HTTP Monitor Example:**
+```yaml
+kuma.myapp.http.name: "My Application"
+kuma.myapp.http.url: "https://myapp.in.hypyr.space"
+kuma.myapp.http.interval: "60"
+kuma.myapp.http.retryInterval: "60"
+kuma.myapp.http.maxretries: "3"
 ```
 
 **TCP Port Monitor Example:**

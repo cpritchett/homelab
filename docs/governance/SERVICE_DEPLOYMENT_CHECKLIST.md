@@ -21,7 +21,32 @@ This checklist enforces governance requirements from [ADR-0034: Label-Driven Inf
   grep -A 10 "deploy:" compose.yaml | grep -A 5 "labels:"
   ```
 
-### 3. Caddy Ingress Labels (if publicly accessible)
+### 3. Homepage Dashboard Labels (required for all services)
+
+Required labels:
+- [ ] `homepage.group` - Category/group name (e.g., "Infrastructure", "Platform", "Applications")
+- [ ] `homepage.name` - Display name for the service
+- [ ] `homepage.icon` - Icon file or MDI icon name
+- [ ] `homepage.href` - Service URL
+- [ ] `homepage.description` - Short description
+
+Optional (but recommended):
+- [ ] `homepage.widget.type` - Widget type if service has API
+- [ ] `homepage.widget.url` - Widget API endpoint
+- [ ] `homepage.widget.key` - API key for widget (use variable)
+
+Example:
+```yaml
+deploy:
+  labels:
+    homepage.group: "Platform"
+    homepage.name: "My Application"
+    homepage.icon: "myapp.png"
+    homepage.href: "https://myapp.in.hypyr.space"
+    homepage.description: "Application description"
+```
+
+### 4. Caddy Ingress Labels (if publicly accessible)
 
 Required labels:
 - [ ] `caddy: <domain>` - Domain name (e.g., `app.in.hypyr.space`)
@@ -37,7 +62,7 @@ deploy:
     caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
 ```
 
-### 4. AutoKuma Monitoring Labels (required for all services)
+### 5. AutoKuma Monitoring Labels (required for all services)
 
 Minimum labels:
 - [ ] `kuma.<id>.<type>.name` - Monitor display name
@@ -64,7 +89,7 @@ deploy:
     kuma.mydb.port.interval: "60"
 ```
 
-### 5. Network Configuration
+### 6. Network Configuration
 
 - [ ] Service attached to `proxy_network` if using Caddy ingress
 - [ ] `proxy_network` declared as external network
@@ -83,13 +108,29 @@ networks:
     driver: overlay
 ```
 
-### 6. Volume Mounts
+### 7. Volume Mounts
 
 - [ ] Data stored on persistent datasets (`/mnt/apps01` or `/mnt/data01`)
 - [ ] Directory structure documented in README
 - [ ] Ownership/permissions specified in prerequisites
 
-### 7. Documentation
+### 8. Label-Driven Pattern Compliance
+
+**CRITICAL**: If adding a new tool to the stack, check if it supports Docker labels:
+
+- [ ] Tool documentation reviewed for label/annotation support
+- [ ] If labels are supported, using labels instead of config files
+- [ ] If labels NOT supported, documented in ADR why manual config is acceptable
+
+**Examples of label-supporting tools**:
+- Ingress: Caddy ✓, Traefik
+- Monitoring: AutoKuma ✓, Diun, Shepherd
+- Dashboard: Homepage ✓
+- Scheduling: Ofelia
+
+**Decision Rule**: If a tool supports labels, labels MUST be used. No exceptions.
+
+### 9. Documentation
 
 - [ ] Stack README.md exists
 - [ ] README documents all external URLs
@@ -180,6 +221,11 @@ sudo docker service inspect platform_<service>_<service-name> \
 Expected output:
 ```json
 {
+  "homepage.group": "Applications",
+  "homepage.name": "Service Name",
+  "homepage.icon": "service.png",
+  "homepage.href": "https://service.in.hypyr.space",
+  "homepage.description": "Service description",
   "caddy": "service.in.hypyr.space",
   "caddy.reverse_proxy": "{{upstreams 8080}}",
   "caddy.tls.dns": "cloudflare {env.CLOUDFLARE_API_TOKEN}",
@@ -200,7 +246,20 @@ curl -I https://<domain>
 # Should return HTTP 200 or valid response
 ```
 
-### 3. Verify AutoKuma Monitor Creation
+### 3. Verify Homepage Discovery
+
+```bash
+# Check Homepage logs for service discovery
+sudo docker service logs platform_observability_homepage | grep <service-name>
+
+# Check Homepage UI
+# 1. Navigate to https://home.in.hypyr.space
+# 2. Look for service in correct group
+# 3. Verify service details and link work
+# 4. Verify widget displays (if configured)
+```
+
+### 4. Verify AutoKuma Monitor Creation
 
 ```bash
 # Check AutoKuma logs
@@ -212,7 +271,7 @@ sudo docker service logs platform_observability_autokuma | grep <monitor-id>
 # 3. Verify monitor is UP
 ```
 
-### 4. Verify Service Health
+### 5. Verify Service Health
 
 ```bash
 # Check service status
@@ -274,6 +333,7 @@ When reviewing PRs that add new services:
 
 - [ ] Compose file is Swarm-compatible
 - [ ] Labels present under `deploy.labels`
+- [ ] **Homepage labels present and correct**
 - [ ] Caddy labels correct (if publicly accessible)
 - [ ] AutoKuma labels present and correct
 - [ ] Service attached to `proxy_network` if needed
@@ -281,7 +341,14 @@ When reviewing PRs that add new services:
 - [ ] Resource limits configured
 - [ ] README documentation complete
 - [ ] Prerequisites documented
-- [ ] Monitor specifications clear
+- [ ] Dashboard group and monitor specifications clear
+
+When reviewing PRs that add new infrastructure tools:
+
+- [ ] Tool checked for label/annotation support
+- [ ] If labels supported, label-based config used
+- [ ] If labels NOT supported, justification in PR description
+- [ ] Pattern documented in ADR if new pattern established
 
 ## References
 
