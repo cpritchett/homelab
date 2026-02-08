@@ -7,7 +7,7 @@ services:
     secrets:
       - op_connect_token
     volumes:
-      - ../komodo/komodo.template:/templates/komodo.template:ro
+      - ../platform/komodo/komodo.template:/templates/komodo.template:ro
       - /mnt/apps01/appdata/komodo/secrets:/secrets
     networks:
       - op-connect
