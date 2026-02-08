@@ -89,8 +89,8 @@ services:
 
 networks:
   op-connect:
-    external: true
     name: op-connect_op-connect
+    external: true
 
 volumes:
   app-secrets:

@@ -158,8 +158,8 @@ networks:
   proxy_network:
     external: true
   op-connect:
-    external: true
     name: op-connect_op-connect
+    external: true
 
 secrets:
   op_connect_token:

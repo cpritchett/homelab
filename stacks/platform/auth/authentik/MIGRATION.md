@@ -85,8 +85,8 @@ Add the external network:
 ```yaml
 networks:
   op-connect:
-    external: true
     name: op-connect_op-connect
+    external: true
   authentik:
     driver: overlay
 

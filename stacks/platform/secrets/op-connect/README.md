@@ -103,8 +103,8 @@ services:
 
 networks:
   op-connect:
-    external: true
     name: op-connect_op-connect
+    external: true
 ```
 
 **Best practice DNS:** use the `op-connect-api` alias on the `op-connect` overlay network for cross-stack access. The underlying Swarm service names remain stack-prefixed.
@@ -140,8 +140,8 @@ secrets:
 
 networks:
   op-connect:
-    external: true
     name: op-connect_op-connect
+    external: true
 ```
 
 ### Method 3: Periodic Secret Sync
@@ -191,8 +191,8 @@ secrets:
 
 networks:
   op-connect:
-    external: true
     name: op-connect_op-connect
+    external: true
 ```
 
 ## Creating Connect Token
