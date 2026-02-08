@@ -1,6 +1,13 @@
 services:
   secrets-init:
     image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     environment:
       OP_CONNECT_HOST: http://op-connect-api:8080
       OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
@@ -21,11 +28,22 @@ services:
       chmod 755 /secrets &&
       echo 'Secrets injected successfully'
       "
-    restart: "no"
 
   postgresql:
     image: postgres:18@sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
-    restart: unless-stopped
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          cpus: '1'
+          memory: 1024M
     volumes:
       - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql
       - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
@@ -36,9 +54,6 @@ services:
       retries: 5
     networks:
       - authentik
-    depends_on:
-      - secrets-init
-    # env_file removed - using entrypoint wrapper to load env at runtime
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
@@ -46,7 +61,19 @@ services:
 
   redis:
     image: redis:8-alpine@sha256:4eec4565e45aa0b3966554c866bc73211e281b0b3d89fe9a33c982e6faca809d
-    restart: unless-stopped
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
     command: ["redis-server", "--save", "60", "1"]
     volumes:
       - /mnt/data01/appdata/authentik/redis:/data
@@ -60,7 +87,19 @@ services:
 
   authentik-server:
     image: ghcr.io/goauthentik/server:2025.12.2@sha256:7cc1bc10aa2b11b998fb087d3ec4d32db31a3da9871d1ff08b95a6e94df991fd
-    restart: unless-stopped
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          cpus: '1'
+          memory: 1024M
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
@@ -69,23 +108,15 @@ services:
       # Core connections
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
-      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
-    secrets:
-      - CLOUDFLARE_API_TOKEN
-    depends_on:
-      - secrets-init
-      - postgresql
-      - redis
     labels:
       caddy: auth.in.hypyr.space
-      caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN_FILE}"
       caddy.reverse_proxy: "{{upstreams 9000}}"
+      caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
     networks:
       authentik:
       proxy_network:
         aliases:
           - authentik-server
-    # env_file removed - using entrypoint wrapper to load env at runtime
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/authentik.env ] && . /secrets/authentik.env && set +a &&
@@ -93,7 +124,19 @@ services:
 
   authentik-worker:
     image: ghcr.io/goauthentik/server:2025.12.2@sha256:7cc1bc10aa2b11b998fb087d3ec4d32db31a3da9871d1ff08b95a6e94df991fd
-    restart: unless-stopped
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          cpus: '1'
+          memory: 1024M
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
@@ -102,25 +145,14 @@ services:
       # Core connections
       AUTHENTIK_REDIS__HOST: "redis"
       AUTHENTIK_POSTGRESQL__HOST: "postgresql"
-    depends_on:
-      - secrets-init
-      - postgresql
-      - redis
     networks:
       - authentik
-    # env_file removed - using entrypoint wrapper to load env at runtime
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/authentik.env ] && . /secrets/authentik.env && set +a &&
        exec /lifecycle/ak worker"
 
 networks:
-  # NOTE: The authentik network driver has been changed from "bridge" to "overlay" to support Swarm mode.
-  # This is a breaking change: when upgrading from a previous version using a different driver,
-  # you must fully remove and redeploy the authentik stack for the new network driver to take effect.
-  # NOTE: The authentik network driver has been changed from "bridge" to "overlay" to support Swarm mode.
-  # This is a breaking change: when upgrading from a previous version using a different driver,
-  # you must fully remove and redeploy the authentik stack for the new network driver to take effect.
   authentik:
     driver: overlay
   proxy_network:
@@ -129,10 +161,6 @@ networks:
     external: true
     name: op-connect_op-connect
 
-
-
 secrets:
   op_connect_token:
-    external: true
-  CLOUDFLARE_API_TOKEN:
     external: true
