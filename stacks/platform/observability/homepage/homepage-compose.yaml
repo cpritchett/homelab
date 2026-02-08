@@ -7,8 +7,6 @@ services:
           cpus: '1'
           memory: 512M
     environment:
-      PUID: '1000'
-      PGID: '1000'
       TZ: America/Chicago
       # Enable Docker integration
       HOMEPAGE_VAR_DOCKER_HOST: tcp://docker-socket-proxy:2375
