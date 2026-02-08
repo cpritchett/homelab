@@ -1,16 +1,18 @@
 #!/bin/bash
 ###############################################################################
-# Authentik Platform Stack Deployment Script
+# Authentik Platform Stack - Pre-Deployment Validation & Setup
 #
-# Purpose: Deploy Authentik SSO platform on TrueNAS Docker Swarm
+# Purpose: Validate prerequisites and prepare environment for Authentik
 # Tier: Platform (depends on Infrastructure tier)
 #
-# Prerequisites:
-#   - Infrastructure tier deployed (op-connect, komodo, caddy)
-#   - 1Password Connect running
-#   - Required secrets in 1Password vault
+# Per ADR-0022: Actual deployment is done via Komodo UI, not this script.
+# This script only:
+#   1. Validates prerequisites (infrastructure, secrets, networks)
+#   2. Creates required directories with correct permissions
+#   3. Tests connectivity to required services
 #
-# This script is idempotent and safe to run multiple times.
+# Run this BEFORE deploying the stack via Komodo UI.
+# Can also be configured as a Komodo pre-deployment hook.
 ###############################################################################
 
 set -euo pipefail
@@ -35,7 +37,7 @@ log_error() {
 trap 'log_error "Authentik deployment failed at line $LINENO. Exit code: $?"' ERR
 
 log "========================================="
-log "Deploying Authentik SSO Platform"
+log "Authentik Pre-Deployment Validation"
 log "========================================="
 
 # Verify running as root
@@ -151,94 +153,31 @@ fi
 
 log "Prerequisites complete"
 
-# Deploy Authentik stack
 log "========================================="
-log "Deploying Authentik Stack"
+log "Pre-Deployment Validation Complete"
 log "========================================="
-
-COMPOSE_FILE="${REPO_PATH}/stacks/platform/auth/authentik/compose.yaml"
-
-if [ ! -f "$COMPOSE_FILE" ]; then
-    log_error "Compose file not found: $COMPOSE_FILE"
-    exit 1
-fi
-
-log "Deploying from: $COMPOSE_FILE"
-
-if docker stack deploy -c "$COMPOSE_FILE" authentik; then
-    log "Authentik stack deployed successfully"
-else
-    log_error "Failed to deploy Authentik stack"
-    exit 1
-fi
-
-log "Waiting 30 seconds for secrets-init container to inject secrets..."
-sleep 30
-
-# Check if secrets were injected
-if [ -f "${APPDATA_PATH}/authentik/secrets/authentik.env" ]; then
-    log "Secrets injected successfully: authentik.env"
-else
-    log "Warning: authentik.env not found yet, may still be initializing"
-fi
-
-if [ -f "${APPDATA_PATH}/authentik/secrets/postgres.env" ]; then
-    log "Secrets injected successfully: postgres.env"
-else
-    log "Warning: postgres.env not found yet, may still be initializing"
-fi
-
-log "Waiting 60 seconds for PostgreSQL and Redis to initialize..."
-sleep 60
-
-# Verify services are running
-log "Verifying Authentik services..."
-
-EXPECTED_SERVICES=(
-    "authentik_secrets-init"
-    "authentik_postgresql"
-    "authentik_redis"
-    "authentik_authentik-server"
-    "authentik_authentik-worker"
-)
-
-ALL_RUNNING=true
-for service in "${EXPECTED_SERVICES[@]}"; do
-    if docker service ls --filter "name=$service" | grep -q "$service"; then
-        STATUS=$(docker service ps "$service" --format "{{.CurrentState}}" --filter "desired-state=running" | head -1)
-        log "Service $service: $STATUS"
-    else
-        log_error "Service $service not found"
-        ALL_RUNNING=false
-    fi
-done
-
-if [ "$ALL_RUNNING" = true ]; then
-    log "All Authentik services deployed"
-else
-    log_error "Some Authentik services failed to start"
-    log "Check service logs with: docker service logs authentik_<service-name>"
-    exit 1
-fi
-
-log "========================================="
-log "Authentik Deployment Complete"
-log "========================================="
+log ""
+log "✅ All prerequisites verified"
+log "✅ Directory structure created"
+log "✅ Permissions configured"
+log "✅ Infrastructure tier healthy"
+log "✅ 1Password Connect accessible"
 log ""
 log "Next steps:"
-log "  1. Wait 2-3 minutes for Authentik to fully initialize"
-log "  2. Access https://auth.in.hypyr.space"
-log "  3. Complete initial setup (akadmin user creation)"
-log "  4. Check Homepage dashboard for Authentik widget"
-log "  5. Check Uptime Kuma for Authentik monitor (auto-created via AutoKuma)"
+log "  1. Deploy via Komodo UI:"
+log "     - Navigate to https://komodo.in.hypyr.space"
+log "     - Stacks → Add Stack from Repository"
+log "     - Path: stacks/platform/auth/authentik"
+log "     - File: compose.yaml"
+log "     - Click Deploy"
 log ""
-log "Monitor deployment:"
-log "  docker service ls --filter 'label=com.docker.stack.namespace=authentik'"
-log "  docker service logs -f authentik_authentik-server"
-log "  docker service logs -f authentik_postgresql"
+log "  2. Monitor deployment in Komodo UI or via CLI:"
+log "     docker service ls --filter 'label=com.docker.stack.namespace=authentik'"
 log ""
-log "Troubleshooting:"
-log "  - Check secrets injection: ls -la ${APPDATA_PATH}/authentik/secrets/"
-log "  - Check secrets-init logs: docker service logs authentik_secrets-init"
-log "  - Check database: docker service logs authentik_postgresql"
-log "  - Check Authentik logs: docker service logs authentik_authentik-server"
+log "  3. After deployment (2-3 minutes):"
+log "     - Access https://auth.in.hypyr.space"
+log "     - Complete initial setup"
+log "     - Verify auto-discovery in Homepage and Uptime Kuma"
+log ""
+log "Note: Per ADR-0022, actual deployment is done via Komodo UI."
+log "This script only validates prerequisites and prepares the environment."

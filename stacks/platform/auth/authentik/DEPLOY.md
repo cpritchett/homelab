@@ -103,9 +103,11 @@ df -h /mnt/apps01 /mnt/data01
 
 ## Deployment Methods
 
-### Method 1: Automated Script (Recommended)
+Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), deployment is done via Komodo UI. Pre-deployment validation scripts prepare the environment.
 
-The automated deployment script handles all prerequisites and deployment steps:
+### Method 1: Via Komodo UI (Recommended)
+
+**Step 1: Run Pre-Deployment Validation**
 
 ```bash
 # SSH to TrueNAS
@@ -115,21 +117,31 @@ ssh root@barbary
 cd /mnt/apps01/repos/homelab
 git pull origin main
 
-# Run deployment script
-sudo ./scripts/deploy-authentik.sh
+# Run validation and setup script
+sudo ./scripts/validate-authentik-setup.sh
 ```
 
-The script will:
-1. Verify all prerequisites
-2. Create directories with correct permissions
-3. Test 1Password Connect connectivity
-4. Deploy the Authentik stack
-5. Monitor service startup
-6. Display next steps
+This script:
+1. Verifies all prerequisites (infrastructure tier, networks, secrets)
+2. Creates directories with correct permissions
+3. Tests 1Password Connect connectivity
+4. Validates environment is ready for deployment
 
-**Duration:** ~5 minutes total
+**Step 2: Deploy via Komodo UI**
 
-### Method 2: Manual Deployment
+1. Access https://komodo.in.hypyr.space
+2. Navigate to **Stacks** → **Add Stack**
+3. Configure stack:
+   - **Repository**: homelab (should auto-populate from Git integration)
+   - **Path**: stacks/platform/auth/authentik
+   - **File**: compose.yaml (default)
+   - **Server**: barbary-periphery
+4. Click **Deploy**
+5. Monitor deployment in Komodo UI
+
+**Duration:** ~2 minutes validation + ~3 minutes deployment = ~5 minutes total
+
+### Method 2: Manual Prerequisites + Komodo Deploy
 
 If you prefer manual deployment:
 
@@ -157,25 +169,11 @@ sudo chmod 700 /mnt/data01/appdata/authentik/postgres
 sudo chmod 700 /mnt/data01/appdata/authentik/redis
 sudo chmod 755 /mnt/apps01/appdata/authentik/{media,custom-templates,secrets}
 
-# Deploy stack
-docker stack deploy -c /mnt/apps01/repos/homelab/stacks/platform/auth/authentik/compose.yaml authentik
-
-# Monitor deployment
-watch -n 2 'docker service ls --filter "label=com.docker.stack.namespace=authentik"'
+# Deploy via Komodo UI (see Method 1 above)
+# Do NOT run: docker stack deploy (violates ADR-0022)
 ```
 
-### Method 3: Via Komodo UI
-
-Komodo provides a web UI for stack management:
-
-1. Access https://komodo.in.hypyr.space
-2. Navigate to Stacks → New Stack
-3. Select repository: homelab
-4. Path: stacks/platform/auth/authentik
-5. File: compose.yaml
-6. Deploy
-
-**Note:** Directory permissions must still be set manually before deployment.
+**Note:** Per ADR-0022, do not use `docker stack deploy` directly. Use Komodo UI for all platform tier deployments.
 
 ## Post-Deployment
 

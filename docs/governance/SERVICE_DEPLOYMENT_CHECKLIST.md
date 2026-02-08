@@ -114,7 +114,28 @@ networks:
 - [ ] Directory structure documented in README
 - [ ] Ownership/permissions specified in prerequisites
 
-### 8. Label-Driven Pattern Compliance
+### 8. Komodo Deployment Compatibility (ADR-0022)
+
+**CRITICAL**: All platform and application tier stacks MUST be deployable via Komodo UI without external scripts.
+
+- [ ] Stack can be deployed via Komodo UI (Stacks → Deploy from Repository)
+- [ ] No custom deployment scripts required (bootstrap tier exceptions only)
+- [ ] All prerequisites handled by validation scripts (not deployment scripts)
+- [ ] Compose file is self-contained and declarative
+
+**Allowed Scripts**:
+- ✅ **Pre-deployment validation** - Checks prerequisites, creates directories, verifies connectivity
+- ✅ **Setup/prerequisite scripts** - One-time environment preparation (permissions, directories)
+- ❌ **Deployment scripts** - Scripts that run `docker stack deploy` are NOT allowed (except infrastructure bootstrap)
+
+**Exception**: Infrastructure tier (`stacks/infrastructure/`) can use deployment scripts for bootstrapping because Komodo depends on this tier.
+
+**Decision Rule**:
+- Actual deployment (`docker stack deploy`) MUST be done via Komodo UI
+- Scripts can validate and prepare, but CANNOT deploy
+- If a script runs `docker stack deploy`, it violates ADR-0022
+
+### 9. Label-Driven Pattern Compliance (ADR-0034)
 
 **CRITICAL**: If adding a new tool to the stack, check if it supports Docker labels:
 
@@ -130,7 +151,7 @@ networks:
 
 **Decision Rule**: If a tool supports labels, labels MUST be used. No exceptions.
 
-### 9. Documentation
+### 10. Documentation
 
 - [ ] Stack README.md exists
 - [ ] README documents all external URLs

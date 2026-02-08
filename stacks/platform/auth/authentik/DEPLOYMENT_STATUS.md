@@ -8,12 +8,13 @@
    - ✅ AutoKuma labels added (HTTP monitoring with redirect support)
    - All labels in `deploy.labels` section of compose.yaml
 
-2. **Deployment Automation**
-   - ✅ Created `scripts/deploy-authentik.sh` - automated deployment script
+2. **Komodo Compatibility (ADR-0022)**
+   - ✅ Compose file is Komodo-compatible
+   - ✅ Created `scripts/validate-authentik-setup.sh` - pre-deployment validation
    - ✅ Script verifies all prerequisites
    - ✅ Handles directory creation and permissions
    - ✅ Tests 1Password Connect connectivity
-   - ✅ Deploys stack and monitors startup
+   - ✅ Does NOT deploy stack (per ADR-0022, deployment is via Komodo UI)
 
 3. **Documentation**
    - ✅ Created `DEPLOY.md` - comprehensive deployment guide
@@ -32,8 +33,9 @@
 
 The following steps need to be executed on the TrueNAS server to complete the deployment:
 
-### Quick Start (Recommended)
+### Quick Start (Recommended - Per ADR-0022)
 
+**Step 1: Run Pre-Deployment Validation**
 ```bash
 # SSH to TrueNAS
 ssh root@barbary
@@ -42,21 +44,31 @@ ssh root@barbary
 cd /mnt/apps01/repos/homelab
 git pull origin main
 
-# Run automated deployment
-sudo ./scripts/deploy-authentik.sh
+# Run validation and setup
+sudo ./scripts/validate-authentik-setup.sh
 ```
 
-**Duration:** ~5 minutes
+**Duration:** ~2 minutes
 **What it does:**
 - Verifies infrastructure prerequisites
 - Creates directories with correct permissions
-- Deploys Authentik stack
-- Monitors service startup
-- Provides next steps
+- Tests connectivity to required services
+- Validates environment is ready
 
-### Manual Alternative
+**Step 2: Deploy via Komodo UI**
+1. Navigate to https://komodo.in.hypyr.space
+2. Stacks → Add Stack from Repository
+3. Path: `stacks/platform/auth/authentik`
+4. Click Deploy
+5. Monitor in Komodo UI
 
-If automated script is not preferred:
+**Duration:** ~3 minutes
+
+**Why two steps?** Per ADR-0022, actual deployment must be done via Komodo UI. Scripts can only validate and prepare.
+
+### Manual Prerequisites
+
+If you prefer to manually prepare the environment:
 
 ```bash
 # SSH to TrueNAS
@@ -66,23 +78,24 @@ ssh root@barbary
 cd /mnt/apps01/repos/homelab
 git pull origin main
 
-# Create directories (using helper script)
-sudo ./stacks/scripts/set-host-permissions.sh
+# Create directories manually
+sudo mkdir -p /mnt/data01/appdata/authentik/{postgres,redis}
+sudo mkdir -p /mnt/apps01/appdata/authentik/{media,custom-templates,secrets}
 
-# Deploy stack
-docker stack deploy -c /mnt/apps01/repos/homelab/stacks/platform/auth/authentik/compose.yaml authentik
+# Set ownership
+sudo chown -R 999:999 /mnt/data01/appdata/authentik/postgres
+sudo chown -R 999:1000 /mnt/data01/appdata/authentik/redis
+sudo chown -R 1000:1000 /mnt/apps01/appdata/authentik/{media,custom-templates}
+sudo chown -R 999:999 /mnt/apps01/appdata/authentik/secrets
 
-# Monitor deployment
-watch -n 2 'docker service ls --filter "label=com.docker.stack.namespace=authentik"'
+# Set permissions
+sudo chmod 700 /mnt/data01/appdata/authentik/{postgres,redis}
+sudo chmod 755 /mnt/apps01/appdata/authentik/{media,custom-templates,secrets}
+
+# Then deploy via Komodo UI (see Quick Start Step 2)
 ```
 
-### Via Komodo UI
-
-1. Access https://komodo.in.hypyr.space
-2. Navigate to Stacks → Sync Repository (to pull latest code)
-3. Deploy authentik stack from `stacks/platform/auth/authentik`
-
-**Note:** Directory permissions must be set manually first (run `set-host-permissions.sh`)
+**Note:** Do NOT run `docker stack deploy` directly. Use Komodo UI per ADR-0022.
 
 ## Post-Deployment Checklist
 

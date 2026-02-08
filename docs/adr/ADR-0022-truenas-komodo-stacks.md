@@ -18,6 +18,31 @@
 2. **The stack registry (`stacks/registry.toml`) is retired.** Deployment ordering is handled per-stack inside Komodo; any cross-stack dependency (e.g., shared external network `proxy_network`) must be documented in stack docs rather than encoded in a registry file.
 3. **Stacks must be Komodo-compatible and self-contained.** Each `stacks/<name>/compose.yml` plus `.env.example` declares everything required for deployment; no `render-env.sh`, `op-inject`, or cron/init wrappers are used.
 4. **Secrets are supplied through Komodo, not 1Password CLI templates.** `.env.example` documents required variables; actual values are entered through Komodo's env/secret fields.
+5. **Deployment scripts are prohibited (with infrastructure bootstrap exception).** Scripts may validate prerequisites or prepare the environment, but MUST NOT execute `docker stack deploy`. Actual deployment happens only via Komodo UI.
+
+## Enforcement
+
+### Allowed Scripts
+- ✅ **Pre-deployment validation scripts** - Verify prerequisites, check connectivity, validate configuration
+- ✅ **Setup/prerequisite scripts** - Create directories, set permissions, prepare environment (one-time operations)
+- ✅ **Infrastructure bootstrap** - Exception for `stacks/infrastructure/` tier only (Komodo depends on this)
+
+### Prohibited Scripts
+- ❌ **Deployment scripts** - Any script that runs `docker stack deploy` for platform/application tiers
+- ❌ **Automated deployment workflows** - Scripts that orchestrate multiple stack deployments
+- ❌ **CI/CD deployment pipelines** - Automated deployment bypassing Komodo UI
+
+### Validation
+Scripts that execute `docker stack deploy` for non-infrastructure stacks will be rejected in code review. Use this checklist:
+- [ ] Script is for infrastructure tier (`stacks/infrastructure/`) OR
+- [ ] Script does NOT execute `docker stack deploy` OR
+- [ ] Script is named `validate-*-setup.sh` or `setup-*-prerequisites.sh` (not `deploy-*.sh`)
+
+### Naming Convention
+To make intent clear:
+- Pre-deployment validation: `validate-<stack>-setup.sh`
+- Prerequisites/setup: `setup-<stack>-prerequisites.sh`
+- Infrastructure bootstrap: `truenas-init-bootstrap.sh` (infrastructure tier only)
 
 ## Consequences
 
