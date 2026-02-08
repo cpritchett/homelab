@@ -5,12 +5,15 @@ services:
         limits:
           cpus: '2'
           memory: 2048M
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "export CLOUDFLARE_API_TOKEN=$$(cat /run/secrets/CLOUDFLARE_API_TOKEN) &&
+       exec caddy docker-proxy"
     environment:
       CADDY_INGRESS_NETWORKS: proxy_network
       DOCKER_HOST: tcp://docker-socket-proxy:2375
       TZ: America/Chicago
       CADDY_EMAIL: admin@hypyr.space
-      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
     secrets:
       - CLOUDFLARE_API_TOKEN
     extra_hosts:
