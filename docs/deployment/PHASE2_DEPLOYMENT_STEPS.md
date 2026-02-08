@@ -2,6 +2,8 @@
 
 This guide provides the specific steps to deploy Phase 2 platform services via Komodo UI.
 
+**Note**: This guide is written for Komodo v2-dev. The exact UI navigation and button labels may differ from what's described here. Focus on the **Configuration Target** sections for each stack - these describe the settings you need to configure regardless of UI layout.
+
 ## Prerequisites
 
 - ✅ Phase 1 infrastructure tier deployed and healthy
@@ -11,14 +13,18 @@ This guide provides the specific steps to deploy Phase 2 platform services via K
 
 ## One-Time Setup: Git Provider in Komodo
 
-1. Navigate to **Resources → Git Providers**
-2. Click **Add Git Provider**
-3. Configure:
-   - **Name**: `homelab-repo`
-   - **URL**: `https://github.com/cpritchett/homelab`
-   - **Branch**: `main`
-   - **Sync Interval**: `5 minutes`
-4. Click **Create**
+**Note**: The exact UI navigation may differ in Komodo v2-dev. Adapt these steps to match your current interface.
+
+The goal is to configure a Git provider with these settings:
+- **Name**: `homelab-repo`
+- **URL**: `https://github.com/cpritchett/homelab`
+- **Branch**: `main`
+- **Sync Interval**: `5 minutes` (or auto-sync equivalent)
+
+Look for options like:
+- "Git Providers" or "Resource Syncs" in the main navigation
+- "New" or "Create" buttons for adding providers
+- Configuration forms for repository details
 
 ## Stack Deployment Order
 
@@ -28,18 +34,20 @@ Deploy in this order to satisfy dependencies:
 
 **Purpose**: Monitor all services as they deploy
 
-**Steps:**
-1. In Komodo, go to **Resources → Stacks**
-2. Click **Create Stack**
-3. Configure:
-   - **Name**: `platform_homepage`
-   - **Server**: `barbary-periphery`
-   - **Git Source**:
-     - **Provider**: `homelab-repo`
-     - **Path**: `stacks/platform/observability/homepage/homepage-compose.yaml`
-     - **Branch**: `main`
-4. Click **Create**
-5. Click **Deploy**
+**Configuration Target:**
+- **Stack Name**: `platform_homepage`
+- **Server**: `barbary-periphery` (or your Swarm manager server)
+- **Compose File Source**: Git repository
+  - **Repository**: `homelab-repo` (the provider you created)
+  - **File Path**: `stacks/platform/observability/homepage/homepage-compose.yaml`
+  - **Branch**: `main`
+  - **Auto-deploy on push**: Enabled (if available)
+
+**Deployment Steps:**
+1. Create a new Stack resource in Komodo
+2. Configure it with the settings above
+3. Deploy the stack
+4. Monitor deployment status until all services are running
 
 **Verify:**
 - Access https://home.in.hypyr.space
@@ -63,18 +71,20 @@ sudo mkdir -p /mnt/apps01/appdata/uptime-kuma
 sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
 ```
 
-**Steps:**
-1. In Komodo, go to **Resources → Stacks**
-2. Click **Create Stack**
-3. Configure:
-   - **Name**: `platform_uptime_kuma`
-   - **Server**: `barbary-periphery`
-   - **Git Source**:
-     - **Provider**: `homelab-repo`
-     - **Path**: `stacks/platform/observability/uptime-kuma/compose.yaml`
-     - **Branch**: `main`
-4. Click **Create**
-5. Click **Deploy**
+**Configuration Target:**
+- **Stack Name**: `platform_uptime_kuma`
+- **Server**: `barbary-periphery`
+- **Compose File Source**: Git repository
+  - **Repository**: `homelab-repo`
+  - **File Path**: `stacks/platform/observability/uptime-kuma/compose.yaml`
+  - **Branch**: `main`
+  - **Auto-deploy on push**: Enabled (if available)
+
+**Deployment Steps:**
+1. Create a new Stack resource in Komodo
+2. Configure it with the settings above
+3. Deploy the stack
+4. Monitor deployment until service is running
 
 **Verify:**
 - Access https://status.in.hypyr.space
@@ -121,18 +131,20 @@ Expected files:
 
 If templates are missing, you'll need to create them or the secrets-init container will fail.
 
-**Steps:**
-1. In Komodo, go to **Resources → Stacks**
-2. Click **Create Stack**
-3. Configure:
-   - **Name**: `platform_authentik`
-   - **Server**: `barbary-periphery`
-   - **Git Source**:
-     - **Provider**: `homelab-repo`
-     - **Path**: `stacks/platform/auth/authentik/compose.yaml`
-     - **Branch**: `main`
-4. Click **Create**
-5. Click **Deploy**
+**Configuration Target:**
+- **Stack Name**: `platform_authentik`
+- **Server**: `barbary-periphery`
+- **Compose File Source**: Git repository
+  - **Repository**: `homelab-repo`
+  - **File Path**: `stacks/platform/auth/authentik/compose.yaml`
+  - **Branch**: `main`
+  - **Auto-deploy on push**: Enabled (if available)
+
+**Deployment Steps:**
+1. Create a new Stack resource in Komodo
+2. Configure it with the settings above
+3. Deploy the stack
+4. Monitor deployment - this stack has 5 services that will start
 
 **Deployment Notes:**
 - The `secrets-init` container will run once to create `/mnt/apps01/appdata/authentik/secrets/*.env` files

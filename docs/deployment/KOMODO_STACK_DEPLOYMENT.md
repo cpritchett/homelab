@@ -2,6 +2,8 @@
 
 This guide explains how to deploy platform and application stacks using the Komodo UI instead of direct `docker stack deploy` commands.
 
+**Note**: This guide is written for Komodo v2-dev. The exact UI navigation may differ from older versions. This guide focuses on concepts and configuration requirements rather than specific menu locations.
+
 ## Why Use Komodo UI?
 
 - **Centralized Management**: Single interface for all stacks
@@ -155,47 +157,56 @@ networks:
 
 ### Step 1: Access Komodo
 
-1. Navigate to https://komodo.in.hypyr.space
-2. Log in with admin credentials
+Navigate to https://komodo.in.hypyr.space and log in with admin credentials.
 
 ### Step 2: Add Repository (One-Time Setup)
 
-1. Go to **Resources → Git Providers**
-2. Click **Add Git Provider**
-3. Configure:
-   - **Name**: `homelab-repo`
-   - **URL**: `https://github.com/cpritchett/homelab`
-   - **Branch**: `main`
-   - **Sync Interval**: `5 minutes`
-4. Click **Create**
+You need to configure Komodo to access your Git repository. The exact location in the UI may vary, but you're looking to create a **Git Provider** or **Resource Sync** with these settings:
+
+**Configuration:**
+- **Name**: `homelab-repo`
+- **Repository URL**: `https://github.com/cpritchett/homelab`
+- **Branch**: `main`
+- **Auto-sync**: Enabled (check for updates every 5 minutes or on webhook)
+
+This allows Komodo to pull compose files directly from your repository.
 
 ### Step 3: Create a Stack
 
-1. Go to **Resources → Stacks**
-2. Click **Create Stack**
-3. Configure:
-   - **Name**: `platform_homepage` (or appropriate name)
-   - **Server**: Select `barbary-periphery`
-   - **Git Source**:
-     - **Provider**: `homelab-repo`
-     - **Path**: `stacks/platform/observability/homepage/homepage-compose.yaml`
-     - **Branch**: `main`
-   - **Environment Variables**: (if needed)
-     - Add any required variables
-4. Click **Create**
+Create a new **Stack** resource with these key settings:
+
+**Essential Configuration:**
+- **Stack Name**: Descriptive name (e.g., `platform_homepage`)
+- **Target Server**: `barbary-periphery` (your Swarm manager)
+- **Compose File Source**: Choose Git repository option
+  - **Repository/Provider**: `homelab-repo` (from Step 2)
+  - **File Path**: Relative path to compose file (e.g., `stacks/platform/observability/homepage/homepage-compose.yaml`)
+  - **Branch**: `main`
+- **Auto-deploy**: Enable if you want automatic deployment on git push
+
+**Optional Configuration:**
+- **Environment Variables**: Add any stack-specific variables if needed
+- **Additional Compose Files**: For advanced multi-file setups
 
 ### Step 4: Deploy the Stack
 
-1. Navigate to the newly created stack
-2. Review the compose file content
-3. Click **Deploy**
-4. Monitor deployment status in real-time
+Once the stack is created and configured:
+1. Locate your stack in the Komodo UI
+2. Find the deploy/redeploy action (button, menu item, or similar)
+3. Execute the deployment
+4. Monitor the deployment progress - Komodo should show real-time status
 
 ### Step 5: Verify Deployment
 
-1. Check **Service Status** tab to see all services
-2. View **Logs** tab for service logs
-3. Test external access via configured domain
+**In Komodo UI:**
+- Check that all services within the stack show as running
+- Review service logs if any issues are detected
+- Verify configuration was applied correctly
+
+**External Access:**
+- Test the configured domain (e.g., https://home.in.hypyr.space)
+- Verify TLS certificate is valid
+- Confirm the application loads correctly
 
 ## Stack Deployment Order (Recommended)
 
