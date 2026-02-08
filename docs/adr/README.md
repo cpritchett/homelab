@@ -20,6 +20,18 @@ Architectural Decision Records explain *why* decisions were made.
 - [ADR-0020](ADR-0020-bootstrap-storage-governance-codification.md): Bootstrap, storage, and repository governance codification
 - [ADR-0021](ADR-0021-truenas-scale-apps.md): TrueNAS SCALE apps for NAS stacks *(superseded by ADR-0022)*
 - [ADR-0022](ADR-0022-truenas-komodo-stacks.md): Komodo-managed NAS stacks (supersedes ADR-0021)
+- [ADR-0023](ADR-0023-scripts-stacks-classification.md): Scripts vs stacks classification
+- [ADR-0024](ADR-0024-speckit-workflow-non-canonical.md): Speckit workflow non-canonical
+- [ADR-0025](ADR-0025-strict-markdown-governance.md): Strict markdown governance
+- [ADR-0026](ADR-0026-spec-placement-governance.md): Spec placement governance
+- [ADR-0027](ADR-0027-agent-template-enforcement.md): Agent template enforcement
+- [ADR-0028](ADR-0028-constitutional-governance-authority.md): Constitutional governance authority
+- [ADR-0029](ADR-0029-contract-lifecycle-procedures.md): Contract lifecycle procedures
+- [ADR-0030](ADR-0030-agent-governance-steering.md): Agent governance steering
+- [ADR-0031](ADR-0031-automated-release-process.md): Automated release process
+- [ADR-0032](ADR-0032-onepassword-connect-swarm.md): 1Password Connect for Docker Swarm secrets ✓
+- [ADR-0033](ADR-0033-truenas-swarm-migration.md): TrueNAS Scale migration with hybrid Kubernetes/Swarm architecture ✓
+- [ADR-0034](ADR-0034-label-driven-infrastructure.md): **Label-Driven Infrastructure Pattern (Caddy + AutoKuma)** ✓
 
 ## Status values
 - Proposed

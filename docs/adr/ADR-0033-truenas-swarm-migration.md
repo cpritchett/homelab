@@ -4,7 +4,7 @@
 **Date:** 2025-02-07
 **Authors:** System Architect
 **Supersedes:** None
-**Relates to:** ADR-0032 (1Password Secrets Management)
+**Relates to:** ADR-0032 (1Password Secrets Management), ADR-0034 (Label-Driven Infrastructure)
 
 ## Context
 
