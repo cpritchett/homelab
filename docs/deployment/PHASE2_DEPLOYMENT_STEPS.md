@@ -19,79 +19,70 @@ Komodo v2 handles Git integration directly in each Stack resource. You'll config
 
 Deploy in this order to satisfy dependencies:
 
-### 1. Homepage Dashboard
+### 1. Observability Stack (Homepage + Uptime Kuma)
 
-**Purpose**: Monitor all services as they deploy
-
-**Create Stack in Komodo UI:**
-
-1. Navigate to **Stacks** and create a new Stack named `platform_homepage`
-2. Select **Server**: `barbary-periphery` (your Swarm manager)
-
-3. **GENERAL → Source** section:
-   - **Source**: Select "Files" (Git repository)
-   - **Clone Path**: Leave as default OR specify `/clone/path/on/host`
-   - **Reclone**: DISABLED (uses git pull for updates)
-
-4. **Files** section:
-   - **Run Directory**: `stacks/platform/observability/homepage/`
-   - **File Paths**: `homepage-compose.yaml` (or leave empty to use default compose.yaml)
-
-5. **Config Files** (optional):
-   - You can add config files here to edit them in Komodo UI
-   - Example: `config/services.yaml`, `config/settings.yaml`
-
-6. **Auto Update** section:
-   - **Poll For Updates**: DISABLED (or enable to auto-check for image updates)
-   - **Auto Update**: DISABLED (or enable to auto-redeploy on new images)
-
-7. **Save** the stack configuration
-8. **Deploy** the stack
-9. Monitor deployment until all services show as running
-
-**Verify:**
-- Access https://home.in.hypyr.space
-- Should see dashboard with infrastructure services listed
-
-**Troubleshooting:**
-- If container fails to start, check logs in Komodo UI
-- Verify config files exist: `ls -la /mnt/apps01/appdata/homepage/config/`
-- Check service: `docker service ps platform_homepage_homepage`
-
----
-
-### 2. Uptime Kuma
-
-**Purpose**: Basic uptime monitoring and status page
+**Purpose**: Combined dashboard and monitoring services
 
 **Prerequisites:**
 ```bash
-# Create data directory
+# Create data directories
+sudo mkdir -p /mnt/apps01/appdata/homepage/{config,icons,images}
 sudo mkdir -p /mnt/apps01/appdata/uptime-kuma
+sudo chown -R 1000:1000 /mnt/apps01/appdata/homepage
 sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
 ```
 
 **Create Stack in Komodo UI:**
 
-1. Create new Stack named `platform_uptime_kuma`
-2. Select **Server**: `barbary-periphery`
+1. Navigate to **Stacks** and create a new Stack named `platform_observability`
+2. Select **Server**: `barbary-periphery` (your Swarm manager)
 
 3. **Files** section:
-   - **Run Directory**: `stacks/platform/observability/uptime-kuma/`
-   - **File Paths**: Leave empty (will use default `compose.yaml`)
+   - **Run Directory**: `stacks/platform/observability/`
+   - **File Paths**: Leave empty (uses default `compose.yaml`)
 
-4. **Save** and **Deploy**
-5. Monitor deployment until service is running (1/1)
+4. **Config Files** (optional - to edit in Komodo UI):
+   - `homepage/config/services.yaml`
+   - `homepage/config/settings.yaml`
+   - `homepage/config/bookmarks.yaml`
+
+5. **Save** and **Deploy**
+6. Monitor deployment - 3 services should start:
+   - homepage (1/1)
+   - uptime-kuma (1/1)
+   - docker-socket-proxy (1/1)
 
 **Verify:**
+
+**Homepage:**
+- Access https://home.in.hypyr.space
+- Should see dashboard with infrastructure services listed
+- Docker integration should show running containers
+
+**Uptime Kuma:**
 - Access https://status.in.hypyr.space
 - Complete initial setup (create admin user)
-- Add monitors for infrastructure services
+- Add monitors for infrastructure services:
+  1. Komodo: https://komodo.in.hypyr.space
+  2. 1Password Connect: http://op-connect-api:8080/health
+  3. Homepage: https://home.in.hypyr.space
 
-**Configure Monitors:**
-1. Add monitor: Komodo (https://komodo.in.hypyr.space)
-2. Add monitor: 1Password Connect (http://op-connect-api:8080/health)
-3. Add monitor: Homepage (https://home.in.hypyr.space)
+**Troubleshooting:**
+
+**Homepage issues:**
+- If container fails to start, check logs in Komodo UI
+- Verify config files exist: `ls -la /mnt/apps01/appdata/homepage/config/`
+- Check service: `docker service ps platform_observability_homepage`
+
+**Uptime Kuma issues:**
+- Check directory permissions: `ls -la /mnt/apps01/appdata/uptime-kuma`
+- Should be owned by 1000:1000
+- Check service: `docker service ps platform_observability_uptime-kuma`
+
+**External access fails (502/503):**
+- Check Caddy labels: `docker service inspect platform_observability_homepage --format '{{json .Spec.Labels}}'`
+- Verify services are on proxy_network
+- Check Caddy logs: `docker service logs caddy_caddy`
 
 ---
 

@@ -1,0 +1,85 @@
+services:
+  # Homepage Dashboard
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v0.9.10
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+      labels:
+        caddy: home.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3000}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+    environment:
+      TZ: America/Chicago
+      HOMEPAGE_VAR_DOCKER_HOST: tcp://docker-socket-proxy:2375
+    networks:
+      - proxy_network
+      - observability_internal
+    volumes:
+      - /mnt/apps01/appdata/homepage/config:/app/config
+      - /mnt/apps01/appdata/homepage/icons:/app/public/icons
+      - /mnt/apps01/appdata/homepage/images:/app/public/images
+    healthcheck:
+      disable: true
+
+  docker-socket-proxy:
+    image: ghcr.io/tecnativa/docker-socket-proxy:latest
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      # Minimal permissions for Homepage
+      CONTAINERS: '1'
+      SERVICES: '1'
+      TASKS: '1'
+      NETWORKS: '1'
+      NODES: '1'
+      INFO: '1'
+      VERSION: '1'
+      PING: '1'
+    networks:
+      - observability_internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:2375/_ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Uptime Kuma Monitoring
+  uptime-kuma:
+    image: louislam/uptime-kuma:2.0.2@sha256:4c364ef96aaddac7ec4c85f5e5f31c3394d35f631381ccbbf93f18fd26ac7cba
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+      labels:
+        caddy: status.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3001}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+    volumes:
+      - /mnt/apps01/appdata/uptime-kuma:/app/data
+    networks:
+      proxy_network:
+        aliases:
+          - uptime-kuma
+
+networks:
+  proxy_network:
+    external: true
+  observability_internal:
+    driver: overlay
