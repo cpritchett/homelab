@@ -1,7 +1,5 @@
 services:
   core:
-    cap_drop:
-      - ALL
     deploy:
       resources:
         limits:
@@ -43,11 +41,6 @@ services:
     networks:
       - proxy_network
       - default
-    privileged: false
-    security_opt:
-      - no-new-privileges=true
-    stdin_open: false
-    tty: false
     volumes:
       - /mnt/apps01/appdata/komodo/backups:/backups
       - /mnt/apps01/appdata/komodo/sync:/syncs
@@ -56,7 +49,6 @@ services:
       - komodo_passkey
 
   mongo:
-    cap_drop: [ALL]
     deploy:
       resources:
         limits:
@@ -93,12 +85,7 @@ services:
     image: mongo:8.2.3
     labels:
       komodo.skip: 'true'
-    privileged: false
-    security_opt:
-      - no-new-privileges=true
-    stdin_open: false
     stop_grace_period: 60s
-    tty: false
     user: '568:568'
     volumes:
       - /mnt/apps01/appdata/komodo/mongodb:/data/db
@@ -106,7 +93,6 @@ services:
       - komodo_db_password
 
   periphery:
-    cap_drop: [ALL]
     deploy:
       resources:
         limits:
@@ -129,11 +115,6 @@ services:
     networks:
       - proxy_network
       - default
-    privileged: false
-    security_opt:
-      - no-new-privileges=true
-    stdin_open: false
-    tty: false
     volumes:
       - /mnt/apps01/repos:/mnt/apps01/repos
       - /proc:/proc:ro
