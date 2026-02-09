@@ -539,10 +539,11 @@ Phase 1 is considered **complete and ready for Phase 2** when:
 With Phase 1 complete, proceed to:
 
 **Phase 2: Platform Services Deployment**
-- Deploy monitoring stack (see `docs/deployment/PHASE2_MONITORING.md`)
-- Deploy Wazuh SIEM
-- Configure dashboards and alerting
-- Integrate with existing Kubernetes monitoring
+- Follow: `docs/deployment/PHASE2_DEPLOYMENT_STEPS.md`
+- Execute queue from `specs/002-label-driven-swarm-infrastructure/spec.md`:
+  - Task `#12`: Deploy Authentik SSO platform
+  - Task `#14`: Build monitoring stack (Prometheus/Grafana/Loki)
+  - Task `#15`: Set up Cloudflare Tunnel for Komodo GitHub webhooks
 
 **Reference Documents:**
 - Main migration plan: `docs/adr/ADR-0033-truenas-swarm-migration.md`

@@ -13,7 +13,7 @@ This guide covers deploying the Authentik SSO platform stack on TrueNAS Scale Do
 
 ## Label-Driven Integration
 
-Per [ADR-0034](../../../../docs/adr/ADR-0034-label-driven-infrastructure.md), this stack includes all three required label sets:
+Per [ADR-0034](../../adr/ADR-0034-label-driven-infrastructure.md), this stack includes all three required label sets:
 
 ### Homepage Dashboard
 - Group: "Platform"
@@ -103,7 +103,7 @@ df -h /mnt/apps01 /mnt/data01
 
 ## Deployment Method
 
-Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), deployment is done via Komodo UI. Pre-deployment validation runs automatically as a Komodo hook.
+Per [ADR-0022](../../adr/ADR-0022-truenas-komodo-stacks.md), deployment is done via Komodo UI. Pre-deployment validation runs automatically as a Komodo hook.
 
 ### Deploy via Komodo UI
 
@@ -480,6 +480,6 @@ After Authentik is deployed and configured:
 ## References
 
 - [Authentik Documentation](https://docs.goauthentik.io/)
-- [ADR-0034: Label-Driven Infrastructure](../../../../docs/adr/ADR-0034-label-driven-infrastructure.md)
-- [Complete Label Examples](../../observability/COMPLETE_LABEL_EXAMPLES.md)
+- [ADR-0034: Label-Driven Infrastructure](../../adr/ADR-0034-label-driven-infrastructure.md)
+- [Complete Label Examples](./OBSERVABILITY_COMPLETE_LABEL_EXAMPLES.md)
 - [Homepage Authentik Widget](https://gethomepage.dev/latest/widgets/services/authentik/)

@@ -179,7 +179,7 @@ Caddy will forward unauthenticated requests to Authentik for validation.
 - PostgreSQL 16 (Authentik backend)
 - Redis 7 (Authentik cache)
 - Caddy forward_auth integration
-- 1Password for secret materialization
+- 1Password Connect for runtime secret hydration
 
 ## Architecture
 <!-- High-level architecture decisions, component interaction -->
@@ -192,7 +192,7 @@ Caddy will forward unauthenticated requests to Authentik for validation.
 - Caddy handles TLS termination and reverse proxy
 - Authentik validates sessions via forward_auth directive
 - Sessions stored in PostgreSQL, cached in Redis
-- Secrets materialized from 1Password via op-export stack
+- Secrets hydrated at runtime from 1Password Connect via `secrets-init`
 
 ## Risks
 <!-- What could go wrong? Mitigation strategies -->
@@ -203,7 +203,7 @@ Caddy will forward unauthenticated requests to Authentik for validation.
 
 ## Dependencies
 <!-- What does this depend on? What depends on this? -->
-- **Depends on:** Caddy (ingress), op-export (secrets), PostgreSQL
+- **Depends on:** Caddy (ingress), op-connect (secrets), PostgreSQL
 - **Depended on by:** All services requiring authentication
 ```
 
@@ -270,13 +270,14 @@ Caddy will forward unauthenticated requests to Authentik for validation.
 - **Dependencies:** Task 2 (Authentik must be running)
 
 ### Task 4: Configure 1Password Secret Injection
-- **Description:** Set up secret materialization for Authentik credentials
+- **Description:** Set up runtime secret hydration for Authentik credentials
 - **Files:**
   - 1Password vault entries (AUTHENTIK_SECRET_KEY, POSTGRES_PASSWORD)
-  - `stacks/scripts/op-export-stack-env.sh` (add auth stack)
+  - `stacks/platform/auth/authentik/env.template`
+  - `stacks/platform/auth/authentik/postgres.template`
 - **Acceptance criteria:**
-  - Secrets pulled from 1Password on stack start
-  - Environment file created with correct permissions (600)
+  - Secrets pulled from 1Password Connect on stack start
+  - `secrets-init` completes successfully and outputs env files for runtime load
   - Authentik starts with injected secrets
 - **Dependencies:** Task 2
 

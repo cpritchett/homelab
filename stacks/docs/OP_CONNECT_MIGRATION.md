@@ -78,7 +78,7 @@ Best for: Stacks that already use env files
 2. Add init container or wrapper script that runs `op inject`
 3. Mount templated output into main container
 
-See: [stacks/platform/auth/authentik/MIGRATION.md](../platform/auth/authentik/MIGRATION.md) for full example
+See: [docs/deployment/AUTHENTIK_MIGRATION.md](../../docs/deployment/AUTHENTIK_MIGRATION.md) for full example
 
 #### Pattern B: Direct SDK (Code Integration)
 

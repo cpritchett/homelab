@@ -157,7 +157,7 @@ Reference format in templates: `op://homelab/restic/repository`
 
 ## Step 5: Deploy Authentik (with Connect integration)
 
-**Note:** For now, Authentik still uses env files. Full migration to `op inject` pattern is documented in `stacks/platform/auth/authentik/MIGRATION.md`.
+**Note:** Authentik is already on the 1Password Connect `op inject` pattern. See `stacks/platform/auth/authentik/compose.yaml` and `docs/deployment/AUTHENTIK_DEPLOY.md`.
 
 Deploy:
 

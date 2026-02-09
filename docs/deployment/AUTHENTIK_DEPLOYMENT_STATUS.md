@@ -131,9 +131,8 @@ op item get "authentik-stack" --vault homelab --fields label
 All files committed and pushed to repository:
 
 - `stacks/platform/auth/authentik/compose.yaml` - Updated with ADR-0034 labels
-- `scripts/deploy-authentik.sh` - Automated deployment script
-- `stacks/platform/auth/authentik/DEPLOY.md` - Comprehensive deployment guide
-- `stacks/platform/auth/authentik/DEPLOYMENT_STATUS.md` - This file
+- `docs/deployment/AUTHENTIK_DEPLOY.md` - Comprehensive deployment guide
+- `docs/deployment/AUTHENTIK_DEPLOYMENT_STATUS.md` - This file
 
 ## Timeline
 
@@ -162,6 +161,6 @@ All files committed and pushed to repository:
 ## Support
 
 For issues during deployment, refer to:
-- `stacks/platform/auth/authentik/DEPLOY.md` - Full deployment guide with troubleshooting
+- `docs/deployment/AUTHENTIK_DEPLOY.md` - Full deployment guide with troubleshooting
 - `docs/deployment/PHASE1_DEPLOYMENT_RUNBOOK.md` - Infrastructure deployment reference
 - Authentik logs: `docker service logs authentik_authentik-server`

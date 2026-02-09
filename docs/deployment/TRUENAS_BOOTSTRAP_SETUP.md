@@ -733,9 +733,11 @@ With Phase 1 complete, proceed to:
    - Configure Periphery server
 
 2. **Phase 2: Platform Services**
-   - Deploy monitoring stack (Grafana, Loki, Prometheus)
-   - Deploy Wazuh SIEM
-   - Configure dashboards and alerts
+   - Follow: `docs/deployment/PHASE2_DEPLOYMENT_STEPS.md`
+   - Execute queue from `specs/002-label-driven-swarm-infrastructure/spec.md`:
+     - Task `#12`: Deploy Authentik SSO platform
+     - Task `#14`: Build monitoring stack (Prometheus/Grafana/Loki)
+     - Task `#15`: Set up Cloudflare Tunnel for Komodo GitHub webhooks
 
 3. **Phase 3+: Application Migration**
    - Begin migrating applications from Kubernetes to Docker Swarm
