@@ -65,6 +65,7 @@ services:
           cpus: '1'
           memory: 512M
     environment:
+      CONFIGS: '1'
       CONTAINERS: '1'
       EVENTS: '1'
       INFO: '1'
