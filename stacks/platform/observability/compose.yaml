@@ -101,7 +101,8 @@ services:
       # Uptime Kuma connection
       AUTOKUMA__KUMA__URL: http://uptime-kuma:3001
       # Docker provider configuration
-      AUTOKUMA__DOCKER__SOCKET_PATH: tcp://docker-socket-proxy:2375
+      AUTOKUMA__DOCKER__HOSTS: tcp://docker-socket-proxy:2375
+      AUTOKUMA__DOCKER__SOURCE: Services
       # Label prefix (e.g., kuma.example.http.url)
       AUTOKUMA__DOCKER__LABEL_PREFIX: kuma
       # Sync settings
