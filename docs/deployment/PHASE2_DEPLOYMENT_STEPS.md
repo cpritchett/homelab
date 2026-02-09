@@ -7,7 +7,7 @@ This guide defines the current Phase 2 deployment pattern for Komodo-managed pla
 From `specs/002-label-driven-swarm-infrastructure/spec.md`:
 
 - In progress: Task `#12` - Deploy Authentik SSO platform
-- Pending: Task `#14` - Build monitoring stack (Prometheus/Grafana/Loki)
+- In progress: Task `#14` - Build monitoring stack (Prometheus/Grafana/Loki)
 - Pending: Task `#15` - Set up Cloudflare Tunnel for Komodo GitHub webhooks
 
 ## Deployment Pattern (Required)
@@ -61,14 +61,31 @@ Canonical implementation references:
 
 ## Task #14: Monitoring Stack (Prometheus/Grafana/Loki)
 
-Status: pending implementation.
+Status: implementation complete; pending Komodo execution in environment.
 
-Expected to follow the same pattern:
+Canonical implementation references:
 
-1. Add an idempotent pre-deploy validation script (naming convention: `scripts/validate-<stack>-setup.sh`).
-2. Use 1Password Connect where feasible for runtime secret retrieval.
-3. Use Swarm external secrets for any values that cannot be sourced through Connect/runtime flow.
-4. Deploy only through Komodo stack configuration.
+- Stack path: `stacks/platform/monitoring/`
+- Pre-deploy script: `scripts/validate-monitoring-setup.sh`
+- Stack guide: `stacks/platform/monitoring/README.md`
+
+### Komodo Configuration
+
+1. Create/update stack `platform_monitoring`.
+2. Set run directory to `stacks/platform/monitoring/`.
+3. Set pre-deploy hook to `scripts/validate-monitoring-setup.sh`.
+4. Deploy via Komodo and verify services:
+   - `secrets-init`
+   - `prometheus`
+   - `grafana`
+   - `loki`
+
+### Validation Targets
+
+- Pre-deploy hook exits `0`.
+- Prometheus reachable at `https://prometheus.in.hypyr.space`.
+- Grafana reachable at `https://grafana.in.hypyr.space`.
+- Loki readiness reachable at `https://loki.in.hypyr.space/ready`.
 
 ## Task #15: Cloudflare Tunnel for Komodo GitHub Webhooks
 

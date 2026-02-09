@@ -247,9 +247,9 @@ sudo ./scripts/truenas-init-bootstrap.sh
 
 ### In Progress
 - [ ] #12: Deploy Authentik SSO platform (prepared, needs execution)
+- [ ] #14: Build monitoring stack (Prometheus/Grafana/Loki) (implementation complete, pending deployment)
 
 ### Pending
-- [ ] #14: Build monitoring stack (Prometheus/Grafana/Loki)
 - [ ] #15: Set up Cloudflare Tunnel for Komodo GitHub webhooks
 
 ## Key Files & Locations
@@ -263,6 +263,7 @@ sudo ./scripts/truenas-init-bootstrap.sh
 - `stacks/platform/observability/compose.yaml` - Observability stack
 - `stacks/platform/observability/autokuma-wrapper.sh` - AutoKuma credential injection
 - `stacks/platform/auth/authentik/` - Authentik SSO (prepared)
+- `stacks/platform/monitoring/` - Prometheus/Grafana/Loki stack
 
 ### Governance Documents
 - `docs/adr/ADR-0034-label-driven-infrastructure.md` - Label requirement
@@ -278,6 +279,7 @@ sudo ./scripts/truenas-init-bootstrap.sh
 ### Scripts
 - `scripts/truenas-init-bootstrap.sh` - Infrastructure bootstrap
 - `scripts/validate-authentik-setup.sh` - Authentik pre-deployment validation
+- `scripts/validate-monitoring-setup.sh` - Monitoring pre-deployment validation
 - `stacks/scripts/set-host-permissions.sh` - Directory permission helper
 
 ## Lessons Learned

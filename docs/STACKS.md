@@ -4,7 +4,7 @@ This repository ships Komodo-compatible Docker Swarm stacks. Deploy directly fro
 
 ## Layout
 - `stacks/infrastructure/`: bootstrap-tier stacks (op-connect, komodo, caddy)
-- `stacks/platform/`: platform services (auth, cicd, observability, backups, secrets)
+- `stacks/platform/`: platform services (auth, cicd, observability, monitoring, backups, secrets)
 - `stacks/docs/`: stack-specific operational runbooks
 
 ## Secrets

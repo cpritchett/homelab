@@ -58,7 +58,7 @@ docker secret inspect CLOUDFLARE_API_TOKEN >/dev/null
 Reference: `specs/002-label-driven-swarm-infrastructure/spec.md`
 
 - `#12` Deploy Authentik SSO platform
-- `#14` Build monitoring stack (Prometheus/Grafana/Loki)
+- `#14` Build monitoring stack (Prometheus/Grafana/Loki) - implementation ready at `stacks/platform/monitoring/`
 - `#15` Set up Cloudflare Tunnel for Komodo GitHub webhooks
 
 ## Migration Note

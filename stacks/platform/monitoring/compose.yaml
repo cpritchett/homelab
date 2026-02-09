@@ -1,0 +1,179 @@
+services:
+  secrets-init:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./grafana.env.template:/templates/grafana.env.template:ro
+      - /mnt/apps01/appdata/monitoring/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/grafana.env.template -o /secrets/grafana.env -f &&
+      chmod 640 /secrets/grafana.env &&
+      echo 'Monitoring secrets injected successfully'
+      "
+
+  prometheus:
+    image: prom/prometheus:v2.48.1
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+      labels:
+        homepage.group: "Monitoring"
+        homepage.name: "Prometheus"
+        homepage.icon: "prometheus.png"
+        homepage.href: "https://prometheus.in.hypyr.space"
+        homepage.description: "Metrics collection"
+        homepage.widget.type: "prometheus"
+        homepage.widget.url: "http://prometheus:9090"
+
+        caddy: prometheus.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 9090}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        kuma.prometheus.http.name: "Prometheus"
+        kuma.prometheus.http.url: "https://prometheus.in.hypyr.space/-/healthy"
+        kuma.prometheus.http.interval: "60"
+        kuma.prometheus.http.maxretries: "3"
+        kuma.prometheus.http.accepted_statuscodes: "[200]"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /mnt/data01/appdata/monitoring/prometheus:/prometheus
+    networks:
+      - monitoring
+      - proxy_network
+
+  loki:
+    image: grafana/loki:2.9.8
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        homepage.group: "Monitoring"
+        homepage.name: "Loki"
+        homepage.icon: "grafana-loki.png"
+        homepage.href: "https://loki.in.hypyr.space"
+        homepage.description: "Log aggregation"
+
+        caddy: loki.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3100}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        kuma.loki.http.name: "Loki"
+        kuma.loki.http.url: "https://loki.in.hypyr.space/ready"
+        kuma.loki.http.interval: "60"
+        kuma.loki.http.maxretries: "3"
+        kuma.loki.http.accepted_statuscodes: "[200]"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - /mnt/data01/appdata/monitoring/loki:/loki
+    networks:
+      - monitoring
+      - proxy_network
+
+  grafana:
+    image: grafana/grafana:10.4.8
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        homepage.group: "Monitoring"
+        homepage.name: "Grafana"
+        homepage.icon: "grafana.png"
+        homepage.href: "https://grafana.in.hypyr.space"
+        homepage.description: "Metrics and logs dashboards"
+        homepage.widget.type: "grafana"
+        homepage.widget.url: "https://grafana.in.hypyr.space"
+        homepage.widget.username: "{{HOMEPAGE_VAR_GRAFANA_USER}}"
+        homepage.widget.password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+
+        caddy: grafana.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3000}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        kuma.grafana.http.name: "Grafana"
+        kuma.grafana.http.url: "https://grafana.in.hypyr.space/api/health"
+        kuma.grafana.http.interval: "60"
+        kuma.grafana.http.maxretries: "3"
+        kuma.grafana.http.accepted_statuscodes: "[200]"
+    environment:
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+      GF_SERVER_ROOT_URL: https://grafana.in.hypyr.space
+      GF_SECURITY_DISABLE_GRAVATAR: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - /mnt/data01/appdata/monitoring/grafana:/var/lib/grafana
+      - /mnt/apps01/appdata/monitoring/secrets:/run/monitoring-secrets:ro
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - monitoring
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a &&
+       [ -f /run/monitoring-secrets/grafana.env ] &&
+       . /run/monitoring-secrets/grafana.env &&
+       set +a &&
+       exec /run.sh"
+
+networks:
+  monitoring:
+    driver: overlay
+  proxy_network:
+    external: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+secrets:
+  op_connect_token:
+    external: true
