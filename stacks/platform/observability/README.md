@@ -102,23 +102,41 @@ sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
 
 **Step 2: Configure AutoKuma Authentication**
 
-AutoKuma needs credentials to auto-create monitors. Configure in Komodo:
+AutoKuma needs credentials to auto-create monitors. Create Docker secrets (via SSH):
 
-1. Navigate to Komodo: https://komodo.in.hypyr.space
-2. Go to: **Stacks** → **platform_observability**
-3. Click **"Configure"** or **"Environment Variables"**
-4. Add these two environment variables:
-   - Variable 1:
-     - Key: `AUTOKUMA_USERNAME`
-     - Value: `admin` (or the username you created in step 1)
-   - Variable 2:
-     - Key: `AUTOKUMA_PASSWORD`
-     - Value: `<your uptime kuma password>`
-5. Click **"Save"**
-6. Click **"Deploy"** to apply changes (or run via SSH):
-   ```bash
-   sudo docker service update --force platform_observability_autokuma
-   ```
+```bash
+# SSH to TrueNAS
+ssh truenas_admin@barbary
+
+# Create secrets from the credentials you created in Step 1
+# Use the same username/password you created for Uptime Kuma admin
+
+# Create username secret
+echo "admin" | sudo docker secret create uptime_kuma_username -
+
+# Create password secret (replace with your actual password)
+echo "your-secure-password-here" | sudo docker secret create uptime_kuma_password -
+
+# Verify secrets were created
+sudo docker secret ls | grep uptime_kuma
+```
+
+**Expected output:**
+```
+uptime_kuma_username   <timestamp>
+uptime_kuma_password   <timestamp>
+```
+
+**Redeploy the observability stack** to pick up the new secrets:
+
+Via Komodo UI:
+1. Navigate to Komodo → Stacks → platform_observability
+2. Click "Deploy" or "Redeploy"
+
+Or via CLI:
+```bash
+sudo docker stack deploy -c /mnt/apps01/repos/homelab/stacks/platform/observability/compose.yaml platform_observability
+```
 
 **Step 3: Verify AutoKuma Connection**
 
@@ -297,8 +315,9 @@ sudo docker service logs platform_observability_autokuma --tail 50
 **Common errors and fixes:**
 
 1. **Error:** `"server is expecting a username/password, but none was provided"`
-   - **Cause:** AutoKuma credentials not configured
-   - **Fix:** Add `AUTOKUMA_USERNAME` and `AUTOKUMA_PASSWORD` environment variables in Komodo (see Post-Deployment Step 2 above)
+   - **Cause:** Docker secrets for AutoKuma credentials not created
+   - **Fix:** Create `uptime_kuma_username` and `uptime_kuma_password` secrets (see Post-Deployment Step 2 above)
+   - **Verify:** `sudo docker secret ls | grep uptime_kuma`
 
 2. **Error:** `"Timeout while trying to connect to Uptime Kuma server"`
    - **Cause:** Uptime Kuma not fully initialized

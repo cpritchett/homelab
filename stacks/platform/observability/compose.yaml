@@ -92,11 +92,14 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "export AUTOKUMA__KUMA__USERNAME=$$(cat /run/secrets/uptime_kuma_username) &&
+       export AUTOKUMA__KUMA__PASSWORD=$$(cat /run/secrets/uptime_kuma_password) &&
+       exec /app/autokuma"
     environment:
       # Uptime Kuma connection
       AUTOKUMA__KUMA__URL: http://uptime-kuma:3001
-      AUTOKUMA__KUMA__USERNAME: ${AUTOKUMA_USERNAME:-admin}
-      AUTOKUMA__KUMA__PASSWORD: ${AUTOKUMA_PASSWORD}
       # Docker provider configuration
       AUTOKUMA__DOCKER__SOCKET_PATH: tcp://docker-socket-proxy:2375
       # Label prefix (e.g., kuma.example.http.url)
@@ -107,6 +110,9 @@ services:
       AUTOKUMA__TAG: autokuma
       AUTOKUMA__TAG_NAME: Source
       AUTOKUMA__TAG_COLOR: "#42C0FB"
+    secrets:
+      - uptime_kuma_username
+      - uptime_kuma_password
     networks:
       - observability_internal
     depends_on:
@@ -118,3 +124,9 @@ networks:
     external: true
   observability_internal:
     driver: overlay
+
+secrets:
+  uptime_kuma_username:
+    external: true
+  uptime_kuma_password:
+    external: true
