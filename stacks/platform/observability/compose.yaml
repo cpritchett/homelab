@@ -92,10 +92,11 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "export AUTOKUMA__KUMA__HEADERS=\"x-api-key=$$(cat /run/secrets/uptime_kuma_api_key)\" &&
-       exec /app/autokuma"
+    configs:
+      - source: autokuma_wrapper
+        target: /autokuma-wrapper.sh
+        mode: 0755
+    entrypoint: ["/bin/sh", "/autokuma-wrapper.sh"]
     environment:
       # Uptime Kuma connection
       AUTOKUMA__KUMA__URL: http://uptime-kuma:3001
@@ -122,6 +123,15 @@ networks:
     external: true
   observability_internal:
     driver: overlay
+
+configs:
+  autokuma_wrapper:
+    content: |
+      #!/bin/sh
+      # Inject API key from Docker secret into environment variable
+      export AUTOKUMA__KUMA__HEADERS="x-api-key=$(cat /run/secrets/uptime_kuma_api_key)"
+      # Execute AutoKuma
+      exec autokuma
 
 secrets:
   uptime_kuma_api_key:
