@@ -94,8 +94,7 @@ services:
           memory: 256M
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      "export AUTOKUMA__KUMA__USERNAME=$$(cat /run/secrets/uptime_kuma_username) &&
-       export AUTOKUMA__KUMA__PASSWORD=$$(cat /run/secrets/uptime_kuma_password) &&
+      "export AUTOKUMA__KUMA__HEADERS=\"x-api-key=$$(cat /run/secrets/uptime_kuma_api_key)\" &&
        exec /app/autokuma"
     environment:
       # Uptime Kuma connection
@@ -111,8 +110,7 @@ services:
       AUTOKUMA__TAG_NAME: Source
       AUTOKUMA__TAG_COLOR: "#42C0FB"
     secrets:
-      - uptime_kuma_username
-      - uptime_kuma_password
+      - uptime_kuma_api_key
     networks:
       - observability_internal
     depends_on:
@@ -126,7 +124,5 @@ networks:
     driver: overlay
 
 secrets:
-  uptime_kuma_username:
-    external: true
-  uptime_kuma_password:
+  uptime_kuma_api_key:
     external: true

@@ -100,42 +100,50 @@ sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
    - Password: (use strong password, save in password manager)
 5. Complete setup wizard
 
-**Step 2: Configure AutoKuma Authentication**
+**Step 2: Create API Key for AutoKuma**
 
-AutoKuma needs credentials to auto-create monitors. Create Docker secrets (via SSH):
+AutoKuma uses an API key to authenticate with Uptime Kuma.
+
+**In Uptime Kuma UI:**
+1. Go to https://status.in.hypyr.space
+2. Click **Settings** (gear icon in top-right)
+3. Navigate to **"API Keys"** section
+4. Click **"Add API Key"** or **"Generate"**
+5. Give it a name: `AutoKuma`
+6. Set expiration: **Never** (or long-lived)
+7. Click **"Generate"** or **"Save"**
+8. **Copy the API key** (shown only once!)
+
+**Create Docker Secret (via SSH):**
 
 ```bash
 # SSH to TrueNAS
 ssh truenas_admin@barbary
 
-# Create secrets from the credentials you created in Step 1
-# Use the same username/password you created for Uptime Kuma admin
+# Create API key secret (paste the key you copied from Uptime Kuma)
+echo "uk1_xxxxxxxxxxxxxxxxxxxxxxxxxx" | sudo docker secret create uptime_kuma_api_key -
 
-# Create username secret
-echo "admin" | sudo docker secret create uptime_kuma_username -
-
-# Create password secret (replace with your actual password)
-echo "your-secure-password-here" | sudo docker secret create uptime_kuma_password -
-
-# Verify secrets were created
+# Verify secret was created
 sudo docker secret ls | grep uptime_kuma
 ```
 
 **Expected output:**
 ```
-uptime_kuma_username   <timestamp>
-uptime_kuma_password   <timestamp>
+uptime_kuma_api_key   <timestamp>
 ```
 
-**Redeploy the observability stack** to pick up the new secrets:
+**Redeploy the observability stack** to pick up the new secret:
 
 Via Komodo UI:
 1. Navigate to Komodo → Stacks → platform_observability
-2. Click "Deploy" or "Redeploy"
+2. Sync repository (to get latest compose.yaml with API key support)
+3. Click "Deploy" or "Redeploy"
 
 Or via CLI:
 ```bash
-sudo docker stack deploy -c /mnt/apps01/repos/homelab/stacks/platform/observability/compose.yaml platform_observability
+cd /mnt/apps01/repos/homelab
+sudo git pull origin main
+sudo docker stack deploy -c stacks/platform/observability/compose.yaml platform_observability
 ```
 
 **Step 3: Verify AutoKuma Connection**
@@ -314,10 +322,10 @@ sudo docker service logs platform_observability_autokuma --tail 50
 
 **Common errors and fixes:**
 
-1. **Error:** `"server is expecting a username/password, but none was provided"`
-   - **Cause:** Docker secrets for AutoKuma credentials not created
-   - **Fix:** Create `uptime_kuma_username` and `uptime_kuma_password` secrets (see Post-Deployment Step 2 above)
-   - **Verify:** `sudo docker secret ls | grep uptime_kuma`
+1. **Error:** `"server is expecting a username/password, but none was provided"` or authentication errors
+   - **Cause:** Uptime Kuma API key not configured
+   - **Fix:** Create API key in Uptime Kuma UI and add as Docker secret `uptime_kuma_api_key` (see Post-Deployment Step 2 above)
+   - **Verify:** `sudo docker secret ls | grep uptime_kuma_api_key`
 
 2. **Error:** `"Timeout while trying to connect to Uptime Kuma server"`
    - **Cause:** Uptime Kuma not fully initialized
