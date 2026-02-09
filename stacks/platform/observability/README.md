@@ -20,6 +20,8 @@ Combined stack for homelab observability and monitoring services.
 ### AutoKuma
 - **Purpose**: Automatically create Uptime Kuma monitors from Docker labels
 - **Source**: https://github.com/BigBoot/AutoKuma
+- **Version**: 2.0.0 (pinned for stability)
+- **Authentication**: Username/password via WebSocket (NOT API keys)
 - **Label Pattern**: `kuma.<monitor-id>.<type>.<setting>`
 - **Sync Interval**: 60 seconds
 - **Tag**: All auto-created monitors tagged with "autokuma"
@@ -100,36 +102,32 @@ sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
    - Password: (use strong password, save in password manager)
 5. Complete setup wizard
 
-**Step 2: Create API Key for AutoKuma**
+**Step 2: Configure AutoKuma Authentication**
 
-AutoKuma uses an API key to authenticate with Uptime Kuma.
+AutoKuma needs username and password to authenticate with Uptime Kuma via WebSocket.
 
-**In Uptime Kuma UI:**
-1. Go to https://status.in.hypyr.space
-2. Click **Settings** (gear icon in top-right)
-3. Navigate to **"API Keys"** section
-4. Click **"Add API Key"** or **"Generate"**
-5. Give it a name: `AutoKuma`
-6. Set expiration: **Never** (or long-lived)
-7. Click **"Generate"** or **"Save"**
-8. **Copy the API key** (shown only once!)
+**Important:** AutoKuma uses WebSocket authentication, NOT API keys. API keys are for REST API access only and won't work with AutoKuma.
 
-**Create Docker Secret (via SSH):**
+**Create Docker Secrets (via SSH):**
 
 ```bash
 # SSH to TrueNAS
 ssh truenas_admin@barbary
 
-# Create API key secret (paste the key you copied from Uptime Kuma)
-echo "uk1_xxxxxxxxxxxxxxxxxxxxxxxxxx" | sudo docker secret create uptime_kuma_api_key -
+# Create username secret (use the username you created in Step 1)
+echo "admin" | sudo docker secret create uptime_kuma_username -
 
-# Verify secret was created
+# Create password secret (use the password you created in Step 1)
+echo "your-uptime-kuma-password" | sudo docker secret create uptime_kuma_password -
+
+# Verify secrets were created
 sudo docker secret ls | grep uptime_kuma
 ```
 
 **Expected output:**
 ```
-uptime_kuma_api_key   <timestamp>
+uptime_kuma_username   <timestamp>
+uptime_kuma_password   <timestamp>
 ```
 
 **Redeploy the observability stack** to pick up the new secret:
@@ -322,10 +320,11 @@ sudo docker service logs platform_observability_autokuma --tail 50
 
 **Common errors and fixes:**
 
-1. **Error:** `"server is expecting a username/password, but none was provided"` or authentication errors
-   - **Cause:** Uptime Kuma API key not configured
-   - **Fix:** Create API key in Uptime Kuma UI and add as Docker secret `uptime_kuma_api_key` (see Post-Deployment Step 2 above)
-   - **Verify:** `sudo docker secret ls | grep uptime_kuma_api_key`
+1. **Error:** `"server is expecting a username/password, but none was provided"` or `"Incorrect username or password"`
+   - **Cause:** AutoKuma credentials not configured or incorrect
+   - **Fix:** Create `uptime_kuma_username` and `uptime_kuma_password` Docker secrets (see Post-Deployment Step 2 above)
+   - **Verify:** `sudo docker secret ls | grep uptime_kuma`
+   - **Important:** Use the same username/password you created in Uptime Kuma initial setup, NOT an API key
 
 2. **Error:** `"Timeout while trying to connect to Uptime Kuma server"`
    - **Cause:** Uptime Kuma not fully initialized

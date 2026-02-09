@@ -81,7 +81,7 @@ services:
 
   # AutoKuma - Auto-create monitors from Docker labels
   autokuma:
-    image: ghcr.io/bigboot/autokuma:latest
+    image: ghcr.io/bigboot/autokuma:2.0.0
     deploy:
       replicas: 1
       restart_policy:
