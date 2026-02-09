@@ -92,8 +92,17 @@ sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
 ### 1. Configure Uptime Kuma (First Time)
 1. Access https://status.in.hypyr.space
 2. Complete initial setup (create admin user)
-3. **Important**: After creating admin account, AutoKuma will automatically connect
-4. Monitors will be auto-created from Docker labels
+3. **Configure AutoKuma credentials** in Komodo:
+   - Navigate to Komodo → Stacks → platform_observability
+   - Add Environment Variables:
+     - `AUTOKUMA_USERNAME` = your Uptime Kuma username (e.g., "admin")
+     - `AUTOKUMA_PASSWORD` = your Uptime Kuma password
+   - Click Save
+   - Redeploy the stack (or just restart autokuma service)
+4. **Verify AutoKuma connection**:
+   - Check logs: `docker service logs platform_observability_autokuma`
+   - Should see successful sync messages within 60 seconds
+5. Monitors will be auto-created from Docker labels with tag "autokuma"
 
 ### 2. Configure Homepage (Optional)
 
