@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ###############################################################################
 # Authentik Platform Stack - Pre-Deployment Validation & Setup
 #
@@ -14,9 +14,11 @@
 #   3. Tests connectivity to required services
 #   4. Does NOT pull from git (Komodo handles git sync)
 #   5. Does NOT deploy the stack (Komodo handles deployment)
+#
+# POSIX-compatible: Works with sh, bash, dash, etc.
 ###############################################################################
 
-set -euo pipefail
+set -eu
 
 # Configuration
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
@@ -31,8 +33,8 @@ log_error() {
     echo "[authentik-validation] ERROR: $*" >&2
 }
 
-# Verify running as root
-if [ "$EUID" -ne 0 ]; then
+# Verify running as root (POSIX-compatible)
+if [ "$(id -u)" -ne 0 ]; then
     log_error "This script must be run as root"
     exit 1
 fi

@@ -102,7 +102,7 @@ fi
 ## Script Template
 
 ```bash
-#!/bin/bash
+#!/bin/sh
 ###############################################################################
 # <Stack Name> - Pre-Deployment Validation & Setup
 #
@@ -118,9 +118,11 @@ fi
 #   3. Tests connectivity to required services
 #   4. Does NOT pull from git (Komodo handles git sync)
 #   5. Does NOT deploy the stack (Komodo handles deployment)
+#
+# POSIX-compatible: Works with sh, bash, dash, etc.
 ###############################################################################
 
-set -euo pipefail
+set -eu
 
 # Configuration
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
@@ -130,8 +132,8 @@ DATA_PATH="${DATA_PATH:-/mnt/data01/appdata}"
 log() { echo "[<stack>-validation] $*"; }
 log_error() { echo "[<stack>-validation] ERROR: $*" >&2; }
 
-# Verify running as root (if needed)
-if [ "$EUID" -ne 0 ]; then
+# Verify running as root (if needed) - POSIX-compatible
+if [ "$(id -u)" -ne 0 ]; then
     log_error "This script must be run as root"
     exit 1
 fi
