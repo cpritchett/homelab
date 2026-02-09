@@ -111,7 +111,8 @@ services:
       AUTOKUMA__TAG_NAME: Source
       AUTOKUMA__TAG_COLOR: "#42C0FB"
     secrets:
-      - uptime_kuma_api_key
+      - uptime_kuma_username
+      - uptime_kuma_password
     networks:
       - observability_internal
     depends_on:
@@ -129,5 +130,7 @@ configs:
     file: ./autokuma-wrapper.sh
 
 secrets:
-  uptime_kuma_api_key:
+  uptime_kuma_username:
+    external: true
+  uptime_kuma_password:
     external: true
