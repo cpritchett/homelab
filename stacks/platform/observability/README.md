@@ -90,19 +90,64 @@ sudo chown -R 1000:1000 /mnt/apps01/appdata/uptime-kuma
 ## Post-Deployment
 
 ### 1. Configure Uptime Kuma (First Time)
+
+**Step 1: Complete Initial Setup**
 1. Access https://status.in.hypyr.space
-2. Complete initial setup (create admin user)
-3. **Configure AutoKuma credentials** in Komodo:
-   - Navigate to Komodo → Stacks → platform_observability
-   - Add Environment Variables:
-     - `AUTOKUMA_USERNAME` = your Uptime Kuma username (e.g., "admin")
-     - `AUTOKUMA_PASSWORD` = your Uptime Kuma password
-   - Click Save
-   - Redeploy the stack (or just restart autokuma service)
-4. **Verify AutoKuma connection**:
-   - Check logs: `docker service logs platform_observability_autokuma`
-   - Should see successful sync messages within 60 seconds
-5. Monitors will be auto-created from Docker labels with tag "autokuma"
+2. Select "Embedded MariaDB" (recommended)
+3. Click "Next"
+4. Create admin account:
+   - Username: `admin` (or your preference)
+   - Password: (use strong password, save in password manager)
+5. Complete setup wizard
+
+**Step 2: Configure AutoKuma Authentication**
+
+AutoKuma needs credentials to auto-create monitors. Configure in Komodo:
+
+1. Navigate to Komodo: https://komodo.in.hypyr.space
+2. Go to: **Stacks** → **platform_observability**
+3. Click **"Configure"** or **"Environment Variables"**
+4. Add these two environment variables:
+   - Variable 1:
+     - Key: `AUTOKUMA_USERNAME`
+     - Value: `admin` (or the username you created in step 1)
+   - Variable 2:
+     - Key: `AUTOKUMA_PASSWORD`
+     - Value: `<your uptime kuma password>`
+5. Click **"Save"**
+6. Click **"Deploy"** to apply changes (or run via SSH):
+   ```bash
+   sudo docker service update --force platform_observability_autokuma
+   ```
+
+**Step 3: Verify AutoKuma Connection**
+
+Wait 60 seconds for AutoKuma to sync, then check:
+
+```bash
+# Check AutoKuma logs
+sudo docker service logs platform_observability_autokuma --tail 20
+
+# Look for successful sync messages:
+# ✅ "Syncing monitors..."
+# ✅ "Created monitor: Komodo UI"
+# ✅ No "username/password" errors
+```
+
+**Step 4: Check Monitors in Uptime Kuma**
+
+1. Go to https://status.in.hypyr.space
+2. You should see monitors appearing with tag "autokuma" (blue)
+3. AutoKuma creates monitors for all services with `kuma.*` labels
+
+**Monitors Created Automatically:**
+- Komodo UI (https://komodo.in.hypyr.space)
+- 1Password Connect API (internal)
+- Caddy Reverse Proxy (via Homepage)
+- Homepage Dashboard
+- Uptime Kuma (self-monitoring)
+- Authentik SSO (once deployed)
+- Any other services with AutoKuma labels
 
 ### 2. Configure Homepage (Optional)
 
@@ -239,3 +284,48 @@ docker service logs platform_observability_docker-socket-proxy
 - Check Caddy labels are applied: `docker service inspect platform_observability_homepage --format '{{json .Spec.Labels}}'`
 - Verify both services are on proxy_network
 - Check Caddy logs: `docker service logs caddy_caddy`
+
+### AutoKuma not creating monitors
+
+**Symptom:** No monitors appearing in Uptime Kuma with "autokuma" tag
+
+**Check logs:**
+```bash
+sudo docker service logs platform_observability_autokuma --tail 50
+```
+
+**Common errors and fixes:**
+
+1. **Error:** `"server is expecting a username/password, but none was provided"`
+   - **Cause:** AutoKuma credentials not configured
+   - **Fix:** Add `AUTOKUMA_USERNAME` and `AUTOKUMA_PASSWORD` environment variables in Komodo (see Post-Deployment Step 2 above)
+
+2. **Error:** `"Timeout while trying to connect to Uptime Kuma server"`
+   - **Cause:** Uptime Kuma not fully initialized
+   - **Fix:** Wait for Uptime Kuma to complete startup (check: `docker service ps platform_observability_uptime-kuma`)
+
+3. **Error:** `"Error during connect"`
+   - **Cause:** Network connectivity issue
+   - **Fix:** Verify both services are on observability_internal network
+
+4. **No errors, but no monitors created:**
+   - **Cause:** No services with `kuma.*` labels deployed yet
+   - **Check:** `docker service inspect komodo_core --format '{{json .Spec.Labels}}' | grep kuma`
+   - **Fix:** Deploy services with AutoKuma labels (see infrastructure label migration)
+
+**Verify AutoKuma is working:**
+```bash
+# Should see successful sync messages every 60 seconds
+sudo docker service logs platform_observability_autokuma --follow
+
+# Look for:
+# "Syncing monitors..."
+# "Created monitor: <name>"
+# "Updated monitor: <name>"
+```
+
+**Force immediate sync:**
+```bash
+# Restart AutoKuma to trigger immediate sync
+sudo docker service update --force platform_observability_autokuma
+```
