@@ -75,7 +75,7 @@ Canonical implementation references:
 2. Set run directory to `stacks/platform/monitoring/`.
 3. Set pre-deploy hook to `scripts/validate-monitoring-setup.sh`.
 4. Deploy via Komodo and verify services:
-   - `secrets-init`
+   - `op-secrets`
    - `prometheus`
    - `grafana`
    - `loki`

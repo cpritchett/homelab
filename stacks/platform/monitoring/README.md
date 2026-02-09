@@ -7,7 +7,7 @@ This stack implements Task `#14` from `specs/002-label-driven-swarm-infrastructu
 - `prometheus`: metrics collection and retention
 - `grafana`: dashboards with pre-provisioned Prometheus/Loki datasources
 - `loki`: log backend
-- `secrets-init`: one-shot `1password/op` runtime injection for Grafana credentials
+- `op-secrets`: long-running `1password/op` sidecar injector for Grafana credentials
 
 ## Deployment Pattern
 
@@ -43,8 +43,8 @@ If you use a different vault/item path, update `grafana.env.template`.
 # Service status
 sudo docker service ls | grep monitoring
 
-# Secrets injector should complete without errors
-sudo docker service logs monitoring_secrets-init --tail 50
+# Secrets injector should remain running and refresh secrets
+sudo docker service logs platform_monitoring_op-secrets --tail 50
 
 # Grafana health
 curl -I https://grafana.in.hypyr.space/api/health
