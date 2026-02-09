@@ -126,12 +126,7 @@ networks:
 
 configs:
   autokuma_wrapper:
-    content: |
-      #!/bin/sh
-      # Inject API key from Docker secret into environment variable
-      export AUTOKUMA__KUMA__HEADERS="x-api-key=$$(cat /run/secrets/uptime_kuma_api_key)"
-      # Execute AutoKuma with full path
-      exec /usr/local/bin/autokuma
+    file: ./autokuma-wrapper.sh
 
 secrets:
   uptime_kuma_api_key:
