@@ -149,6 +149,15 @@ networks:
 - [ ] Script sets permissions only if incorrect
 - [ ] Script is fast enough to run before every deployment (< 10 seconds)
 
+### 8.1 Secret Hydration Service Pattern (Required when using `op inject`)
+
+- [ ] Secret hydration service uses Swarm job mode:
+  - `deploy.mode: replicated-job`
+  - `deploy.restart_policy.condition: none`
+- [ ] Secret hydration service is one-shot (not long-running for status only)
+- [ ] Successful completion is validated as `0/1 (1/1 completed)`
+- [ ] If fallback to existing secret files is implemented, fallback path is explicit and safe
+
 ### 9. Label-Driven Pattern Compliance (ADR-0034)
 
 **CRITICAL**: If adding a new tool to the stack, check if it supports Docker labels:
@@ -236,7 +245,8 @@ sudo chown -R <uid>:<gid> /mnt/apps01/appdata/<service>
 
 ### 3. Monitor Deployment
 
-Watch deployment logs in Komodo UI until all services show `1/1`.
+Watch deployment logs in Komodo UI until all replicated services show `1/1`.
+For one-shot job services (for example `secrets-init`), expected success is `0/1 (1/1 completed)`.
 
 ## Post-Deployment Validation
 

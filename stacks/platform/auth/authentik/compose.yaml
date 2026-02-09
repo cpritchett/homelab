@@ -2,6 +2,7 @@ services:
   secrets-init:
     image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
     deploy:
+      mode: replicated-job
       restart_policy:
         condition: none
       resources:
@@ -20,7 +21,7 @@ services:
     networks:
       - op-connect
     command: >
-      sh -c "
+      sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/authentik.template -o /secrets/authentik.env -f &&
       op inject -i /templates/postgres.template -o /secrets/postgres.env -f &&

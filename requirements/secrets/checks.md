@@ -8,6 +8,9 @@ Validation checklist for secrets management compliance.
 - [ ] No plaintext secrets in git repository
 - [ ] No secrets in git commit history
 - [ ] ESO configured to pull from 1Password for Kubernetes workloads
+- [ ] Docker Swarm `op inject` hydration services use `deploy.mode: replicated-job`
+- [ ] Docker Swarm hydration jobs use `deploy.restart_policy.condition: none`
+- [ ] One-shot hydration success validated as `0/1 (1/1 completed)` (not forced long-running `1/1`)
 - [ ] GitHub Secrets usage limited to CI/CD bootstrapping
 - [ ] All encrypted in-repo secrets documented with justification
 - [ ] Secret scanning enabled in CI/CD pipeline

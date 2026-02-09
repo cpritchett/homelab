@@ -32,8 +32,13 @@ Secrets MAY be stored in the following locations, in order of preference:
 3. **Docker Swarm Secrets** (Docker stack integration)
    - Stacks MUST use 1Password Connect Server with `op inject` pattern
    - One shared Swarm secret (`op_connect_token`) for all stacks
-   - Secrets hydrated via init containers at startup
+   - One-shot secret hydration services MUST run as Swarm jobs:
+     - `deploy.mode: replicated-job`
+     - `deploy.restart_policy.condition: none`
+   - Successful one-shot hydration is represented as `0/1 (1/1 completed)` in `docker service ls`
    - Secrets stored in volumes, never pre-materialized to host disk
+   - Long-running secret hydration replicas used only to force `1/1` status are PROHIBITED
+   - If fallback to existing hydrated files is implemented, fallback MUST be explicit and fail fast when no valid file exists
    - See: [ADR-0032](../../docs/adr/ADR-0032-onepassword-connect-swarm.md)
 
 4. **GitHub Secrets** (CI/CD bootstrapping only)
@@ -91,6 +96,7 @@ Docker Swarm stacks use 1Password Connect Server instead of pre-materialized env
 See: 
 - [ADR-0004](../../docs/adr/ADR-0004-secrets-management.md) — Foundation
 - [ADR-0032](../../docs/adr/ADR-0032-onepassword-connect-swarm.md) — Docker Swarm implementation
+- [ADR-0035](../../docs/adr/ADR-0035-swarm-oneshot-secret-hydration-jobs.md) — One-shot job-mode hydration semantics
 
 ## Agent Governance
 

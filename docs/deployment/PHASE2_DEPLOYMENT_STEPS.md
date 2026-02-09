@@ -31,6 +31,7 @@ Notes:
 - Old guidance that required manual template creation in this runbook is obsolete.
 - If a stack still uses template files in-repo (for example Authentik today), treat them as stack-owned artifacts and validate them via the pre-deploy hook and stack-specific docs.
 - Do not use ad-hoc workstation templating steps in this phase runbook.
+- One-shot secret-hydration service rules are governed in `docs/governance/PRE-DEPLOYMENT-VALIDATION-POLICY.md`.
 
 ## Task #12: Authentik SSO (Execute Now)
 

@@ -2,10 +2,9 @@ services:
   op-secrets:
     image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
     deploy:
+      mode: replicated-job
       restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 0
+        condition: none
       resources:
         limits:
           cpus: '0.25'
@@ -22,16 +21,16 @@ services:
       - op-connect
     command: >
       sh -ec "
-      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token);
-      while true; do
-        if op inject -i /templates/grafana.env.template -o /secrets/grafana.env -f; then
-          chmod 640 /secrets/grafana.env;
-          echo 'Monitoring secrets injected successfully';
-        else
-          echo 'Monitoring secret injection failed; retrying in 60s';
-        fi;
-        sleep 60;
-      done
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      if op inject -i /templates/grafana.env.template -o /secrets/grafana.env -f; then
+        chmod 640 /secrets/grafana.env &&
+        echo 'Monitoring secrets injected successfully';
+      elif [ -s /secrets/grafana.env ]; then
+        echo 'Monitoring secret injection failed; using existing /secrets/grafana.env';
+      else
+        echo 'Monitoring secret injection failed and no existing /secrets/grafana.env present' >&2;
+        exit 1;
+      fi
       "
 
   prometheus:

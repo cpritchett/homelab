@@ -99,6 +99,14 @@ fi
 - Example: `scripts/validate-authentik-setup.sh`
 - Example: `scripts/validate-grafana-setup.sh`
 
+### 7. One-Shot Secret Hydration Pattern
+- If a stack uses `op inject`/template hydration, model that service as a one-shot Swarm job:
+  - `deploy.mode: replicated-job`
+  - `deploy.restart_policy.condition: none`
+- Do NOT run secret hydration as an always-on replica just to appear `1/1`.
+- Expected successful state for job services is `0/1 (1/1 completed)`.
+- If a stack supports existing secret files as fallback, the job may exit `0` when fallback is valid; otherwise it MUST fail fast.
+
 ## Script Template
 
 ```bash
@@ -220,6 +228,11 @@ Use this table to determine if your stack needs a validation script:
 - ✅ `validate-grafana-setup.sh` - Has persistent data, config directories
 - ✅ `validate-postgres-setup.sh` - Database with strict UID requirements
 - ✅ All infrastructure stacks - Foundational services
+
+### Required Secret-Hydration Service Pattern
+- ✅ `secrets-init` / `op-secrets` services use Swarm job mode (`replicated-job`)
+- ✅ Success is represented by completion (`0/1 (1/1 completed)`)
+- ❌ Long-running "init" sidecars used only for UI green status
 
 ### Optional (Can Skip)
 - ❌ Simple Homepage dashboard clone with no state

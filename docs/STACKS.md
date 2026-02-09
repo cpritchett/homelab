@@ -8,9 +8,10 @@ This repository ships Komodo-compatible Docker Swarm stacks. Deploy directly fro
 - `stacks/docs/`: stack-specific operational runbooks
 
 ## Secrets
-- Primary pattern: 1Password Connect + `secrets-init` + `op inject` templates for runtime hydration.
+- Primary pattern: 1Password Connect + `op inject` templates for runtime hydration.
 - Fallback pattern: Swarm external secrets for values that cannot use Connect runtime retrieval.
 - Do not use legacy `op-export` pre-materialization workflows.
+- Governance for secret-hydration service mode and success semantics lives in `docs/governance/PRE-DEPLOYMENT-VALIDATION-POLICY.md`.
 
 ## Deployment (Komodo)
 1. Add the repository in Komodo and configure stack path (`stacks/...`).
