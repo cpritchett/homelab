@@ -136,6 +136,39 @@ If change would:
 
 ---
 
+## Deployment Operations
+
+### Stack Deployment Model
+
+This repo uses a two-tier deployment model. Agents MUST use the correct tool for each tier:
+
+| Tier | Stacks | Deploy Tool | Managed By |
+|------|--------|-------------|------------|
+| **Infra** | caddy, op-connect, komodo | `docker stack deploy` | Direct |
+| **Platform** | authentik, monitoring, observability | Komodo CLI (`km`) | Komodo |
+
+**Agents MUST:**
+- Use `km` (Komodo CLI) for all platform-tier stack deployments
+- Use `docker stack deploy` only for infra-tier bootstrap stacks
+- Never use `docker stack deploy` for platform-tier stacks
+
+**Komodo CLI usage:**
+```bash
+PATH="$HOME/bin:$PATH" km --profile barbary stack deploy <stack-name>
+```
+
+See [patterns.md](../../patterns.md) or agent memory for Komodo CLI configuration details.
+
+### Compose-Mode Stacks (Swarm Incompatible Services)
+
+Some services require host-level privileges (e.g., `cap_add`, `devices`) that Docker Swarm silently ignores. These are deployed as Komodo Stacks in **Compose mode** (`server_id` set, no `swarm_id`), which uses `docker compose up -d` instead of `docker stack deploy`:
+
+- `smartctl-exporter` — requires `SYS_RAWIO`/`SYS_ADMIN` for SMART disk access
+
+Deploy with `km` the same as any other platform stack. Komodo handles the compose-vs-swarm distinction based on the Stack's configuration.
+
+---
+
 ## Definition of Done
 
 A change is NOT done until:

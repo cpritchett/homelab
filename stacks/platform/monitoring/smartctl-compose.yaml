@@ -1,0 +1,37 @@
+# Deployed as a Komodo Stack in Compose mode (server_id, no swarm_id).
+# NOT deployed via Swarm — Swarm silently ignores cap_add/devices.
+# Requires the monitoring overlay network to have attachable: true.
+
+services:
+  smartctl-exporter:
+    image: prometheuscommunity/smartctl-exporter:v0.13.0
+    container_name: smartctl-exporter
+    restart: unless-stopped
+    cap_add:
+      - SYS_RAWIO
+      - SYS_ADMIN
+    user: root
+    devices:
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+      - /dev/sdc:/dev/sdc
+      - /dev/sdd:/dev/sdd
+      - /dev/sde:/dev/sde
+      - /dev/sdf:/dev/sdf
+      - /dev/sdg:/dev/sdg
+      - /dev/sdh:/dev/sdh
+      - /dev/sdi:/dev/sdi
+      - /dev/sdj:/dev/sdj
+      - /dev/sdk:/dev/sdk
+      - /dev/sdl:/dev/sdl
+      - /dev/sdm:/dev/sdm
+      - /dev/nvme0:/dev/nvme0
+      - /dev/nvme1:/dev/nvme1
+    cpus: 0.25
+    mem_limit: 128m
+    networks:
+      - platform_monitoring_monitoring
+
+networks:
+  platform_monitoring_monitoring:
+    external: true

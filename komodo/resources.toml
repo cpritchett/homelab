@@ -1,0 +1,151 @@
+# Komodo ResourceSync — declarative resource definitions
+# Managed by the "homelab-resources" ResourceSync.
+# Changes here are applied via sync (diff + confirm).
+#
+# Excludes: system procedures (auto-created by Komodo),
+# webhook_secret / passkey (auto-generated secrets).
+
+# ── Server ──────────────────────────────────────────────
+
+[[server]]
+name = "barbary-periphery"
+
+[server.config]
+address = "https://periphery:8120"
+insecure_tls = true
+enabled = true
+auto_rotate_keys = true
+auto_prune = true
+stats_monitoring = true
+send_unreachable_alerts = true
+send_cpu_alerts = true
+send_mem_alerts = true
+send_disk_alerts = true
+send_version_mismatch_alerts = true
+cpu_warning = 90.0
+cpu_critical = 99.0
+mem_warning = 75.0
+mem_critical = 95.0
+disk_warning = 75.0
+disk_critical = 95.0
+
+# ── Swarm ───────────────────────────────────────────────
+
+[[swarm]]
+name = "homelab-swarm"
+
+[swarm.config]
+server_ids = ["barbary-periphery"]
+send_unhealthy_alerts = true
+
+# ── Builder ─────────────────────────────────────────────
+
+[[builder]]
+name = "Local"
+
+[builder.config]
+type = "Server"
+params.server_id = "barbary-periphery"
+
+# ── Repo ────────────────────────────────────────────────
+
+[[repo]]
+name = "homelab-repo"
+
+[repo.config]
+server_id = "barbary-periphery"
+builder_id = "Local"
+git_provider = "github.com"
+git_https = true
+git_account = "cpritchett"
+repo = "cpritchett/homelab"
+branch = "main"
+path = "/mnt/apps01/repos/homelab"
+webhook_enabled = true
+
+# ── Stacks (Swarm mode) ────────────────────────────────
+
+[[stack]]
+name = "platform_monitoring"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/monitoring"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-monitoring-setup.sh"
+
+# ---
+
+[[stack]]
+name = "platform_observability"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/observability/"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[[stack.config.config_files]]
+path = "homepage/config/services.yaml"
+requires = "Restart"
+
+[[stack.config.config_files]]
+path = "homepage/config/settings.yaml"
+requires = "Restart"
+
+[[stack.config.config_files]]
+path = "homepage/config/bookmarks.yaml"
+requires = "Restart"
+
+# ---
+
+[[stack]]
+name = "platform_authentik"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/auth/authentik"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-authentik-setup.sh"
+
+# ── Stack (Compose mode — Swarm-incompatible) ──────────
+
+[[stack]]
+name = "smartctl-exporter"
+
+[stack.config]
+server = "barbary-periphery"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/monitoring"
+file_paths = ["smartctl-compose.yaml"]
+send_alerts = true
+
+# ── ResourceSync (self-referencing) ─────────────────────
+
+[[resource_sync]]
+name = "homelab-resources"
+
+[resource_sync.config]
+repo = "cpritchett/homelab"
+branch = "main"
+git_provider = "github.com"
+git_https = true
+git_account = "cpritchett"
+resource_path = ["komodo/resources.toml"]

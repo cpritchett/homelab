@@ -15,6 +15,7 @@ This file is a **non-authoritative entrypoint** for humans and LLM agents.
 - **Agent contract:** `docs/governance/agent-contract.md` — strict rules for all agents
 - **CI gates:** `docs/governance/ci-gates.md` — required checks before merge
 - **Procedures:** `docs/governance/procedures.md` — change workflows
+- **Deployment operations:** `docs/governance/agent-contract.md` § Deployment Operations — stack tier model and tool selection
 
 ## Rule of conflict
 If anything disagrees, **constitution/contracts/requirements win**. Docs are explanatory only.
