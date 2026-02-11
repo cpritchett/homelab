@@ -28,3 +28,9 @@ scrape_configs:
   - job_name: promtail
     static_configs:
       - targets: ["promtail:9080"]
+
+  - job_name: smartctl-exporter
+    scrape_interval: 5m
+    scrape_timeout: 1m
+    static_configs:
+      - targets: ["smartctl-exporter:9633"]

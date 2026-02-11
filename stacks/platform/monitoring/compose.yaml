@@ -230,6 +230,25 @@ services:
     networks:
       - monitoring
 
+  smartctl-exporter:
+    image: prometheuscommunity/smartctl-exporter:v0.13.0
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+      labels:
+        kuma.smartctl-exporter.http.name: "SMART Exporter"
+        kuma.smartctl-exporter.http.url: "http://smartctl-exporter:9633/metrics"
+        kuma.smartctl-exporter.http.interval: "60"
+        kuma.smartctl-exporter.http.maxretries: "3"
+        kuma.smartctl-exporter.http.accepted_statuscodes: '["200-299"]'
+    privileged: true
+    user: root
+    networks:
+      - monitoring
+
   promtail:
     image: grafana/promtail:2.9.8
     deploy:
