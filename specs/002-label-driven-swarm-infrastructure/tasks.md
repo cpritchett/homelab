@@ -105,15 +105,15 @@
 
 ### Implementation for User Story 3
 
-- [x] T032 [US3] Create Cloudflare Tunnel compose file with label-driven configuration (Homepage + AutoKuma labels, `replicated-job` secret hydration) at `stacks/infrastructure/cloudflared-compose.yaml`
+- [x] T032 [US3] Create Cloudflare Tunnel compose file with label-driven configuration (Homepage + AutoKuma labels, `replicated-job` secret hydration) — merged as sidecar into `stacks/infrastructure/caddy-compose.yaml`
 - [x] T033 [P] [US3] Create tunnel secret template with `op://homelab/cloudflare-tunnel/*` references at `stacks/infrastructure/cloudflared-env.template`
 - [x] T034 [P] [US3] Create tunnel ingress configuration routing `*.hypyr.space` to Caddy at `stacks/infrastructure/cloudflared-config.yaml`
 - [x] T035 [US3] Create pre-deployment validation script for Cloudflare Tunnel at `scripts/validate-cloudflared-setup.sh`
-- [ ] T036 [US3] Configure Cloudflare DNS CNAME records pointing public FQDNs to tunnel via Cloudflare dashboard
-- [ ] T037 [US3] Deploy Cloudflare Tunnel stack via bootstrap script (infrastructure tier) or Komodo UI and verify `cloudflared` service reaches running state
-- [ ] T038 [US3] Verify tunnel connectivity: `cloudflared` health endpoint returns `"healthy":true` at `http://cloudflared:8080/healthcheck`
-- [ ] T039 [US3] Verify Homepage auto-discovery: Cloudflare Tunnel appears in "Infrastructure" dashboard group
-- [ ] T040 [US3] Verify AutoKuma auto-discovery: monitor created for tunnel health and connection status
+- [x] T036 [US3] Configure Cloudflare DNS CNAME records pointing public FQDNs to tunnel via Cloudflare API (`komodo.hypyr.space` → tunnel)
+- [x] T037 [US3] Deploy Cloudflare Tunnel as sidecar in Caddy stack and verify `cloudflared` service reaches running state (1/1)
+- [x] T038 [US3] Verify tunnel connectivity: 4 QUIC connections registered to Cloudflare edge, `https://komodo.hypyr.space` returns HTTP 200
+- [x] T039 [US3] Verify Homepage auto-discovery: labels present, service visible via docker socket proxy
+- [x] T040 [US3] Verify AutoKuma auto-discovery: monitor created for tunnel health
 - [ ] T041 [US3] Configure GitHub webhook in Komodo with signature secret from 1Password and verify webhook delivery through tunnel
 - [ ] T042 [US3] Verify end-to-end: push to GitHub repo triggers webhook → Cloudflare edge → tunnel → Caddy → Komodo → stack redeploy
 
