@@ -83,16 +83,16 @@ services:
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/cloudflared.template -o /secrets/cloudflared.env -f &&
+      op inject -i /templates/cloudflared-config.template -o /secrets/config.yaml -f &&
       . /secrets/cloudflared.env &&
       echo \"$${CREDENTIALS_JSON}\" | base64 -d > /secrets/credentials.json &&
-      sed \"s/\$${TUNNEL_ID}/$${TUNNEL_ID}/g\" /templates/cloudflared-config.template > /secrets/config.yaml &&
       chmod 644 /secrets/cloudflared.env /secrets/credentials.json /secrets/config.yaml &&
       chmod 755 /secrets &&
       echo 'Cloudflared secrets injected successfully'
       "
 
   cloudflared:
-    image: cloudflare/cloudflared:2024.10.1@sha256:36a16e49a182a0de3809e8fa899c1593af1fe04e42aad4e1de36c839c3ab6eb7
+    image: cloudflare/cloudflared:2024.10.1@sha256:52b9529db08f7ef827a2bce04b91945b475c651e46f583c30b70dd6773262ae3
     deploy:
       replicas: 1
       restart_policy:

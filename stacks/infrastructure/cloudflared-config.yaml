@@ -1,4 +1,4 @@
-tunnel: ${TUNNEL_ID}
+tunnel: {{ op://homelab/cloudflare-tunnel/tunnel_id }}
 credentials-file: /secrets/credentials.json
 metrics: 0.0.0.0:2000
 no-autoupdate: true
