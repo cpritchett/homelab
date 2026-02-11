@@ -8,8 +8,5 @@ ingress:
     service: https://caddy:443
     originRequest:
       noTLSVerify: true
-  - hostname: "*.in.hypyr.space"
-    service: https://caddy:443
-    originRequest:
-      noTLSVerify: true
+      originServerName: tunnel.in.hypyr.space
   - service: http_status:404
