@@ -37,11 +37,11 @@ services:
         # Deep readiness checks (detect upstream/activeKeyset failures)
         kuma.op-connect-readiness.keyword.name: "1Password Connect Readiness"
         kuma.op-connect-readiness.keyword.url: "http://op-connect-api:8080/health"
-        kuma.op-connect-readiness.keyword.keyword: "\"service\":\"1Password\",\"status\":\"ACTIVE\""
+        kuma.op-connect-readiness.keyword.keyword: "ACTIVE"
         kuma.op-connect-readiness.keyword.interval: "60"
         kuma.op-connect-sync.keyword.name: "1Password Connect Sync"
         kuma.op-connect-sync.keyword.url: "http://op-connect-api:8080/health"
-        kuma.op-connect-sync.keyword.keyword: "\"service\":\"sync\",\"status\":\"ACTIVE\""
+        kuma.op-connect-sync.keyword.keyword: "ACTIVE"
         kuma.op-connect-sync.keyword.interval: "60"
 
     volumes:
