@@ -222,7 +222,7 @@ services:
     command:
       - --docker_only
       - --housekeeping_interval=30s
-      - --disable_metrics=accelerator,cpu_topology,disk,hugetlb,memory_numa,percpu,process,referenced_memory,resctrl,sched,tcp,udp
+      - --disable_metrics=cpu_topology,hugetlb,memory_numa,percpu,process,referenced_memory,resctrl,sched,tcp,udp
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/sys:ro
