@@ -113,7 +113,7 @@ entries:
 Blueprints are auto-applied within 60 minutes. To apply immediately, go to
 Admin > Customization > Blueprints and click Apply.
 
-See `stacks/platform/auth/authentik/blueprints/forward-auth-grafana.yaml` for a working example.
+See `stacks/platform/auth/authentik/blueprints/forward-auth-prometheus.yaml` for a working example.
 
 ## Checklist: Protecting a New Service
 

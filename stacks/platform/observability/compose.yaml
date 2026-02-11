@@ -12,6 +12,9 @@ services:
         caddy: home.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 3000}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
         # Homepage self-registration
         homepage.group: "Observability"
         homepage.name: "Homepage"
@@ -20,10 +23,10 @@ services:
         homepage.description: "Service dashboard"
         # AutoKuma monitoring
         kuma.homepage.http.name: "Homepage Dashboard"
-        kuma.homepage.http.url: "https://home.in.hypyr.space"
+        kuma.homepage.http.url: "http://homepage:3000"
         kuma.homepage.http.interval: "60"
         kuma.homepage.http.maxretries: "3"
-        kuma.homepage.http.accepted_statuscodes: '["200"]'
+        kuma.homepage.http.accepted_statuscodes: '["200-299"]'
     environment:
       TZ: America/Chicago
       HOMEPAGE_VAR_DOCKER_HOST: tcp://docker-socket-proxy:2375
@@ -98,7 +101,7 @@ services:
         kuma.uptime-kuma.http.url: "https://status.in.hypyr.space"
         kuma.uptime-kuma.http.interval: "60"
         kuma.uptime-kuma.http.maxretries: "3"
-        kuma.uptime-kuma.http.accepted_statuscodes: '["200"]'
+        kuma.uptime-kuma.http.accepted_statuscodes: '["200-299"]'
     volumes:
       - /mnt/apps01/appdata/uptime-kuma:/app/data
     networks:

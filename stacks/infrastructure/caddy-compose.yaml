@@ -27,6 +27,7 @@ services:
         kuma.caddy.http.url: "https://home.in.hypyr.space"
         kuma.caddy.http.interval: "60"
         kuma.caddy.http.maxretries: "3"
+        kuma.caddy.http.accepted_statuscodes: '["200-299","302"]'
 
     entrypoint: ["/bin/sh", "-c"]
     command: >
@@ -117,7 +118,7 @@ services:
         kuma.cloudflared.http.url: "http://cloudflared:2000/ready"
         kuma.cloudflared.http.interval: "60"
         kuma.cloudflared.http.maxretries: "3"
-        kuma.cloudflared.http.accepted_statuscodes: '["200"]'
+        kuma.cloudflared.http.accepted_statuscodes: '["200-299"]'
     command: ["tunnel", "--config", "/secrets/config.yaml", "run"]
     volumes:
       - /mnt/apps01/appdata/cloudflared/secrets:/secrets:ro

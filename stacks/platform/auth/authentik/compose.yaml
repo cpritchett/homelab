@@ -125,7 +125,7 @@ services:
         kuma.authentik.http.url: "https://auth.in.hypyr.space"
         kuma.authentik.http.interval: "60"
         kuma.authentik.http.maxretries: "3"
-        kuma.authentik.http.accepted_statuscodes: '["200","301","302"]'
+        kuma.authentik.http.accepted_statuscodes: '["200-299","301","302"]'
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
