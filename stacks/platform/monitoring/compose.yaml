@@ -220,13 +220,13 @@ services:
         kuma.cadvisor.http.maxretries: "3"
         kuma.cadvisor.http.accepted_statuscodes: '["200-299"]'
     command:
-      - --docker_only=true
+      - --docker_only
       - --housekeeping_interval=30s
       - --disable_metrics=accelerator,cpu_topology,disk,hugetlb,memory_numa,percpu,process,referenced_memory,resctrl,sched,tcp,udp
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro
+      - /mnt/.ix-apps/docker:/var/lib/docker:ro
     networks:
       - monitoring
 
@@ -247,7 +247,7 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yaml
     volumes:
       - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /mnt/.ix-apps/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/data01/appdata/monitoring/promtail-positions:/positions
     networks:
