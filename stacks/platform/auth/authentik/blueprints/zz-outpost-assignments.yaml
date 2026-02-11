@@ -26,6 +26,8 @@ entries:
     attrs:
       name: "authentik Embedded Outpost"
       type: "proxy"
+      config:
+        authentik_host: "https://auth.in.hypyr.space"
       providers:
         - !Find [authentik_providers_proxy.proxyprovider, [name, prometheus-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, loki-forward-auth]]
