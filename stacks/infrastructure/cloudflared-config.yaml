@@ -5,11 +5,7 @@ no-autoupdate: true
 
 ingress:
   - hostname: "*.hypyr.space"
-    service: https://caddy:443
-    originRequest:
-      noTLSVerify: true
+    service: http://caddy:80
   - hostname: "*.in.hypyr.space"
-    service: https://caddy:443
-    originRequest:
-      noTLSVerify: true
+    service: http://caddy:80
   - service: http_status:404
