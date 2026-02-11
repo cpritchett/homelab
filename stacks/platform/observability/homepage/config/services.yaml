@@ -1,14 +1,9 @@
 ---
-# Infrastructure Tier
 - Infrastructure:
     - Komodo:
         icon: mdi-docker
         href: https://komodo.in.hypyr.space
         description: Infrastructure orchestration
-        widget:
-          type: komodo
-          url: https://komodo.in.hypyr.space
-          key: "{{HOMEPAGE_VAR_KOMODO_API_KEY}}"
 
     - 1Password Connect:
         icon: 1password.png
@@ -27,26 +22,17 @@
         icon: caddy.png
         href: https://barbary.in.hypyr.space
         description: Reverse proxy & TLS
-        server: docker-socket-proxy
-        container: caddy_caddy
 
-# Platform Tier
 - Platform:
-    - Homepage:
-        icon: homepage.png
-        href: https://home.in.hypyr.space
-        description: Homelab dashboard
-        server: docker-socket-proxy
-        container: homepage_homepage
-
     - Authentik:
         icon: authentik.png
         href: https://auth.in.hypyr.space
         description: SSO & Authentication
         widget:
           type: authentik
-          url: https://auth.in.hypyr.space
+          url: http://authentik-server:9000
           key: "{{HOMEPAGE_VAR_AUTHENTIK_API_KEY}}"
+          version: 2
 
     - Uptime Kuma:
         icon: uptime-kuma.png
@@ -54,10 +40,9 @@
         description: Uptime monitoring
         widget:
           type: uptimekuma
-          url: https://status.in.hypyr.space
+          url: http://uptime-kuma:3001
           slug: homelab
 
-# Monitoring
 - Monitoring:
     - Prometheus:
         icon: prometheus.png
@@ -70,22 +55,9 @@
     - Grafana:
         icon: grafana.png
         href: https://grafana.in.hypyr.space
-        description: Metrics visualization
+        description: Metrics & logs dashboards
         widget:
           type: grafana
-          url: https://grafana.in.hypyr.space
+          url: http://grafana:3000
           username: "{{HOMEPAGE_VAR_GRAFANA_USER}}"
           password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
-
-    - Loki:
-        icon: grafana-loki.png
-        href: https://loki.in.hypyr.space
-        description: Log aggregation
-        server: docker-socket-proxy
-        container: loki_loki
-
-# Applications (placeholder for future)
-- Applications:
-    - Placeholder:
-        icon: mdi-apps
-        description: Applications will appear here
