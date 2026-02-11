@@ -60,11 +60,11 @@
 - [x] T010 [US1] Verify Authentik secret hydration job uses `replicated-job` mode with `restart_policy.condition: none` per ADR-0035 in `stacks/platform/auth/authentik/compose.yaml`
 - [x] T011 [US1] Verify Authentik env templates use correct `op://homelab/authentik-stack/*` references in `stacks/platform/auth/authentik/env.template` and `stacks/platform/auth/authentik/postgres.template`
 - [x] T012 [US1] Verify Authentik network configuration: server on `authentik` + `proxy_network`, PostgreSQL/Redis on `authentik` only, secrets-init on `op-connect` in `stacks/platform/auth/authentik/compose.yaml`
-- [ ] T013 [US1] Run pre-deployment validation script to verify all prerequisites in `scripts/validate-authentik-setup.sh`
-- [ ] T014 [US1] Deploy Authentik stack via Komodo UI and verify all services reach running state (`authentik-server` 1/1, `authentik-worker` 1/1, `postgresql` 1/1, `redis` 1/1, `secrets-init` 0/1 completed)
-- [ ] T015 [US1] Verify Caddy auto-discovery: TLS certificate issued for `auth.in.hypyr.space` and service accessible via HTTPS
-- [ ] T016 [US1] Verify Homepage auto-discovery: Authentik appears in correct dashboard group with widget
-- [ ] T017 [US1] Verify AutoKuma auto-discovery: monitor created with "autokuma" tag for Authentik in Uptime Kuma
+- [x] T013 [US1] Run pre-deployment validation script to verify all prerequisites in `scripts/validate-authentik-setup.sh`
+- [x] T014 [US1] Deploy Authentik stack via Komodo UI and verify all services reach running state (`authentik-server` 1/1, `authentik-worker` 1/1, `postgresql` 1/1, `redis` 1/1, `secrets-init` 0/1 completed)
+- [x] T015 [US1] Verify Caddy auto-discovery: TLS certificate issued for `auth.in.hypyr.space` and service accessible via HTTPS
+- [x] T016 [US1] Verify Homepage auto-discovery: Authentik appears in correct dashboard group with widget
+- [x] T017 [US1] Verify AutoKuma auto-discovery: monitor created with "autokuma" tag for Authentik in Uptime Kuma
 - [x] T018 [US1] Authentik initial setup automated: admin account via `AUTHENTIK_BOOTSTRAP_*` env vars, default flows built-in, Homepage API token via blueprint (`blueprints/homepage-token.yaml.template`), forward auth via blueprint pattern (`blueprints/forward-auth-grafana.yaml`)
 - [x] T019 [US1] Document forward auth label pattern for protecting downstream services in `stacks/docs/CADDY_FORWARD_AUTH_LABELS.md`
 
@@ -85,13 +85,13 @@
 - [x] T022 [P] [US2] Verify Prometheus config has correct scrape targets for self-monitoring in `stacks/platform/monitoring/prometheus/prometheus.yml`
 - [x] T023 [P] [US2] Verify Grafana provisioning has Prometheus and Loki datasources configured in `stacks/platform/monitoring/grafana/provisioning/datasources/datasources.yaml`
 - [x] T024 [P] [US2] Verify Loki config uses filesystem storage with TSDB schema in `stacks/platform/monitoring/loki/loki-config.yaml`
-- [ ] T025 [US2] Run pre-deployment validation script to verify all prerequisites in `scripts/validate-monitoring-setup.sh`
-- [ ] T026 [US2] Deploy monitoring stack via Komodo UI and verify all services reach running state (`prometheus` 1/1, `grafana` 1/1, `loki` 1/1, `op-secrets` 0/1 completed)
-- [ ] T027 [US2] Verify Caddy auto-discovery: TLS certificates issued for `prometheus.in.hypyr.space`, `grafana.in.hypyr.space`, `loki.in.hypyr.space`
-- [ ] T028 [US2] Verify Homepage auto-discovery: all three monitoring services appear in "Monitoring" dashboard group with widgets
-- [ ] T029 [US2] Verify AutoKuma auto-discovery: monitors created for Prometheus (`/-/healthy`), Grafana (`/api/health`), and Loki (`/ready`)
-- [ ] T030 [US2] Login to Grafana, verify Prometheus datasource is connected and returning metrics
-- [ ] T031 [US2] Verify Loki datasource is connected in Grafana (log queries return results once log shipping is configured)
+- [x] T025 [US2] Run pre-deployment validation script to verify all prerequisites in `scripts/validate-monitoring-setup.sh`
+- [x] T026 [US2] Deploy monitoring stack via Komodo UI and verify all services reach running state (`prometheus` 1/1, `grafana` 1/1, `loki` 1/1, `op-secrets` 0/1 completed)
+- [x] T027 [US2] Verify Caddy auto-discovery: TLS certificates issued for `prometheus.in.hypyr.space`, `grafana.in.hypyr.space`, `loki.in.hypyr.space`
+- [x] T028 [US2] Verify Homepage auto-discovery: all three monitoring services appear in "Monitoring" dashboard group with widgets
+- [x] T029 [US2] Verify AutoKuma auto-discovery: monitors created for Prometheus (`/-/healthy`), Grafana (`/api/health`), and Loki (`/ready`)
+- [x] T030 [US2] Login to Grafana, verify Prometheus datasource is connected and returning metrics
+- [x] T031 [US2] Verify Loki datasource is connected in Grafana (log queries return results once log shipping is configured)
 
 **Checkpoint**: Monitoring stack is operational. Prometheus scrapes self-metrics, Grafana dashboards accessible, Loki ready for log ingestion. All services auto-discovered in Homepage and Uptime Kuma.
 

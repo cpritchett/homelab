@@ -58,6 +58,73 @@ services:
       - /mnt/apps01/appdata/proxy/caddy-data:/data/caddy
       - /mnt/apps01/appdata/proxy/caddy-config:/config
 
+  cloudflared-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./cloudflared-env.template:/templates/cloudflared.template:ro
+      - ./cloudflared-config.yaml:/templates/cloudflared-config.template:ro
+      - /mnt/apps01/appdata/cloudflared/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/cloudflared.template -o /secrets/cloudflared.env -f &&
+      . /secrets/cloudflared.env &&
+      echo \"$${CREDENTIALS_JSON}\" | base64 -d > /secrets/credentials.json &&
+      sed \"s/\$${TUNNEL_ID}/$${TUNNEL_ID}/g\" /templates/cloudflared-config.template > /secrets/config.yaml &&
+      chmod 644 /secrets/cloudflared.env /secrets/credentials.json /secrets/config.yaml &&
+      chmod 755 /secrets &&
+      echo 'Cloudflared secrets injected successfully'
+      "
+
+  cloudflared:
+    image: cloudflare/cloudflared:2024.10.1@sha256:36a16e49a182a0de3809e8fa899c1593af1fe04e42aad4e1de36c839c3ab6eb7
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+      labels:
+        homepage.group: "Infrastructure"
+        homepage.name: "Cloudflare Tunnel"
+        homepage.icon: "cloudflare.png"
+        homepage.href: "https://dash.cloudflare.com"
+        homepage.description: "External ingress tunnel"
+
+        kuma.cloudflared.http.name: "Cloudflare Tunnel"
+        kuma.cloudflared.http.url: "http://cloudflared:2000/ready"
+        kuma.cloudflared.http.interval: "60"
+        kuma.cloudflared.http.maxretries: "3"
+        kuma.cloudflared.http.accepted_statuscodes: '["200"]'
+    command: ["tunnel", "--config", "/secrets/config.yaml", "run"]
+    volumes:
+      - /mnt/apps01/appdata/cloudflared/secrets:/secrets:ro
+    networks:
+      - proxy_network
+    user: '65532:65532'
+
   docker-socket-proxy:
     deploy:
       resources:
@@ -97,7 +164,12 @@ services:
 networks:
   proxy_network:
     external: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
 
 secrets:
   CLOUDFLARE_API_TOKEN:
+    external: true
+  op_connect_token:
     external: true
