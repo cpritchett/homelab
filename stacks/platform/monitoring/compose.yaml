@@ -179,6 +179,80 @@ services:
        set +a;
        exec /run.sh"
 
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+      labels:
+        kuma.node-exporter.http.name: "Node Exporter"
+        kuma.node-exporter.http.url: "http://node-exporter:9100/metrics"
+        kuma.node-exporter.http.interval: "60"
+        kuma.node-exporter.http.maxretries: "3"
+        kuma.node-exporter.http.accepted_statuscodes: '["200-299"]'
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/host/rootfs
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/rootfs:ro
+    networks:
+      - monitoring
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        kuma.cadvisor.http.name: "cAdvisor"
+        kuma.cadvisor.http.url: "http://cadvisor:8080/healthz"
+        kuma.cadvisor.http.interval: "60"
+        kuma.cadvisor.http.maxretries: "3"
+        kuma.cadvisor.http.accepted_statuscodes: '["200-299"]'
+    command:
+      - --docker_only=true
+      - --housekeeping_interval=30s
+      - --disable_metrics=accelerator,cpu_topology,disk,hugetlb,memory_numa,percpu,process,referenced_memory,resctrl,sched,tcp,udp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:2.9.8
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+      labels:
+        kuma.promtail.http.name: "Promtail"
+        kuma.promtail.http.url: "http://promtail:9080/ready"
+        kuma.promtail.http.interval: "60"
+        kuma.promtail.http.maxretries: "3"
+        kuma.promtail.http.accepted_statuscodes: '["200-299"]'
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    volumes:
+      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/data01/appdata/monitoring/promtail-positions:/positions
+    networks:
+      - monitoring
+
 networks:
   monitoring:
     driver: overlay
