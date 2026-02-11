@@ -8,9 +8,22 @@ services:
           cpus: '1'
           memory: 512M
       labels:
+        # Caddy ingress
         caddy: home.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 3000}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        # Homepage self-registration
+        homepage.group: "Observability"
+        homepage.name: "Homepage"
+        homepage.icon: "homepage.png"
+        homepage.href: "https://home.in.hypyr.space"
+        homepage.description: "Service dashboard"
+        # AutoKuma monitoring
+        kuma.homepage.http.name: "Homepage Dashboard"
+        kuma.homepage.http.url: "https://home.in.hypyr.space"
+        kuma.homepage.http.interval: "60"
+        kuma.homepage.http.maxretries: "3"
+        kuma.homepage.http.accepted_statuscodes: '["200"]'
     environment:
       TZ: America/Chicago
       HOMEPAGE_VAR_DOCKER_HOST: tcp://docker-socket-proxy:2375
@@ -68,9 +81,24 @@ services:
           cpus: '0.5'
           memory: 256M
       labels:
+        # Caddy ingress
         caddy: status.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 3001}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        # Homepage registration
+        homepage.group: "Observability"
+        homepage.name: "Uptime Kuma"
+        homepage.icon: "uptime-kuma.png"
+        homepage.href: "https://status.in.hypyr.space"
+        homepage.description: "Uptime monitoring"
+        homepage.widget.type: "uptimekuma"
+        homepage.widget.url: "http://uptime-kuma:3001"
+        # AutoKuma self-monitoring
+        kuma.uptime-kuma.http.name: "Uptime Kuma"
+        kuma.uptime-kuma.http.url: "https://status.in.hypyr.space"
+        kuma.uptime-kuma.http.interval: "60"
+        kuma.uptime-kuma.http.maxretries: "3"
+        kuma.uptime-kuma.http.accepted_statuscodes: '["200"]'
     volumes:
       - /mnt/apps01/appdata/uptime-kuma:/app/data
     networks:
