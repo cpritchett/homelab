@@ -17,7 +17,9 @@ services:
     volumes:
       - ./env.template:/templates/authentik.template:ro
       - ./postgres.template:/templates/postgres.template:ro
+      - ./blueprints/homepage-token.yaml.template:/templates/homepage-token.yaml.template:ro
       - /mnt/apps01/appdata/authentik/secrets:/secrets
+      - /mnt/apps01/appdata/authentik/blueprints:/blueprints-out
     networks:
       - op-connect
     command: >
@@ -25,8 +27,9 @@ services:
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/authentik.template -o /secrets/authentik.env -f &&
       op inject -i /templates/postgres.template -o /secrets/postgres.env -f &&
-      chmod 644 /secrets/*.env &&
-      chmod 755 /secrets &&
+      op inject -i /templates/homepage-token.yaml.template -o /blueprints-out/homepage-token.yaml -f &&
+      chmod 644 /secrets/*.env /blueprints-out/*.yaml &&
+      chmod 755 /secrets /blueprints-out &&
       echo 'Secrets injected successfully'
       "
 
@@ -122,11 +125,13 @@ services:
         kuma.authentik.http.url: "https://auth.in.hypyr.space"
         kuma.authentik.http.interval: "60"
         kuma.authentik.http.maxretries: "3"
-        kuma.authentik.http.accepted_statuscodes: "[200,301,302]"
+        kuma.authentik.http.accepted_statuscodes: '["200","301","302"]'
     volumes:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
       - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
+      - ./blueprints:/blueprints/custom/static:ro
+      - /mnt/apps01/appdata/authentik/blueprints:/blueprints/custom/generated:ro
     environment:
       # Core connections
       AUTHENTIK_REDIS__HOST: "redis"
@@ -160,6 +165,8 @@ services:
       - /mnt/apps01/appdata/authentik/media:/media
       - /mnt/apps01/appdata/authentik/custom-templates:/templates
       - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
+      - ./blueprints:/blueprints/custom/static:ro
+      - /mnt/apps01/appdata/authentik/blueprints:/blueprints/custom/generated:ro
     environment:
       # Core connections
       AUTHENTIK_REDIS__HOST: "redis"

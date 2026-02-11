@@ -65,7 +65,7 @@ services:
         kuma.prometheus.http.url: "https://prometheus.in.hypyr.space/-/healthy"
         kuma.prometheus.http.interval: "60"
         kuma.prometheus.http.maxretries: "3"
-        kuma.prometheus.http.accepted_statuscodes: "[200]"
+        kuma.prometheus.http.accepted_statuscodes: '["200"]'
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
@@ -108,7 +108,7 @@ services:
         kuma.loki.http.url: "https://loki.in.hypyr.space/ready"
         kuma.loki.http.interval: "60"
         kuma.loki.http.maxretries: "3"
-        kuma.loki.http.accepted_statuscodes: "[200]"
+        kuma.loki.http.accepted_statuscodes: '["200"]'
     command: -config.file=/etc/loki/loki-config.yaml
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
@@ -151,7 +151,7 @@ services:
         kuma.grafana.http.url: "https://grafana.in.hypyr.space/api/health"
         kuma.grafana.http.interval: "60"
         kuma.grafana.http.maxretries: "3"
-        kuma.grafana.http.accepted_statuscodes: "[200]"
+        kuma.grafana.http.accepted_statuscodes: '["200"]'
     environment:
       GF_PATHS_PROVISIONING: /etc/grafana/provisioning
       GF_SERVER_ROOT_URL: https://grafana.in.hypyr.space

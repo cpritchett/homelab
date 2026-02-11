@@ -121,6 +121,9 @@ ensure_dir_with_ownership "${APPDATA_PATH}/authentik/custom-templates" "1000:100
 # Secrets directory for op inject init container (UID 999:999)
 ensure_dir_with_ownership "${APPDATA_PATH}/authentik/secrets" "999:999" "755"
 
+# Blueprints directory for rendered blueprint templates (readable by authentik UID 1000)
+ensure_dir_with_ownership "${APPDATA_PATH}/authentik/blueprints" "1000:1000" "755"
+
 # Quick connectivity test to 1Password Connect (fail fast if unreachable)
 if ! docker run --rm --network op-connect_op-connect \
     -e OP_CONNECT_HOST=http://op-connect-api:8080 \

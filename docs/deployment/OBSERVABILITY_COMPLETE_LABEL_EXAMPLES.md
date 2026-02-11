@@ -190,6 +190,57 @@ services:
         kuma.homepage.http.keyword: "Homelab"
 ```
 
+### Loki Log Aggregation
+
+```yaml
+services:
+  loki:
+    image: grafana/loki:3.3.2
+    deploy:
+      labels:
+        # Homepage: Monitoring dashboard
+        homepage.group: "Monitoring"
+        homepage.name: "Loki"
+        homepage.icon: "loki.png"
+        homepage.href: "https://loki.in.hypyr.space"
+        homepage.description: "Log aggregation"
+
+        # Caddy: Public reverse proxy
+        caddy: loki.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3100}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma: Internal health check
+        kuma.loki.http.name: "Loki"
+        kuma.loki.http.url: "http://loki:3100/ready"
+        kuma.loki.http.interval: "60"
+        kuma.loki.http.maxretries: "3"
+```
+
+### Cloudflare Tunnel
+
+```yaml
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:2024.10.1
+    deploy:
+      labels:
+        # Homepage: Infrastructure dashboard
+        homepage.group: "Infrastructure"
+        homepage.name: "Cloudflare Tunnel"
+        homepage.icon: "cloudflare.png"
+        homepage.href: "https://dash.cloudflare.com"
+        homepage.description: "External ingress tunnel"
+
+        # No Caddy labels (tunnel routes TO Caddy, not through it)
+
+        # AutoKuma: Metrics endpoint monitoring
+        kuma.cloudflared.http.name: "Cloudflare Tunnel"
+        kuma.cloudflared.http.url: "http://cloudflared:2000/ready"
+        kuma.cloudflared.http.interval: "60"
+        kuma.cloudflared.http.maxretries: "3"
+```
+
 ## Application Tier Examples
 
 ### Grafana

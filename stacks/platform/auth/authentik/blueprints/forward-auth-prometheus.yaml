@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+# Forward auth: Prometheus (stacks/platform/monitoring/compose.yaml)
+version: 1
+
+metadata:
+  name: "Forward Auth - Prometheus"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+
+entries:
+  - model: authentik_providers_proxy.proxyprovider
+    state: present
+    identifiers:
+      name: "prometheus-forward-auth"
+    attrs:
+      name: "prometheus-forward-auth"
+      mode: "forward_single"
+      external_host: "https://prometheus.in.hypyr.space"
+      access_token_validity: "hours=24"
+      refresh_token_validity: "days=30"
+      authorization_flow: !Find [authentik_flows.flow, [slug, default-provider-authorization-implicit-consent]]
+      invalidation_flow: !Find [authentik_flows.flow, [slug, default-provider-invalidation-flow]]
+
+  - model: authentik_core.application
+    state: present
+    identifiers:
+      slug: "prometheus"
+    attrs:
+      name: "Prometheus"
+      slug: "prometheus"
+      meta_launch_url: "https://prometheus.in.hypyr.space"
+      policy_engine_mode: "any"
+      provider: !Find [authentik_providers_proxy.proxyprovider, [name, prometheus-forward-auth]]

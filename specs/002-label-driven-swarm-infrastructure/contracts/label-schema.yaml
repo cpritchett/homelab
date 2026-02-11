@@ -1,0 +1,123 @@
+# Label Schema Contract: Label-Driven Docker Swarm Infrastructure
+# All services MUST declare these label families under deploy.labels (ADR-0034)
+#
+# This contract defines the required label structure for all Docker Swarm
+# services in the homelab infrastructure.
+
+---
+apiVersion: v1
+kind: LabelSchemaContract
+metadata:
+  name: label-driven-infrastructure
+  spec: "002-label-driven-swarm-infrastructure"
+  adr: ADR-0034
+
+# Homepage Dashboard Labels (REQUIRED for all services)
+homepage:
+  required:
+    - key: homepage.group
+      type: string
+      description: Dashboard group name
+      examples: ["Infrastructure", "Platform", "Monitoring", "Applications"]
+
+    - key: homepage.name
+      type: string
+      description: Display name for the service
+
+    - key: homepage.icon
+      type: string
+      description: Icon filename from homepage icon set
+      pattern: "^[a-z0-9-]+\\.png$"
+
+    - key: homepage.href
+      type: url
+      description: Link to service UI
+      pattern: "^https://[a-z0-9-]+\\.in\\.hypyr\\.space"
+
+    - key: homepage.description
+      type: string
+      description: Brief service description
+
+  optional:
+    - key: homepage.widget.type
+      type: string
+      description: Widget type for live stats
+      examples: ["prometheus", "grafana", "authentik", "customapi"]
+
+    - key: homepage.widget.url
+      type: url
+      description: Widget data endpoint
+
+# Caddy Reverse Proxy Labels (REQUIRED for publicly accessible services)
+caddy:
+  required_if_public:
+    - key: caddy
+      type: string
+      description: FQDN for reverse proxy
+      pattern: "^[a-z0-9-]+\\.in\\.hypyr\\.space$"
+
+    - key: caddy.reverse_proxy
+      type: string
+      description: Upstream target
+      pattern: "^\\{\\{upstreams \\d+\\}\\}$"
+
+    - key: caddy.tls.dns
+      type: string
+      description: TLS DNS provider configuration
+      value: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+  optional:
+    - key: caddy.forward_auth
+      type: url
+      description: Forward authentication endpoint (Authentik)
+
+    - key: caddy.forward_auth.uri
+      type: string
+      description: Auth check URI path
+
+    - key: caddy.forward_auth.copy_headers
+      type: string
+      description: Space-separated headers to copy from auth response
+
+# AutoKuma Monitoring Labels (REQUIRED for all services)
+autokuma:
+  required:
+    - key: "kuma.{id}.http.name"
+      type: string
+      description: Monitor display name
+
+    - key: "kuma.{id}.http.url"
+      type: url
+      description: Health check URL
+
+    - key: "kuma.{id}.http.interval"
+      type: string
+      description: Check interval in seconds
+      default: "60"
+
+    - key: "kuma.{id}.http.maxretries"
+      type: string
+      description: Maximum retry count
+      default: "3"
+
+  optional:
+    - key: "kuma.{id}.http.accepted_statuscodes"
+      type: string
+      description: Accepted HTTP status codes
+      default: "[200]"
+
+    - key: "kuma.{id}.http.keyword"
+      type: string
+      description: Expected keyword in response body
+
+# Placement Rules
+placement:
+  - rule: Labels MUST be under deploy.labels (service-level)
+    rationale: Container labels are not visible to Caddy, Homepage, or AutoKuma in Swarm mode
+    validation: "docker service inspect --format '{{json .Spec.Labels}}'"
+
+  - rule: Services requiring external access MUST attach to proxy_network
+    rationale: Caddy discovers and routes to services on this network
+
+  - rule: Label id in AutoKuma MUST be unique per service
+    rationale: Prevents monitor name collisions in Uptime Kuma

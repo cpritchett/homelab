@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+# Aggregate outpost assignment — assigns ALL forward-auth providers to the
+# embedded outpost. Prefixed with zz- so it runs after individual provider
+# blueprints have been applied.
+#
+# Forward auth is for services with NO built-in authentication.
+# Services with their own auth (Grafana, Komodo, Forgejo, Uptime Kuma,
+# Woodpecker) should use native OAuth2/OIDC provider integration instead.
+#
+# When adding a new service:
+#   1. Create forward-auth-<service>.yaml (provider + application)
+#   2. Add the provider to the list below
+#   3. Add Caddy forward_auth labels to the service's compose file
+version: 1
+
+metadata:
+  name: "Outpost Assignments"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+
+entries:
+  - model: authentik_outposts.outpost
+    state: present
+    identifiers:
+      name: "authentik Embedded Outpost"
+    attrs:
+      name: "authentik Embedded Outpost"
+      type: "proxy"
+      providers:
+        - !Find [authentik_providers_proxy.proxyprovider, [name, prometheus-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, loki-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, homepage-forward-auth]]

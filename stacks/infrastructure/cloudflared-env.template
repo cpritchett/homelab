@@ -1,0 +1,2 @@
+TUNNEL_ID={{ op://homelab/cloudflare-tunnel/tunnel_id }}
+CREDENTIALS_JSON={{ op://homelab/cloudflare-tunnel/credentials_json }}

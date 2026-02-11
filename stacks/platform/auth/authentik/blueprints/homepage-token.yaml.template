@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+# This file is processed by `op inject` during secrets-init.
+# The rendered output is mounted into Authentik at /blueprints/custom/.
+version: 1
+
+metadata:
+  name: "Homepage Widget API Token"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+    blueprints.goauthentik.io/description: "Service account and API token for Homepage dashboard widget"
+
+entries:
+  - model: authentik_core.user
+    state: present
+    id: homepage-service-account
+    identifiers:
+      username: "homepage-service"
+    attrs:
+      username: "homepage-service"
+      name: "Homepage Service Account"
+      type: "service_account"
+      is_active: true
+
+  - model: authentik_core.token
+    state: present
+    identifiers:
+      identifier: "homepage-widget-token"
+    attrs:
+      key: "op://homelab/authentik-stack/homepage_api_key"
+      user: !KeyOf homepage-service-account
+      intent: "api"
+      expiring: false
+      description: "API token for Homepage dashboard widget"
