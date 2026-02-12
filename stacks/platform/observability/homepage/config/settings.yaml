@@ -15,6 +15,9 @@ layout:
   Monitoring:
     style: row
     columns: 3
+  Media:
+    style: row
+    columns: 4
 
 providers:
   # Disable OpenWeatherMap (requires API key)

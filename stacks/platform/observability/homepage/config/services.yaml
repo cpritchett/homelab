@@ -61,3 +61,72 @@
           url: http://grafana:3000
           username: "{{HOMEPAGE_VAR_GRAFANA_USER}}"
           password: "{{HOMEPAGE_VAR_GRAFANA_PASSWORD}}"
+
+- Media:
+    - Plex:
+        icon: plex.png
+        href: https://plex.in.hypyr.space
+        description: Media server
+        widget:
+          type: plex
+          url: http://plex:32400
+          key: "{{HOMEPAGE_VAR_PLEX_API_KEY}}"
+
+    - Sonarr:
+        icon: sonarr.png
+        href: https://sonarr.in.hypyr.space
+        description: TV management
+        widget:
+          type: sonarr
+          url: http://sonarr:8989
+          key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
+
+    - Radarr:
+        icon: radarr.png
+        href: https://radarr.in.hypyr.space
+        description: Movie management
+        widget:
+          type: radarr
+          url: http://radarr:7878
+          key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
+
+    - Prowlarr:
+        icon: prowlarr.png
+        href: https://prowlarr.in.hypyr.space
+        description: Indexer management
+        widget:
+          type: prowlarr
+          url: http://prowlarr:9696
+          key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
+
+    - SABnzbd:
+        icon: sabnzbd.png
+        href: https://sabnzbd.in.hypyr.space
+        description: Usenet downloader
+        widget:
+          type: sabnzbd
+          url: http://sabnzbd:8080
+          key: "{{HOMEPAGE_VAR_SABNZBD_API_KEY}}"
+
+    - Bazarr:
+        icon: bazarr.png
+        href: https://bazarr.in.hypyr.space
+        description: Subtitle management
+        widget:
+          type: bazarr
+          url: http://bazarr:6767
+          key: "{{HOMEPAGE_VAR_BAZARR_API_KEY}}"
+
+    - Tautulli:
+        icon: tautulli.png
+        href: https://tautulli.in.hypyr.space
+        description: Plex monitoring
+        widget:
+          type: tautulli
+          url: http://tautulli:8181
+          key: "{{HOMEPAGE_VAR_TAUTULLI_API_KEY}}"
+
+    - Maintainerr:
+        icon: maintainerr.png
+        href: https://maintainerr.in.hypyr.space
+        description: Library maintenance
