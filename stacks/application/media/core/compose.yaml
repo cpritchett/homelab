@@ -79,6 +79,7 @@ services:
       PGID: "1702"
       TZ: "America/New_York"
       VERSION: "docker"
+      ADVERTISE_IP: "https://plex.in.hypyr.space"
     volumes:
       - /mnt/apps01/appdata/media/plex/config:/config
       - /mnt/data01/data:/data
