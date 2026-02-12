@@ -10,6 +10,15 @@ metadata:
     blueprints.goauthentik.io/description: "Service account and API token for Homepage dashboard widget"
 
 entries:
+  - model: authentik_core.group
+    state: present
+    id: homepage-api-group
+    identifiers:
+      name: "Homepage API Access"
+    attrs:
+      name: "Homepage API Access"
+      is_superuser: true
+
   - model: authentik_core.user
     state: present
     id: homepage-service-account
@@ -20,6 +29,8 @@ entries:
       name: "Homepage Service Account"
       type: "service_account"
       is_active: true
+      groups:
+        - !KeyOf homepage-api-group
 
   - model: authentik_core.token
     state: present
