@@ -110,3 +110,4 @@ lerna-debug.log*
 # Talos rendered configs (generated from templates)
 talos/rendered/
 .continue/
+.playwright-mcp/
