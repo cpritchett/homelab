@@ -77,7 +77,7 @@ services:
     environment:
       PUID: "1701"
       PGID: "1702"
-      TZ: "America/New_York"
+      TZ: "America/Chicago"
       VERSION: "docker"
       ADVERTISE_IP: "https://plex.in.hypyr.space"
     volumes:
@@ -135,7 +135,7 @@ services:
     environment:
       PUID: "1701"
       PGID: "1702"
-      TZ: "America/New_York"
+      TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/sonarr/config:/config
       - /mnt/data01/data:/data
@@ -190,7 +190,7 @@ services:
     environment:
       PUID: "1701"
       PGID: "1702"
-      TZ: "America/New_York"
+      TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/radarr/config:/config
       - /mnt/data01/data:/data
@@ -245,7 +245,7 @@ services:
     environment:
       PUID: "1701"
       PGID: "1702"
-      TZ: "America/New_York"
+      TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/prowlarr/config:/config
       - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
@@ -300,7 +300,7 @@ services:
     environment:
       PUID: "1701"
       PGID: "1702"
-      TZ: "America/New_York"
+      TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/sabnzbd/config:/config
       - /mnt/data01/data:/data

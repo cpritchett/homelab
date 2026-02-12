@@ -52,7 +52,7 @@ services:
     environment:
       PUID: "1701"
       PGID: "1702"
-      TZ: "America/New_York"
+      TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/bazarr/config:/config
       - /mnt/data01/data:/data
@@ -102,7 +102,7 @@ services:
     environment:
       PUID: "1701"
       PGID: "1702"
-      TZ: "America/New_York"
+      TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/tautulli/config:/config
     networks:
