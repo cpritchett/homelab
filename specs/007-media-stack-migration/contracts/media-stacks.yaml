@@ -1,0 +1,229 @@
+# Media Stack Contract: Stack Definitions and Service Topology
+# Defines the three media stacks, their services, and deployment requirements
+#
+# Spec: 007-media-stack-migration
+# ADR: ADR-0033 (Phase 3), ADR-0034 (labels), ADR-0035 (secrets)
+
+---
+apiVersion: v1
+kind: MediaStackContract
+metadata:
+  name: media-stack-topology
+  spec: "007-media-stack-migration"
+  adr: ADR-0033
+
+stacks:
+  - name: application_media_core
+    status: active
+    compose_path: stacks/application/media/core/compose.yaml
+    secret_template: stacks/application/media/core/media.env.template
+    komodo_resource: application_media_core
+    pre_deploy_script: scripts/validate-media-setup.sh
+
+    services:
+      - name: plex
+        image: linuxserver/plex
+        port: 32400
+        fqdn: plex.in.hypyr.space
+        health_endpoint: /web/index.html
+        homepage_widget: plex
+        authentik_forward_auth: false  # Plex has own auth
+        requires_secrets: true
+        requires_gpu: true
+        requires_media_mount: true
+
+      - name: sonarr
+        image: linuxserver/sonarr
+        port: 8989
+        fqdn: sonarr.in.hypyr.space
+        health_endpoint: /ping
+        homepage_widget: sonarr
+        authentik_forward_auth: true
+        requires_secrets: true
+        requires_gpu: false
+        requires_media_mount: true
+
+      - name: radarr
+        image: linuxserver/radarr
+        port: 7878
+        fqdn: radarr.in.hypyr.space
+        health_endpoint: /ping
+        homepage_widget: radarr
+        authentik_forward_auth: true
+        requires_secrets: true
+        requires_gpu: false
+        requires_media_mount: true
+
+      - name: prowlarr
+        image: linuxserver/prowlarr
+        port: 9696
+        fqdn: prowlarr.in.hypyr.space
+        health_endpoint: /ping
+        homepage_widget: prowlarr
+        authentik_forward_auth: true
+        requires_secrets: true
+        requires_gpu: false
+        requires_media_mount: false
+
+      - name: sabnzbd
+        image: linuxserver/sabnzbd
+        port: 8080
+        fqdn: sabnzbd.in.hypyr.space
+        health_endpoint: /api?mode=version
+        homepage_widget: sabnzbd
+        authentik_forward_auth: true
+        requires_secrets: true
+        requires_gpu: false
+        requires_media_mount: true
+
+    networks:
+      - name: proxy_network
+        type: external
+        purpose: Caddy ingress and cross-stack communication
+      - name: media
+        type: internal_overlay
+        purpose: Intra-stack service communication
+      - name: op-connect_op-connect
+        type: external
+        purpose: 1Password Connect access (secrets job only)
+
+  - name: application_media_support
+    status: active
+    compose_path: stacks/application/media/support/compose.yaml
+    secret_template: null  # No secrets needed
+    komodo_resource: application_media_support
+    pre_deploy_script: scripts/validate-media-setup.sh
+
+    services:
+      - name: bazarr
+        image: linuxserver/bazarr
+        port: 6767
+        fqdn: bazarr.in.hypyr.space
+        health_endpoint: /ping
+        homepage_widget: bazarr
+        authentik_forward_auth: true
+        requires_secrets: false
+        requires_gpu: false
+        requires_media_mount: true
+
+      - name: tautulli
+        image: linuxserver/tautulli
+        port: 8181
+        fqdn: tautulli.in.hypyr.space
+        health_endpoint: /status
+        homepage_widget: tautulli
+        authentik_forward_auth: true
+        requires_secrets: false
+        requires_gpu: false
+        requires_media_mount: false
+
+      - name: maintainerr
+        image: ghcr.io/jorenn92/maintainerr
+        port: 6246
+        fqdn: maintainerr.in.hypyr.space
+        health_endpoint: /
+        homepage_widget: customapi
+        authentik_forward_auth: true
+        requires_secrets: false
+        requires_gpu: false
+        requires_media_mount: false
+
+    networks:
+      - name: proxy_network
+        type: external
+        purpose: Caddy ingress and access to core services
+      - name: media_support
+        type: internal_overlay
+        purpose: Intra-stack service communication
+
+  - name: application_media_torrent
+    status: deferred
+    compose_path: stacks/application/media/torrent/compose.yaml
+    secret_template: stacks/application/media/torrent/torrent.env.template
+    komodo_resource: application_media_torrent
+    deferred_reason: VPN sidecar design not finalized
+
+    services:
+      - name: qbittorrent
+        image: linuxserver/qbittorrent
+        port: 8080
+        fqdn: qbittorrent.in.hypyr.space
+        health_endpoint: /api/v2/app/version
+        homepage_widget: qbittorrent
+        authentik_forward_auth: true
+        requires_secrets: false
+        requires_gpu: false
+        requires_media_mount: true
+
+      - name: cross-seed
+        image: ghcr.io/cross-seed/cross-seed
+        port: 2468
+        fqdn: cross-seed.in.hypyr.space
+        health_endpoint: /api/status
+        homepage_widget: customapi
+        authentik_forward_auth: true
+        requires_secrets: false
+        requires_gpu: false
+        requires_media_mount: true
+
+      - name: autobrr
+        image: ghcr.io/autobrr/autobrr
+        port: 7474
+        fqdn: autobrr.in.hypyr.space
+        health_endpoint: /api/healthz/liveness
+        homepage_widget: autobrr
+        authentik_forward_auth: true
+        requires_secrets: true
+        requires_gpu: false
+        requires_media_mount: false
+
+      - name: recyclarr
+        image: ghcr.io/recyclarr/recyclarr
+        port: null  # Daemon mode, no web UI
+        fqdn: null
+        health_endpoint: null
+        homepage_widget: null
+        authentik_forward_auth: false
+        requires_secrets: true
+        requires_gpu: false
+        requires_media_mount: false
+
+    networks:
+      - name: proxy_network
+        type: external
+        purpose: Caddy ingress
+      - name: media_torrent
+        type: internal_overlay
+        purpose: Intra-stack service communication
+      - name: op-connect_op-connect
+        type: external
+        purpose: 1Password Connect access (secrets job only)
+
+# Global Configuration
+global:
+  user: 1701
+  group: 1702
+  timezone: America/New_York
+  config_base_path: /mnt/apps01/appdata/media
+  media_data_path: /mnt/data01/data
+  gpu_device_path: /dev/dri
+
+# Validation Rules
+validation:
+  - rule: All active stacks MUST be registered in komodo/resources.toml
+    check: "grep -c 'application_media_' komodo/resources.toml"
+
+  - rule: All compose files MUST pass syntax validation
+    check: "docker compose -f {compose_path} config"
+
+  - rule: All services MUST have Homepage labels
+    check: "grep -c 'homepage.group' {compose_path}"
+
+  - rule: All web services MUST have Caddy labels
+    check: "grep -c 'caddy:' {compose_path}"
+
+  - rule: All web services MUST have AutoKuma labels
+    check: "grep -c 'kuma\\.' {compose_path}"
+
+  - rule: Deferred stacks MUST NOT be deployed
+    check: "docker stack ls | grep -v application_media_torrent"

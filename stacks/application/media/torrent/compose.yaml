@@ -1,0 +1,237 @@
+###############################################################################
+# Media Stack — Torrent Services
+#
+# ⚠️  DEFERRED: This stack is NOT deployed. VPN sidecar design is pending.
+#     Compose files are validated and ready for deployment once VPN is finalized.
+#
+# Services: qBittorrent, Cross-Seed, Autobrr, Recyclarr
+# Tier: Application (depends on Infrastructure + Platform + Media Core)
+# Spec: specs/007-media-stack-migration (User Story 3)
+# ADR: ADR-0033 Phase 3, ADR-0034 (labels), ADR-0035 (secrets)
+###############################################################################
+
+services:
+  # ── Secret Hydration (one-shot job) ──────────────────────────
+  op-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./torrent.env.template:/templates/torrent.template:ro
+      - /mnt/apps01/appdata/media/torrent/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/torrent.template -o /secrets/torrent.env -f &&
+      chmod 644 /secrets/torrent.env &&
+      echo 'Secrets injected successfully'
+      "
+
+  # ── qBittorrent ──────────────────────────────────────────────
+  # TODO: Add VPN sidecar container (e.g., gluetun) before deployment.
+  #       qBittorrent traffic must route through VPN for privacy.
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "qBittorrent"
+        homepage.icon: "qbittorrent.png"
+        homepage.href: "https://qbittorrent.in.hypyr.space"
+        homepage.description: "Torrent client"
+        homepage.widget.type: "qbittorrent"
+        homepage.widget.url: "http://qbittorrent:8080"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: qbittorrent.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8080}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.qbittorrent.http.name: "qBittorrent"
+        kuma.qbittorrent.http.url: "https://qbittorrent.in.hypyr.space"
+        kuma.qbittorrent.http.interval: "60"
+        kuma.qbittorrent.http.maxretries: "3"
+        kuma.qbittorrent.http.accepted_statuscodes: '["200-299","301","302"]'
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/New_York"
+      WEBUI_PORT: "8080"
+    volumes:
+      - /mnt/apps01/appdata/media/qbittorrent/config:/config
+      - /mnt/data01/data:/data
+    networks:
+      - media_torrent
+      - proxy_network
+
+  # ── Cross-Seed ───────────────────────────────────────────────
+  cross-seed:
+    image: ghcr.io/cross-seed/cross-seed:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Cross-Seed"
+        homepage.icon: "cross-seed.png"
+        homepage.href: "https://cross-seed.in.hypyr.space"
+        homepage.description: "Cross-seeding automation"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: cross-seed.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 2468}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.cross-seed.http.name: "Cross-Seed"
+        kuma.cross-seed.http.url: "https://cross-seed.in.hypyr.space"
+        kuma.cross-seed.http.interval: "60"
+        kuma.cross-seed.http.maxretries: "3"
+        kuma.cross-seed.http.accepted_statuscodes: '["200-299","301","302"]'
+    user: "1701:1702"
+    volumes:
+      - /mnt/apps01/appdata/media/cross-seed/config:/config
+      - /mnt/data01/data:/data
+    networks:
+      - media_torrent
+      - proxy_network
+
+  # ── Autobrr ──────────────────────────────────────────────────
+  autobrr:
+    image: ghcr.io/autobrr/autobrr:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Autobrr"
+        homepage.icon: "autobrr.png"
+        homepage.href: "https://autobrr.in.hypyr.space"
+        homepage.description: "Release automation"
+        homepage.widget.type: "autobrr"
+        homepage.widget.url: "http://autobrr:7474"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: autobrr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 7474}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.autobrr.http.name: "Autobrr"
+        kuma.autobrr.http.url: "https://autobrr.in.hypyr.space/api/healthz/liveness"
+        kuma.autobrr.http.interval: "60"
+        kuma.autobrr.http.maxretries: "3"
+    user: "1701:1702"
+    volumes:
+      - /mnt/apps01/appdata/media/autobrr/config:/config
+      - /mnt/apps01/appdata/media/torrent/secrets:/secrets:ro
+    networks:
+      - media_torrent
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/torrent.env ] && . /secrets/torrent.env && set +a &&
+       exec /usr/bin/autobrr --config /config"
+
+  # ── Recyclarr ────────────────────────────────────────────────
+  # Daemon mode: built-in scheduler syncs TRaSH Guides profiles to Sonarr/Radarr
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    user: "1701:1702"
+    environment:
+      TZ: "America/New_York"
+    volumes:
+      - /mnt/apps01/appdata/media/recyclarr/config:/config
+      - /mnt/apps01/appdata/media/torrent/secrets:/secrets:ro
+    networks:
+      - media_torrent
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/torrent.env ] && . /secrets/torrent.env && set +a &&
+       exec recyclarr sync"
+
+# ── Networks ─────────────────────────────────────────────────
+networks:
+  media_torrent:
+    driver: overlay
+  proxy_network:
+    external: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+# ── Secrets ──────────────────────────────────────────────────
+secrets:
+  op_connect_token:
+    external: true

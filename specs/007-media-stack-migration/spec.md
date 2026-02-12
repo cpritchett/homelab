@@ -6,6 +6,12 @@
 **Input**: ADR-0033 Phase 3 — Migrate 12 media applications from Kubernetes HelmReleases to Docker Swarm stacks on TrueNAS
 **Relates to**: ADR-0033, spec 002 (label-driven swarm infrastructure)
 
+## Clarifications
+
+### Session 2026-02-11
+
+- Q: How should services be grouped into Swarm stacks? → A: Three stacks: `application_media_core` (Plex, Sonarr, Radarr, Prowlarr, SABnzbd), `application_media_support` (Bazarr, Tautulli, Maintainerr), `application_media_torrent` (qBittorrent, Cross-Seed, Autobrr, Recyclarr)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Deploy Core Media Services (Priority: P1)
@@ -70,20 +76,20 @@ As a homelab operator, I want Docker Compose files and 1Password items prepared 
 
 ### Functional Requirements
 
-- **FR-001**: Each media service MUST be deployed as a Docker Swarm stack with a compose file under `stacks/application/media/`
+- **FR-001**: Media services MUST be deployed as three Docker Swarm stacks: `application_media_core` (Plex, Sonarr, Radarr, Prowlarr, SABnzbd), `application_media_support` (Bazarr, Tautulli, Maintainerr), and `application_media_torrent` (qBittorrent, Cross-Seed, Autobrr, Recyclarr), each with compose files under `stacks/application/media/`
 - **FR-002**: Each service MUST have Caddy reverse proxy labels for TLS termination at `<service>.in.hypyr.space`
 - **FR-003**: Each service MUST have Authentik forward auth labels to enforce SSO (except Plex, which uses its own authentication)
 - **FR-004**: Each service MUST have Homepage labels for dashboard auto-discovery in a "Media" group
 - **FR-005**: Each service MUST have AutoKuma labels for uptime monitoring
 - **FR-006**: Services requiring secrets MUST use the one-shot `replicated-job` hydration pattern (ADR-0035) with 1Password Connect
 - **FR-007**: All services MUST run as user 1701, group 1702 to match existing file ownership on the media datasets
-- **FR-008**: All services MUST mount `/mnt/data01/data` for shared media file access
+- **FR-008**: Services that process or serve media files MUST mount `/mnt/data01/data` for shared media file access (excludes indexer-only services like Prowlarr and API-only services like Tautulli and Maintainerr)
 - **FR-009**: Application config data MUST be stored on ZFS datasets under `/mnt/apps01/appdata/media/<service>/`
 - **FR-010**: Plex MUST have access to the Intel GPU device (`/dev/dri`) for hardware transcoding
 - **FR-011**: Inter-service communication (e.g., Sonarr to Prowlarr, Sonarr to SABnzbd) MUST use Swarm service DNS names on an internal overlay network
 - **FR-012**: Torrent stack compose files MUST be created but NOT deployed (marked with comments indicating VPN dependency)
 - **FR-013**: A pre-deployment validation script MUST verify all prerequisites (ZFS datasets, 1Password items, network connectivity) before deployment
-- **FR-014**: Recyclarr MUST be configured as a scheduled task (cron-equivalent in Swarm) rather than a long-running service
+- **FR-014**: Recyclarr MUST run in daemon mode with its built-in scheduler (v7+ feature) rather than requiring external cron emulation
 
 ### Key Entities
 
@@ -99,7 +105,7 @@ As a homelab operator, I want Docker Compose files and 1Password items prepared 
 - 1Password items for media services will be created fresh (some may already exist from prior k8s deployment)
 - Media files on `/mnt/data01/data` are already on TrueNAS — no media data migration needed
 - Plex authentication is handled by Plex's own account system, not Authentik forward auth
-- Services will be deployed as a single Swarm stack (`application_media`) rather than individual stacks per service, to share an internal overlay network
+- Services will be deployed as three Swarm stacks (`application_media_core`, `application_media_support`, `application_media_torrent`) sharing an internal overlay network for inter-service communication
 - Each service will require initial setup and configuration after first deployment (indexers, download clients, library paths, etc.)
 
 ## Success Criteria *(mandatory)*

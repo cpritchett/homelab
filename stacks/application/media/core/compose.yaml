@@ -1,0 +1,328 @@
+###############################################################################
+# Media Stack — Core Pipeline
+#
+# Services: Plex, Sonarr, Radarr, Prowlarr, SABnzbd
+# Tier: Application (depends on Infrastructure + Platform tiers)
+# Spec: specs/007-media-stack-migration
+# ADR: ADR-0033 Phase 3, ADR-0034 (labels), ADR-0035 (secrets)
+###############################################################################
+
+services:
+  # ── Secret Hydration (one-shot job) ──────────────────────────
+  op-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./media.env.template:/templates/media.template:ro
+      - /mnt/apps01/appdata/media/core/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/media.template -o /secrets/media.env -f &&
+      chmod 644 /secrets/media.env &&
+      echo 'Secrets injected successfully'
+      "
+
+  # ── Plex ─────────────────────────────────────────────────────
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4096M
+        reservations:
+          cpus: '2'
+          memory: 2048M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Plex"
+        homepage.icon: "plex.png"
+        homepage.href: "https://plex.in.hypyr.space"
+        homepage.description: "Media server & streaming"
+        homepage.widget.type: "plex"
+        homepage.widget.url: "https://plex.in.hypyr.space"
+
+        # Caddy: Reverse proxy (NO forward auth — Plex has own auth)
+        caddy: plex.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 32400}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma: Uptime monitoring
+        kuma.plex.http.name: "Plex"
+        kuma.plex.http.url: "https://plex.in.hypyr.space/web/index.html"
+        kuma.plex.http.interval: "60"
+        kuma.plex.http.maxretries: "3"
+        kuma.plex.http.accepted_statuscodes: '["200-299","301","302"]'
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/New_York"
+      VERSION: "docker"
+    volumes:
+      - /mnt/apps01/appdata/media/plex/config:/config
+      - /mnt/data01/data:/data
+      - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
+      - /dev/dri:/dev/dri
+    networks:
+      - media
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
+       exec /init"
+
+  # ── Sonarr ───────────────────────────────────────────────────
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Sonarr"
+        homepage.icon: "sonarr.png"
+        homepage.href: "https://sonarr.in.hypyr.space"
+        homepage.description: "TV series management"
+        homepage.widget.type: "sonarr"
+        homepage.widget.url: "http://sonarr:8989"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: sonarr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8989}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.sonarr.http.name: "Sonarr"
+        kuma.sonarr.http.url: "https://sonarr.in.hypyr.space/ping"
+        kuma.sonarr.http.interval: "60"
+        kuma.sonarr.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/New_York"
+    volumes:
+      - /mnt/apps01/appdata/media/sonarr/config:/config
+      - /mnt/data01/data:/data
+      - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
+    networks:
+      - media
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
+       exec /init"
+
+  # ── Radarr ───────────────────────────────────────────────────
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Radarr"
+        homepage.icon: "radarr.png"
+        homepage.href: "https://radarr.in.hypyr.space"
+        homepage.description: "Movie management"
+        homepage.widget.type: "radarr"
+        homepage.widget.url: "http://radarr:7878"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: radarr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 7878}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.radarr.http.name: "Radarr"
+        kuma.radarr.http.url: "https://radarr.in.hypyr.space/ping"
+        kuma.radarr.http.interval: "60"
+        kuma.radarr.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/New_York"
+    volumes:
+      - /mnt/apps01/appdata/media/radarr/config:/config
+      - /mnt/data01/data:/data
+      - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
+    networks:
+      - media
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
+       exec /init"
+
+  # ── Prowlarr ─────────────────────────────────────────────────
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Prowlarr"
+        homepage.icon: "prowlarr.png"
+        homepage.href: "https://prowlarr.in.hypyr.space"
+        homepage.description: "Indexer management"
+        homepage.widget.type: "prowlarr"
+        homepage.widget.url: "http://prowlarr:9696"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: prowlarr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 9696}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.prowlarr.http.name: "Prowlarr"
+        kuma.prowlarr.http.url: "https://prowlarr.in.hypyr.space/ping"
+        kuma.prowlarr.http.interval: "60"
+        kuma.prowlarr.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/New_York"
+    volumes:
+      - /mnt/apps01/appdata/media/prowlarr/config:/config
+      - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
+    networks:
+      - media
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
+       exec /init"
+
+  # ── SABnzbd ──────────────────────────────────────────────────
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "SABnzbd"
+        homepage.icon: "sabnzbd.png"
+        homepage.href: "https://sabnzbd.in.hypyr.space"
+        homepage.description: "Usenet downloader"
+        homepage.widget.type: "sabnzbd"
+        homepage.widget.url: "http://sabnzbd:8080"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: sabnzbd.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8080}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.sabnzbd.http.name: "SABnzbd"
+        kuma.sabnzbd.http.url: "https://sabnzbd.in.hypyr.space"
+        kuma.sabnzbd.http.interval: "60"
+        kuma.sabnzbd.http.maxretries: "3"
+        kuma.sabnzbd.http.accepted_statuscodes: '["200-299","301","302"]'
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/New_York"
+    volumes:
+      - /mnt/apps01/appdata/media/sabnzbd/config:/config
+      - /mnt/data01/data:/data
+      - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
+    networks:
+      - media
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
+       exec /init"
+
+# ── Networks ─────────────────────────────────────────────────
+networks:
+  media:
+    driver: overlay
+  proxy_network:
+    external: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+# ── Secrets ──────────────────────────────────────────────────
+secrets:
+  op_connect_token:
+    external: true

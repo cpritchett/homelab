@@ -1,0 +1,162 @@
+###############################################################################
+# Media Stack — Supporting Services
+#
+# Services: Bazarr, Tautulli, Maintainerr
+# Tier: Application (depends on Infrastructure + Platform + Media Core)
+# Spec: specs/007-media-stack-migration
+# ADR: ADR-0033 Phase 3, ADR-0034 (labels)
+#
+# No 1Password secrets needed — all services configured via UI.
+###############################################################################
+
+services:
+  # ── Bazarr ───────────────────────────────────────────────────
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Bazarr"
+        homepage.icon: "bazarr.png"
+        homepage.href: "https://bazarr.in.hypyr.space"
+        homepage.description: "Subtitle management"
+        homepage.widget.type: "bazarr"
+        homepage.widget.url: "http://bazarr:6767"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: bazarr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 6767}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.bazarr.http.name: "Bazarr"
+        kuma.bazarr.http.url: "https://bazarr.in.hypyr.space/ping"
+        kuma.bazarr.http.interval: "60"
+        kuma.bazarr.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/New_York"
+    volumes:
+      - /mnt/apps01/appdata/media/bazarr/config:/config
+      - /mnt/data01/data:/data
+    networks:
+      - media_support
+      - proxy_network
+
+  # ── Tautulli ─────────────────────────────────────────────────
+  tautulli:
+    image: lscr.io/linuxserver/tautulli:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Tautulli"
+        homepage.icon: "tautulli.png"
+        homepage.href: "https://tautulli.in.hypyr.space"
+        homepage.description: "Plex monitoring & analytics"
+        homepage.widget.type: "tautulli"
+        homepage.widget.url: "http://tautulli:8181"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: tautulli.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8181}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.tautulli.http.name: "Tautulli"
+        kuma.tautulli.http.url: "https://tautulli.in.hypyr.space/status"
+        kuma.tautulli.http.interval: "60"
+        kuma.tautulli.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/New_York"
+    volumes:
+      - /mnt/apps01/appdata/media/tautulli/config:/config
+    networks:
+      - media_support
+      - proxy_network
+
+  # ── Maintainerr ──────────────────────────────────────────────
+  maintainerr:
+    image: ghcr.io/jorenn92/maintainerr:latest
+    user: "1701:1702"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Maintainerr"
+        homepage.icon: "maintainerr.png"
+        homepage.href: "https://maintainerr.in.hypyr.space"
+        homepage.description: "Plex library maintenance"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: maintainerr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 6246}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.maintainerr.http.name: "Maintainerr"
+        kuma.maintainerr.http.url: "https://maintainerr.in.hypyr.space"
+        kuma.maintainerr.http.interval: "60"
+        kuma.maintainerr.http.maxretries: "3"
+        kuma.maintainerr.http.accepted_statuscodes: '["200-299","301","302"]'
+    volumes:
+      - /mnt/apps01/appdata/media/maintainerr/config:/opt/data
+    networks:
+      - media_support
+      - proxy_network
+
+# ── Networks ─────────────────────────────────────────────────
+networks:
+  media_support:
+    driver: overlay
+  proxy_network:
+    external: true

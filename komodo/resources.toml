@@ -125,6 +125,42 @@ send_alerts = true
 path = "/mnt/apps01/repos/homelab/scripts/"
 command = "sh validate-authentik-setup.sh"
 
+# ── Stacks (Application tier — Media) ─────────────────
+
+[[stack]]
+name = "application_media_core"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/application/media/core"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-media-setup.sh"
+
+# ---
+
+[[stack]]
+name = "application_media_support"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/application/media/support"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-media-setup.sh"
+
 # ── Stack (Compose mode — Swarm-incompatible) ──────────
 
 [[stack]]
