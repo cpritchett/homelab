@@ -33,11 +33,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create DNS CNAME records for active media services via UniFi API — `plex`, `sonarr`, `radarr`, `prowlarr`, `sabnzbd`, `bazarr`, `tautulli`, `maintainerr` all pointing to `barbary.in.hypyr.space`
-- [ ] T005 Verify existing 1Password items (`sonarr`, `radarr`, `prowlarr`, `sabnzbd`) have `api_key` field (can be empty initially) in `homelab` vault
-- [ ] T006 Create new 1Password item `plex-stack` in `homelab` vault with `claim_token` field (populate with fresh token from plex.tv/claim immediately before first deployment)
-- [ ] T007 Create ZFS appdata directories on TrueNAS: `sudo mkdir -p /mnt/apps01/appdata/media/{plex,sonarr,radarr,prowlarr,sabnzbd,bazarr,tautulli,maintainerr}/{config,secrets}` with ownership `1701:1702`
-- [ ] T008 Verify media data directory structure exists: `/mnt/data01/data/{downloads/{complete,incomplete},media/{tv,movies,music}}` with ownership `1701:1702`
+- [x] T004 Create DNS CNAME records for active media services via UniFi API — `plex`, `sonarr`, `radarr`, `prowlarr`, `sabnzbd`, `bazarr`, `tautulli`, `maintainerr` all pointing to `barbary.in.hypyr.space`
+- [x] T005 Verify existing 1Password items (`sonarr`, `radarr`, `prowlarr`, `sabnzbd`) have `api_key` field (can be empty initially) in `homelab` vault
+- [x] T006 Create new 1Password item `plex-stack` in `homelab` vault with `claim_token` field (populate with fresh token from plex.tv/claim immediately before first deployment)
+- [x] T007 Create ZFS appdata directories on TrueNAS: `sudo mkdir -p /mnt/apps01/appdata/media/{plex,sonarr,radarr,prowlarr,sabnzbd,bazarr,tautulli,maintainerr}/{config,secrets}` with ownership `1701:1702`
+- [x] T008 Verify media data directory structure exists: `/mnt/data01/data/{downloads/{complete,incomplete},media/{tv,movies,music}}` with ownership `1701:1702`
 
 **Checkpoint**: Foundation ready — all DNS, secrets, and storage prerequisites in place
 
@@ -110,7 +110,7 @@
 - [x] T039 [P] [US3] Add Recyclarr service to `stacks/application/media/torrent/compose.yaml` — ghcr.io/recyclarr/recyclarr image, daemon mode (built-in scheduler), config at `/mnt/apps01/appdata/media/recyclarr/config:/config`, secrets mount, NO web UI, NO Caddy/Homepage/AutoKuma labels, PUID/PGID/TZ
 - [x] T040 [US3] Add networks, secrets sections to `stacks/application/media/torrent/compose.yaml` — define `proxy_network` (external), `media_torrent` (overlay), `op-connect` (external); define `op_connect_token` and `CLOUDFLARE_API_TOKEN` secrets (external)
 - [x] T041 [US3] Create torrent stack README at `stacks/application/media/torrent/README.md` — document deferred status, VPN dependency, deployment instructions for when VPN is ready
-- [ ] T042 [US3] Validate torrent compose file syntax: `docker compose -f stacks/application/media/torrent/compose.yaml config` — verify no errors
+- [x] T042 [US3] Validate torrent compose file syntax: `docker compose -f stacks/application/media/torrent/compose.yaml config` — verify no errors
 - [ ] T043 [US3] Verify existing 1Password items (`autobrr`, `recyclarr`) have required fields in `homelab` vault
 
 **Checkpoint**: Torrent stack files are validated, reviewed, and ready for deployment once VPN design is finalized
