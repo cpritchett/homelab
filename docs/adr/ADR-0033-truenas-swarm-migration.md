@@ -158,13 +158,13 @@ Infrastructure tier will be bootstrapped via systemd service on TrueNAS boot:
 
 ### Phase 1: Infrastructure Foundation (Week 1) ✓
 
-**Status:** IN PROGRESS
+**Status:** COMPLETE
 
 - [x] Fix 1Password Connect configuration inconsistencies
 - [x] Fix Komodo template path references
 - [x] Create TrueNAS bootstrap script
 - [x] Create systemd service documentation
-- [ ] Deploy and validate infrastructure tier on TrueNAS
+- [x] Deploy and validate infrastructure tier on TrueNAS
 
 **Success Criteria:**
 - Bootstrap script runs idempotently
@@ -172,13 +172,15 @@ Infrastructure tier will be bootstrapped via systemd service on TrueNAS boot:
 - Komodo UI accessible with TLS
 - 1Password secret injection working
 
-### Phase 2: Platform Services (Week 2)
+### Phase 2: Platform Services (Week 2) ✓
 
-- [ ] Deploy monitoring stack (Grafana, Loki, Prometheus)
+**Status:** COMPLETE (see spec 002)
+
+- [x] Deploy monitoring stack (Grafana, Loki, Prometheus)
 - [ ] Configure Prometheus federation (k8s ← Swarm)
 - [ ] Deploy Wazuh SIEM and agents
-- [ ] Create Grafana dashboards for hybrid architecture
-- [ ] Validate unified monitoring
+- [x] Create Grafana dashboards for hybrid architecture
+- [x] Validate unified monitoring
 
 **Success Criteria:**
 - Grafana shows metrics from both k8s and Swarm
