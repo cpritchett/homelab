@@ -61,9 +61,9 @@
 - [x] T016 [US1] Add networks and secrets sections to `stacks/application/media/core/compose.yaml` — define `proxy_network` (external), `media` (overlay), `op-connect` (external: op-connect_op-connect); define `op_connect_token` secret (external), `CLOUDFLARE_API_TOKEN` secret (external)
 - [x] T017 [US1] Add Komodo stack resources to `komodo/resources.toml` — add `application_media_core` stack with swarm = "homelab-swarm", linked_repo = "homelab-repo", run_directory = "stacks/application/media/core", auto_pull = true, webhook_enabled = true, send_alerts = true, pre_deploy script = "scripts/validate-media-setup.sh"
 - [x] T018 [US1] Create core stack README at `stacks/application/media/core/README.md` — documents services, ports, label configuration, secret template, deployment instructions
-- [ ] T019 [US1] Run validation script on TrueNAS: `sudo sh scripts/validate-media-setup.sh` — verify all prerequisites pass
-- [ ] T020 [US1] Deploy core stack via Komodo: `km --profile barbary execute deploy-stack application_media_core` — verify all 5 services + op-secrets show healthy in `docker service ls`
-- [ ] T021 [US1] Verify core stack integration — confirm all 5 services accessible at `*.in.hypyr.space` URLs, Homepage shows "Media" group, AutoKuma creates monitors in Uptime Kuma, Plex hardware transcoding works (`/dev/dri` accessible in container)
+- [x] T019 [US1] Run validation script on TrueNAS: `sudo sh scripts/validate-media-setup.sh` — verify all prerequisites pass
+- [x] T020 [US1] Deploy core stack via Komodo: `km --profile barbary execute deploy-stack application_media_core` — verify all 5 services + op-secrets show healthy in `docker service ls`
+- [x] T021 [US1] Verify core stack integration — confirm all 5 services accessible at `*.in.hypyr.space` URLs, Homepage shows "Media" group, AutoKuma creates monitors in Uptime Kuma, Plex hardware transcoding works (`/dev/dri` accessible in container)
 - [ ] T022 [US1] Configure core services post-deployment — Plex: complete setup wizard, add media library; Prowlarr: add indexers; Sonarr: add Prowlarr + SABnzbd, set root folder `/data/media/tv`; Radarr: add Prowlarr + SABnzbd, set root folder `/data/media/movies`; SABnzbd: configure Usenet servers
 - [ ] T023 [US1] Extract generated API keys from each service and store back to 1Password items (sonarr/api_key, radarr/api_key, prowlarr/api_key, sabnzbd/api_key)
 
@@ -86,8 +86,8 @@
 - [x] T028 [US2] Add networks section to `stacks/application/media/support/compose.yaml` — define `proxy_network` (external), `media_support` (overlay); add `CLOUDFLARE_API_TOKEN` secret (external)
 - [x] T029 [US2] Add `application_media_support` stack resource to `komodo/resources.toml` — same pattern as core stack, run_directory = "stacks/application/media/support", pre_deploy script = "scripts/validate-media-setup.sh"
 - [x] T030 [US2] Create support stack README at `stacks/application/media/support/README.md`
-- [ ] T031 [US2] Deploy support stack via Komodo: `km --profile barbary execute deploy-stack application_media_support` — verify all 3 services show healthy
-- [ ] T032 [US2] Verify support stack integration — confirm all 3 services accessible at `*.in.hypyr.space` URLs, Homepage shows them in "Media" group, AutoKuma creates monitors
+- [x] T031 [US2] Deploy support stack via Komodo: `km --profile barbary execute deploy-stack application_media_support` — verify all 3 services show healthy
+- [x] T032 [US2] Verify support stack integration — confirm all 3 services accessible at `*.in.hypyr.space` URLs, Homepage shows them in "Media" group, AutoKuma creates monitors
 - [ ] T033 [US2] Configure support services post-deployment — Bazarr: connect to Sonarr and Radarr using API keys, configure subtitle providers; Tautulli: connect to Plex server; Maintainerr: connect to Plex, Sonarr, Radarr
 
 **Checkpoint**: All 8 active media services deployed, configured, and monitored
