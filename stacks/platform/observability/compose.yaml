@@ -1,4 +1,38 @@
 services:
+  op-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./homepage/homepage.env.template:/templates/homepage.env.template:ro
+      - /mnt/apps01/appdata/homepage/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      if op inject -i /templates/homepage.env.template -o /secrets/homepage.env -f; then
+        chmod 644 /secrets/homepage.env &&
+        echo 'Homepage secrets injected successfully';
+      elif [ -s /secrets/homepage.env ]; then
+        echo 'Homepage secret injection failed; using existing /secrets/homepage.env';
+      else
+        echo 'Homepage secret injection failed and no existing /secrets/homepage.env present' >&2;
+        exit 1;
+      fi
+      "
+
   # Homepage Dashboard
   homepage:
     image: ghcr.io/gethomepage/homepage:v0.9.10
@@ -15,12 +49,6 @@ services:
         caddy.forward_auth: "http://authentik-server:9000"
         caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
         caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
-        # Homepage self-registration
-        homepage.group: "Observability"
-        homepage.name: "Homepage"
-        homepage.icon: "homepage.png"
-        homepage.href: "https://home.in.hypyr.space"
-        homepage.description: "Service dashboard"
         # AutoKuma monitoring
         kuma.homepage.http.name: "Homepage Dashboard"
         kuma.homepage.http.url: "http://homepage:3000"
@@ -37,6 +65,15 @@ services:
       - /mnt/apps01/appdata/homepage/config:/app/config
       - /mnt/apps01/appdata/homepage/icons:/app/public/icons
       - /mnt/apps01/appdata/homepage/images:/app/public/images
+      - /mnt/apps01/appdata/homepage/secrets:/run/homepage-secrets:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a;
+       if [ -f /run/homepage-secrets/homepage.env ]; then
+         . /run/homepage-secrets/homepage.env;
+       fi;
+       set +a;
+       exec docker-entrypoint.sh node server.js"
     healthcheck:
       disable: true
 
@@ -156,6 +193,9 @@ networks:
     external: true
   observability_internal:
     driver: overlay
+  op-connect:
+    name: op-connect_op-connect
+    external: true
 
 configs:
   autokuma_wrapper:
@@ -165,4 +205,6 @@ secrets:
   uptime_kuma_username:
     external: true
   uptime_kuma_password:
+    external: true
+  op_connect_token:
     external: true
