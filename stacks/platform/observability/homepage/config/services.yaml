@@ -28,14 +28,6 @@
         icon: authentik.png
         href: https://auth.in.hypyr.space
         description: SSO & Authentication
-        widget:
-          type: customapi
-          url: http://authentik-server:9000/api/v3/core/users/?page_size=1
-          headers:
-            Authorization: "Bearer {{HOMEPAGE_VAR_AUTHENTIK_API_KEY}}"
-          mappings:
-            - field: pagination.count
-              label: Users
 
     - Uptime Kuma:
         icon: uptime-kuma.png
