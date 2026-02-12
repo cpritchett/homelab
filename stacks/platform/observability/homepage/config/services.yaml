@@ -28,6 +28,11 @@
         icon: authentik.png
         href: https://auth.in.hypyr.space
         description: SSO & Authentication
+        widget:
+          type: authentik
+          url: http://authentik-server:9000
+          key: "{{HOMEPAGE_VAR_AUTHENTIK_API_KEY}}"
+          version: 2
 
     - Uptime Kuma:
         icon: uptime-kuma.png
