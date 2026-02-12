@@ -63,7 +63,7 @@ services:
       - proxy_network
       - observability_internal
     volumes:
-      - /mnt/apps01/appdata/homepage/config:/app/config
+      - ./homepage/config:/app/config
       - /mnt/apps01/appdata/homepage/icons:/app/public/icons
       - /mnt/apps01/appdata/homepage/images:/app/public/images
       - /mnt/apps01/appdata/homepage/secrets:/run/homepage-secrets:ro
