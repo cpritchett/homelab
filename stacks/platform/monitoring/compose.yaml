@@ -187,12 +187,6 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
-      labels:
-        kuma.node-exporter.http.name: "Node Exporter"
-        kuma.node-exporter.http.url: "http://node-exporter:9100/metrics"
-        kuma.node-exporter.http.interval: "60"
-        kuma.node-exporter.http.maxretries: "3"
-        kuma.node-exporter.http.accepted_statuscodes: '["200-299"]'
     command:
       - --path.procfs=/host/proc
       - --path.sysfs=/host/sys
@@ -213,12 +207,6 @@ services:
         limits:
           cpus: '0.5'
           memory: 512M
-      labels:
-        kuma.cadvisor.http.name: "cAdvisor"
-        kuma.cadvisor.http.url: "http://cadvisor:8080/healthz"
-        kuma.cadvisor.http.interval: "60"
-        kuma.cadvisor.http.maxretries: "3"
-        kuma.cadvisor.http.accepted_statuscodes: '["200-299"]'
     command:
       - --docker_only
       - --housekeeping_interval=30s
@@ -238,12 +226,6 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
-      labels:
-        kuma.promtail.http.name: "Promtail"
-        kuma.promtail.http.url: "http://promtail:9080/ready"
-        kuma.promtail.http.interval: "60"
-        kuma.promtail.http.maxretries: "3"
-        kuma.promtail.http.accepted_statuscodes: '["200-299"]'
     command: -config.file=/etc/promtail/promtail-config.yaml
     volumes:
       - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
