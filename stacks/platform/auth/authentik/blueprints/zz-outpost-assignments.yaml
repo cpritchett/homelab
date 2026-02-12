@@ -29,6 +29,16 @@ entries:
       config:
         authentik_host: "https://auth.in.hypyr.space"
       providers:
+        # Platform services
         - !Find [authentik_providers_proxy.proxyprovider, [name, prometheus-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, loki-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, homepage-forward-auth]]
+        # Media — core stack
+        - !Find [authentik_providers_proxy.proxyprovider, [name, sonarr-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, radarr-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, prowlarr-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, sabnzbd-forward-auth]]
+        # Media — support stack
+        - !Find [authentik_providers_proxy.proxyprovider, [name, bazarr-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, tautulli-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, maintainerr-forward-auth]]
