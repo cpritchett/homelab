@@ -34,8 +34,14 @@ radarr:
       - template: radarr-quality-profile-anime
       - template: radarr-custom-formats-anime
 
-    # Enable DV Boost and HDR10+ Boost (commented out in SQP defaults)
+    # Enable optional CFs (commented out in SQP defaults)
     custom_formats:
+      # Hybrid releases (WEB video + Remux audio = best of both)
+      - trash_ids:
+          - 0f12c086e289cf966fa5948eac571f44  # Hybrid
+        assign_scores_to:
+          - name: SQP-4
+      # DV and HDR10+ preference
       - trash_ids:
           - b337d6812e06c200ec9a2d3cfa9d20a7  # DV (Boost)
         assign_scores_to:
