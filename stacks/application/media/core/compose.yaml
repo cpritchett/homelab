@@ -79,11 +79,16 @@ services:
       PGID: "1702"
       TZ: "America/Chicago"
       VERSION: "docker"
+      PLEX_TRANSCODE_DIR: "/transcode"
     volumes:
       - /mnt/apps01/appdata/media/plex/config:/config
       - /mnt/data01/data:/data
       - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
       - /dev/dri:/dev/dri
+      - type: tmpfs
+        target: /transcode
+        tmpfs:
+          size: 4294967296  # 4 GB
     networks:
       - media
       - proxy_network
@@ -136,6 +141,10 @@ services:
       - /mnt/apps01/appdata/media/jellyfin/config:/config
       - /mnt/data01/data:/data
       - /dev/dri:/dev/dri
+      - type: tmpfs
+        target: /config/transcodes
+        tmpfs:
+          size: 4294967296  # 4 GB
     networks:
       - media
       - proxy_network
