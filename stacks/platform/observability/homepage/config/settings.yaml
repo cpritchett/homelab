@@ -17,7 +17,7 @@ layout:
     columns: 3
   Media:
     style: row
-    columns: 4
+    columns: 5
 
 providers:
   # Disable OpenWeatherMap (requires API key)
