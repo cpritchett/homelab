@@ -148,3 +148,13 @@
         icon: maintainerr.png
         href: https://maintainerr.in.hypyr.space
         description: Library maintenance
+
+    - TitleCardMaker:
+        icon: mdi-card-text-outline
+        href: https://titlecards.in.hypyr.space
+        description: TV episode title cards
+
+    - Posterizarr:
+        icon: mdi-image-frame
+        href: https://posterizarr.in.hypyr.space
+        description: Automated poster generation
