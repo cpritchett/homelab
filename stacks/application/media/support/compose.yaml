@@ -199,13 +199,10 @@ services:
         homepage.widget.type: "overseerr"
         homepage.widget.url: "http://seerr:5055"
 
-        # Caddy: Reverse proxy + Authentik forward auth
+        # Caddy: Reverse proxy (NO forward auth — Seerr has own auth via Plex/Jellyfin)
         caddy: seerr.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 5055}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
-        caddy.forward_auth: "http://authentik-server:9000"
-        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
-        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
 
         # AutoKuma: Uptime monitoring
         kuma.seerr.http.name: "Seerr"
