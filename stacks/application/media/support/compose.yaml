@@ -174,7 +174,7 @@ services:
   # ── Seerr ────────────────────────────────────────────────────
   # Media request management (formerly Jellyseerr)
   seerr:
-    image: ghcr.io/seerr-team/seerr:latest
+    image: ghcr.io/fallenbagel/jellyseerr:latest
     user: "1701:1702"
     deploy:
       replicas: 1
