@@ -1,0 +1,34 @@
+###############################################################################
+# TitleCardMaker — Preferences
+#
+# Generates TV episode title cards and uploads to Plex.
+# Connected to Sonarr for series discovery.
+#
+# Manual steps:
+#   1. Get TMDb API key (free): https://www.themoviedb.org/settings/api
+#   2. Replace REPLACE_WITH_TMDB_API_KEY below
+#   3. Copy this file to barbary:
+#      /mnt/apps01/appdata/media/titlecardmaker/config/preferences.yml
+###############################################################################
+
+# Sonarr connection (auto-discovers series)
+sonarr:
+  url: http://sonarr:8989
+  api_key: ee76b15acab3451c8aebfa02c3637c87
+  downloaded_only: true
+  monitored_only: true
+
+# Plex connection (uploads title cards)
+plex:
+  url: http://plex:32400
+  token: Ux9nJRwaUHyWhMr3HXTQ
+
+# TMDb connection (episode images and data)
+tmdb:
+  api_key: REPLACE_WITH_TMDB_API_KEY
+
+# Card style defaults
+options:
+  card_type: standard
+  card_width: 3200
+  card_height: 1800
