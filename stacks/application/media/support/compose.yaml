@@ -1,7 +1,7 @@
 ###############################################################################
 # Media Stack — Supporting Services
 #
-# Services: Bazarr, Tautulli, Maintainerr, Recyclarr
+# Services: Bazarr, Tautulli, Maintainerr, Recyclarr, Seerr
 # Tier: Application (depends on Infrastructure + Platform + Media Core)
 # Spec: specs/007-media-stack-migration
 # ADR: ADR-0033 Phase 3, ADR-0034 (labels)
@@ -167,6 +167,54 @@ services:
         kuma.maintainerr.http.accepted_statuscodes: '["200-299","301","302"]'
     volumes:
       - /mnt/apps01/appdata/media/maintainerr/config:/opt/data
+    networks:
+      - media_support
+      - proxy_network
+
+  # ── Seerr ────────────────────────────────────────────────────
+  # Media request management (formerly Jellyseerr)
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    user: "1701:1702"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Seerr"
+        homepage.icon: "overseerr.png"
+        homepage.href: "https://seerr.in.hypyr.space"
+        homepage.description: "Media requests"
+        homepage.widget.type: "overseerr"
+        homepage.widget.url: "http://seerr:5055"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: seerr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 5055}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.seerr.http.name: "Seerr"
+        kuma.seerr.http.url: "https://seerr.in.hypyr.space"
+        kuma.seerr.http.interval: "60"
+        kuma.seerr.http.maxretries: "3"
+        kuma.seerr.http.accepted_statuscodes: '["200-299","301","302"]'
+    volumes:
+      - /mnt/apps01/appdata/media/seerr/config:/app/config
     networks:
       - media_support
       - proxy_network

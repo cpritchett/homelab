@@ -1,7 +1,7 @@
 ###############################################################################
 # Media Stack — Core Pipeline
 #
-# Services: Plex, Sonarr, Radarr, Prowlarr, SABnzbd
+# Services: Plex, Jellyfin, Sonarr, Radarr, Prowlarr, SABnzbd
 # Tier: Application (depends on Infrastructure + Platform tiers)
 # Spec: specs/007-media-stack-migration
 # ADR: ADR-0033 Phase 3, ADR-0034 (labels), ADR-0035 (secrets)
@@ -91,6 +91,54 @@ services:
     command: >
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
        exec /init"
+
+  # ── Jellyfin ─────────────────────────────────────────────────
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4096M
+        reservations:
+          cpus: '2'
+          memory: 2048M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Jellyfin"
+        homepage.icon: "jellyfin.png"
+        homepage.href: "https://jellyfin.in.hypyr.space"
+        homepage.description: "Media server & streaming"
+        homepage.widget.type: "jellyfin"
+        homepage.widget.url: "http://jellyfin:8096"
+
+        # Caddy: Reverse proxy (NO forward auth — Jellyfin has own auth)
+        caddy: jellyfin.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8096}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma: Uptime monitoring
+        kuma.jellyfin.http.name: "Jellyfin"
+        kuma.jellyfin.http.url: "https://jellyfin.in.hypyr.space/health"
+        kuma.jellyfin.http.interval: "60"
+        kuma.jellyfin.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/apps01/appdata/media/jellyfin/config:/config
+      - /mnt/data01/data:/data
+      - /dev/dri:/dev/dri
+    networks:
+      - media
+      - proxy_network
 
   # ── Sonarr ───────────────────────────────────────────────────
   sonarr:
