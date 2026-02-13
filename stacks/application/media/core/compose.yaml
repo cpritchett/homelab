@@ -88,7 +88,7 @@ services:
       - type: tmpfs
         target: /transcode
         tmpfs:
-          size: 4294967296  # 4 GB
+          size: 17179869184  # 16 GB
     networks:
       - media
       - proxy_network
@@ -144,7 +144,7 @@ services:
       - type: tmpfs
         target: /config/transcodes
         tmpfs:
-          size: 4294967296  # 4 GB
+          size: 17179869184  # 16 GB
     networks:
       - media
       - proxy_network
