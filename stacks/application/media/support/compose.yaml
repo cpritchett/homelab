@@ -21,9 +21,8 @@ services:
           cpus: '0.5'
           memory: 256M
     user: "1701:1702"
-    configs:
-      - source: recyclarr_config
-        target: /config/recyclarr.yml
+    volumes:
+      - /mnt/apps01/appdata/media/recyclarr/config:/config
     networks:
       - proxy_network
     command: sync
@@ -179,7 +178,3 @@ networks:
   proxy_network:
     external: true
 
-# ── Configs ──────────────────────────────────────────────────
-configs:
-  recyclarr_config:
-    file: ./recyclarr/recyclarr.yml
