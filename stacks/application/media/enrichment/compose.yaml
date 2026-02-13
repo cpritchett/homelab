@@ -125,9 +125,8 @@ services:
         kuma.posterizarr.http.interval: "60"
         kuma.posterizarr.http.maxretries: "3"
         kuma.posterizarr.http.accepted_statuscodes: '["200-299","301","302"]'
+    user: "1701:1702"
     environment:
-      PUID: "1701"
-      PGID: "1702"
       TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/posterizarr/config:/config
