@@ -191,35 +191,7 @@ services:
       "set -a && [ -f /secrets/torrent.env ] && . /secrets/torrent.env && set +a &&
        exec /usr/bin/autobrr --config /config"
 
-  # ── Recyclarr ────────────────────────────────────────────────
-  # Daemon mode: built-in scheduler syncs TRaSH Guides profiles to Sonarr/Radarr
-  recyclarr:
-    image: ghcr.io/recyclarr/recyclarr:latest
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 128M
-    user: "1701:1702"
-    environment:
-      TZ: "America/Chicago"
-    volumes:
-      - /mnt/apps01/appdata/media/recyclarr/config:/config
-      - /mnt/apps01/appdata/media/torrent/secrets:/secrets:ro
-    networks:
-      - media_torrent
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "set -a && [ -f /secrets/torrent.env ] && . /secrets/torrent.env && set +a &&
-       exec recyclarr sync"
+  # Recyclarr moved to media-support stack (doesn't need VPN)
 
 # ── Networks ─────────────────────────────────────────────────
 networks:

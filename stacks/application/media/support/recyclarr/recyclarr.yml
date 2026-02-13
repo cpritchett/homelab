@@ -1,0 +1,65 @@
+###############################################################################
+# Recyclarr — TRaSH Guides Quality Profile Sync
+#
+# Radarr:  SQP-2 (4K) + SQP-1 (1080p) + Anime   [sponsor profiles]
+# Sonarr:  WEB-2160p + WEB-1080p + Anime          [standard profiles]
+#
+# Quality Definition: UHD (Radarr), Series (Sonarr)
+# HDR: DV + HDR10+ boost enabled
+# Audio: Lossless preferred (TrueHD Atmos, DTS-X, DTS-HD MA via SQP scoring)
+###############################################################################
+
+radarr:
+  radarr:
+    base_url: http://radarr:7878
+    api_key: 2247b270772b42ffbe5d0fe846333937
+
+    include:
+      # Quality Definition (one per instance — UHD for best quality)
+      - template: radarr-quality-definition-sqp-uhd
+
+      # 4K profile: SQP-2 (Remux + Bluray + WEB, max quality)
+      - template: radarr-quality-profile-sqp-2
+      - template: radarr-custom-formats-sqp-2
+
+      # 1080p profile: SQP-1 (Bluray + WEB)
+      - template: radarr-quality-profile-sqp-1-1080p
+      - template: radarr-custom-formats-sqp-1-1080p
+
+      # Anime profile
+      - template: radarr-quality-profile-anime
+      - template: radarr-custom-formats-anime
+
+    # Enable DV Boost and HDR10+ Boost (commented out in SQP-2 defaults)
+    custom_formats:
+      - trash_ids:
+          - b337d6812e06c200ec9a2d3cfa9d20a7  # DV (Boost)
+        assign_scores_to:
+          - name: SQP-2
+            score: 1000
+      - trash_ids:
+          - caa37d0df9c348912df1fb1d88f9273a  # HDR10+ Boost
+        assign_scores_to:
+          - name: SQP-2
+            score: 100
+
+sonarr:
+  sonarr:
+    base_url: http://sonarr:8989
+    api_key: ee76b15acab3451c8aebfa02c3637c87
+
+    include:
+      # Quality Definition (one per instance)
+      - template: sonarr-quality-definition-series
+
+      # 4K profile: WEB-2160p
+      - template: sonarr-v4-quality-profile-web-2160p
+      - template: sonarr-v4-custom-formats-web-2160p
+
+      # 1080p profile: WEB-1080p
+      - template: sonarr-v4-quality-profile-web-1080p
+      - template: sonarr-v4-custom-formats-web-1080p
+
+      # Anime profile
+      - template: sonarr-v4-quality-profile-anime
+      - template: sonarr-v4-custom-formats-anime

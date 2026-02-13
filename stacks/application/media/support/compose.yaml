@@ -1,15 +1,33 @@
 ###############################################################################
 # Media Stack — Supporting Services
 #
-# Services: Bazarr, Tautulli, Maintainerr
+# Services: Bazarr, Tautulli, Maintainerr, Recyclarr
 # Tier: Application (depends on Infrastructure + Platform + Media Core)
 # Spec: specs/007-media-stack-migration
 # ADR: ADR-0033 Phase 3, ADR-0034 (labels)
-#
-# No 1Password secrets needed — all services configured via UI.
 ###############################################################################
 
 services:
+  # ── Recyclarr ────────────────────────────────────────────────
+  # Syncs TRaSH Guides quality profiles to Sonarr/Radarr (one-shot per deploy)
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:latest
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    user: "1701:1702"
+    configs:
+      - source: recyclarr_config
+        target: /config/recyclarr.yml
+    networks:
+      - proxy_network
+    command: sync
+
   # ── Bazarr ───────────────────────────────────────────────────
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
@@ -160,3 +178,8 @@ networks:
     driver: overlay
   proxy_network:
     external: true
+
+# ── Configs ──────────────────────────────────────────────────
+configs:
+  recyclarr_config:
+    file: ./recyclarr/recyclarr.yml
