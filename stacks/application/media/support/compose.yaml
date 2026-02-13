@@ -1,7 +1,7 @@
 ###############################################################################
 # Media Stack — Supporting Services
 #
-# Services: Bazarr, Tautulli, Maintainerr, Recyclarr, Seerr
+# Services: Bazarr, Tautulli, Maintainerr, Recyclarr, Seerr, Wizarr
 # Tier: Application (depends on Infrastructure + Platform + Media Core)
 # Spec: specs/007-media-stack-migration
 # ADR: ADR-0033 Phase 3, ADR-0034 (labels)
@@ -212,6 +212,51 @@ services:
         kuma.seerr.http.accepted_statuscodes: '["200-299","301","302"]'
     volumes:
       - /mnt/apps01/appdata/media/seerr/config:/app/config
+    networks:
+      - media_support
+      - proxy_network
+
+  # ── Wizarr ──────────────────────────────────────────────────
+  # User invitation & onboarding for Plex/Jellyfin
+  wizarr:
+    image: ghcr.io/wizarrrr/wizarr:latest
+    user: "1701:1702"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Wizarr"
+        homepage.icon: "wizarr.png"
+        homepage.href: "https://invite.in.hypyr.space"
+        homepage.description: "User invitations"
+
+        # Caddy: Reverse proxy (no forward auth — invite links must be public)
+        caddy: invite.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 5690}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma: Uptime monitoring
+        kuma.wizarr.http.name: "Wizarr"
+        kuma.wizarr.http.url: "https://invite.in.hypyr.space"
+        kuma.wizarr.http.interval: "60"
+        kuma.wizarr.http.maxretries: "3"
+        kuma.wizarr.http.accepted_statuscodes: '["200-299","301","302"]'
+    environment:
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/apps01/appdata/media/wizarr/database:/data/database
     networks:
       - media_support
       - proxy_network
