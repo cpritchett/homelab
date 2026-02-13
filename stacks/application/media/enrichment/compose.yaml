@@ -75,7 +75,10 @@ services:
         kuma.titlecardmaker.http.interval: "60"
         kuma.titlecardmaker.http.maxretries: "3"
         kuma.titlecardmaker.http.accepted_statuscodes: '["200-299","301","302"]'
-    user: "1701:1702"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/titlecardmaker/config:/config
       - /mnt/data01/data:/data
@@ -110,7 +113,7 @@ services:
 
         # Caddy: Reverse proxy + Authentik forward auth
         caddy: posterizarr.in.hypyr.space
-        caddy.reverse_proxy: "{{upstreams 8989}}"
+        caddy.reverse_proxy: "{{upstreams 8000}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
         caddy.forward_auth: "http://authentik-server:9000"
         caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
@@ -122,7 +125,10 @@ services:
         kuma.posterizarr.http.interval: "60"
         kuma.posterizarr.http.maxretries: "3"
         kuma.posterizarr.http.accepted_statuscodes: '["200-299","301","302"]'
-    user: "1701:1702"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/posterizarr/config:/config
       - /mnt/apps01/appdata/media/posterizarr/assets:/assets
