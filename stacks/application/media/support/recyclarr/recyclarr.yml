@@ -1,8 +1,8 @@
 ###############################################################################
 # Recyclarr — TRaSH Guides Quality Profile Sync
 #
-# Radarr:  SQP-1 WEB (2160p) + SQP-4 + SQP-1 (1080p) + Anime  [sponsor]
-# Sonarr:  WEB-2160p + WEB-1080p + Anime                 [standard profiles]
+# Radarr:  SQP-1 WEB (2160p) + SQP-4 MA Hybrid + SQP-1 (1080p) + Anime
+# Sonarr:  WEB-2160p + WEB-1080p + Anime
 #
 # Quality Definition: Streaming (Radarr), Series (Sonarr)
 # HDR: DV + HDR10+ boost enabled
@@ -22,7 +22,7 @@ radarr:
       - template: radarr-quality-profile-sqp-1-web-2160p
       - template: radarr-custom-formats-sqp-1-web-2160p
 
-      # 4K WEB-only profile: SQP-4 (Movies Anywhere hybrid)
+      # 4K WEB-only profile: SQP-4 MA Hybrid (WEB + hybrid scoring)
       - template: radarr-quality-profile-sqp-4
       - template: radarr-custom-formats-sqp-4
 
@@ -33,6 +33,11 @@ radarr:
       # Anime profile
       - template: radarr-quality-profile-anime
       - template: radarr-custom-formats-anime
+
+    # Override SQP-4 score set to MA Hybrid variant
+    quality_profiles:
+      - name: SQP-4
+        score_set: sqp-4-ma-hybrid
 
     # Enable optional CFs (commented out in SQP defaults)
     custom_formats:
