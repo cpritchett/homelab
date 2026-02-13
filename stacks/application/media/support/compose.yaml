@@ -220,7 +220,6 @@ services:
   # User invitation & onboarding for Plex/Jellyfin
   wizarr:
     image: ghcr.io/wizarrrr/wizarr:latest
-    user: "1701:1702"
     deploy:
       replicas: 1
       restart_policy:
