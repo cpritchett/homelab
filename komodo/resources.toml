@@ -161,6 +161,20 @@ send_alerts = true
 path = "/mnt/apps01/repos/homelab/scripts/"
 command = "sh validate-media-setup.sh"
 
+# ---
+
+[[stack]]
+name = "application_media_enrichment"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/application/media/enrichment"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
 # ── Stack (Compose mode — Swarm-incompatible) ──────────
 
 [[stack]]

@@ -1,0 +1,138 @@
+###############################################################################
+# Media Stack — Enrichment (Metadata, Artwork, Title Cards)
+#
+# Services: Kometa, TitleCardMaker, Posterizarr
+# Tier: Application (depends on Infrastructure + Platform + Media Core)
+# Purpose: Automated metadata, collections, posters, and title cards
+###############################################################################
+
+services:
+  # ── Kometa ──────────────────────────────────────────────────
+  # Collections, metadata fixes, CSM ratings (Plex-only)
+  # Runs nightly at 3 AM via built-in scheduler
+  kometa:
+    image: kometateam/kometa:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    user: "1701:1702"
+    environment:
+      TZ: "America/Chicago"
+      KOMETA_TIMES: "03:00"
+      KOMETA_RUN: "false"
+      KOMETA_READ_ONLY_CONFIG: "true"
+    volumes:
+      - /mnt/apps01/appdata/media/kometa/config:/config
+    networks:
+      - proxy_network
+
+  # ── TitleCardMaker ──────────────────────────────────────────
+  # Automated TV episode title cards (30+ styles)
+  titlecardmaker:
+    image: collinheist/titlecardmaker:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "TitleCardMaker"
+        homepage.icon: mdi-card-text-outline
+        homepage.href: "https://titlecards.in.hypyr.space"
+        homepage.description: "TV episode title cards"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: titlecards.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 4242}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.titlecardmaker.http.name: "TitleCardMaker"
+        kuma.titlecardmaker.http.url: "https://titlecards.in.hypyr.space"
+        kuma.titlecardmaker.http.interval: "60"
+        kuma.titlecardmaker.http.maxretries: "3"
+        kuma.titlecardmaker.http.accepted_statuscodes: '["200-299","301","302"]'
+    user: "1701:1702"
+    volumes:
+      - /mnt/apps01/appdata/media/titlecardmaker/config:/config
+      - /mnt/data01/data:/data
+    networks:
+      - media_enrichment
+      - proxy_network
+
+  # ── Posterizarr ─────────────────────────────────────────────
+  # Automated poster generation from textless artwork
+  posterizarr:
+    image: ghcr.io/fscorrupt/posterizarr:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Posterizarr"
+        homepage.icon: mdi-image-frame
+        homepage.href: "https://posterizarr.in.hypyr.space"
+        homepage.description: "Automated poster generation"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: posterizarr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8989}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.posterizarr.http.name: "Posterizarr"
+        kuma.posterizarr.http.url: "https://posterizarr.in.hypyr.space"
+        kuma.posterizarr.http.interval: "60"
+        kuma.posterizarr.http.maxretries: "3"
+        kuma.posterizarr.http.accepted_statuscodes: '["200-299","301","302"]'
+    user: "1701:1702"
+    volumes:
+      - /mnt/apps01/appdata/media/posterizarr/config:/config
+      - /mnt/apps01/appdata/media/posterizarr/assets:/assets
+    networks:
+      - media_enrichment
+      - proxy_network
+
+# ── Networks ─────────────────────────────────────────────────
+networks:
+  media_enrichment:
+    driver: overlay
+  proxy_network:
+    external: true

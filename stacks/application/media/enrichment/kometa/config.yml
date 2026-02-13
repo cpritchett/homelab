@@ -1,0 +1,120 @@
+###############################################################################
+# Kometa — Plex Metadata & Collections Manager
+#
+# Nightly at 03:00 CT — collections, metadata fixes, CSM ratings
+# NO overlays — clean poster art only
+#
+# Manual steps before first run:
+#   1. Get TMDb API key (free): https://www.themoviedb.org/settings/api
+#   2. Get MDBList API key (free): https://mdblist.com/preferences/
+#   3. Add Trakt credentials below
+#   4. Copy this file to barbary:
+#      /mnt/apps01/appdata/media/kometa/config/config.yml
+###############################################################################
+
+## ── Plex ──────────────────────────────────────────────────────
+plex:
+  url: http://plex:32400
+  token: Ux9nJRwaUHyWhMr3HXTQ
+  timeout: 60
+  clean_bundles: true
+  empty_trash: true
+  optimize: false
+
+## ── API Keys ──────────────────────────────────────────────────
+tmdb:
+  apikey: REPLACE_WITH_TMDB_API_KEY    # https://www.themoviedb.org/settings/api
+
+mdblist:
+  apikey: REPLACE_WITH_MDBLIST_API_KEY  # https://mdblist.com/preferences/
+
+trakt:
+  client_id: REPLACE_WITH_TRAKT_CLIENT_ID
+  client_secret: REPLACE_WITH_TRAKT_CLIENT_SECRET
+  authorization:                        # Kometa will prompt for OAuth on first run
+    access_token:
+    token_type: Bearer
+    expires_in: 7776000
+    refresh_token:
+    scope: public
+    created_at: 0
+
+## ── Global Settings ───────────────────────────────────────────
+settings:
+  cache: true
+  cache_expiration: 60
+  asset_directory: /config/assets
+  run_order:
+    - operations
+    - metadata
+    - collections
+
+## ── Libraries ─────────────────────────────────────────────────
+
+libraries:
+  Movies:
+    collection_files:
+      # Charts & lists
+      - default: basic              # Popular, Trending, Top Rated
+      - default: imdb               # IMDb Top 250, Popular
+      - default: trakt              # Trakt Trending, Popular, Watched
+
+      # Awards
+      - default: oscars             # Academy Awards Best Picture
+      - default: golden             # Golden Globe Awards
+      - default: sundance           # Sundance Film Festival
+      - default: spirit             # Independent Spirit Awards
+
+      # Organization
+      - default: genre              # Auto genre collections
+      - default: decade             # Collections by decade
+      - default: franchise          # Franchise groupings
+      - default: universe           # Cinematic universes
+      - default: seasonal           # Holiday collections
+      - default: studio             # Studio collections
+      - default: streaming          # Netflix, Disney+, etc.
+
+      # Content ratings
+      - default: content_rating_cs  # Common Sense Media
+
+    operations:
+      mass_content_rating_update: mdb_commonsense
+
+  TV Shows:
+    collection_files:
+      # Charts & lists
+      - default: basic
+      - default: imdb
+      - default: trakt
+
+      # Awards
+      - default: emmy               # Emmy Awards
+
+      # Organization
+      - default: genre
+      - default: decade
+      - default: franchise
+      - default: network            # Network collections
+      - default: streaming
+
+      # Content ratings
+      - default: content_rating_cs
+
+    operations:
+      mass_content_rating_update: mdb_commonsense
+
+  Anime Movies:
+    collection_files:
+      - default: basic
+      - default: myanimelist         # MAL top lists
+      - default: genre
+      - default: decade
+      - default: studio
+
+  Anime:
+    collection_files:
+      - default: basic
+      - default: myanimelist
+      - default: genre
+      - default: decade
+      - default: studio
