@@ -1,7 +1,7 @@
 ###############################################################################
 # Recyclarr — TRaSH Guides Quality Profile Sync
 #
-# Radarr:  SQP-1 WEB (2160p) + SQP-1 (1080p) + Anime   [sponsor profiles]
+# Radarr:  SQP-1 WEB (2160p) + SQP-4 + SQP-1 (1080p) + Anime  [sponsor]
 # Sonarr:  WEB-2160p + WEB-1080p + Anime                 [standard profiles]
 #
 # Quality Definition: Streaming (Radarr), Series (Sonarr)
@@ -22,6 +22,10 @@ radarr:
       - template: radarr-quality-profile-sqp-1-web-2160p
       - template: radarr-custom-formats-sqp-1-web-2160p
 
+      # 4K WEB-only profile: SQP-4 (Movies Anywhere hybrid)
+      - template: radarr-quality-profile-sqp-4
+      - template: radarr-custom-formats-sqp-4
+
       # 1080p profile: SQP-1 (Bluray + WEB)
       - template: radarr-quality-profile-sqp-1-1080p
       - template: radarr-custom-formats-sqp-1-1080p
@@ -30,17 +34,21 @@ radarr:
       - template: radarr-quality-profile-anime
       - template: radarr-custom-formats-anime
 
-    # Enable DV Boost and HDR10+ Boost (commented out in SQP-1 defaults)
+    # Enable DV Boost and HDR10+ Boost (commented out in SQP defaults)
     custom_formats:
       - trash_ids:
           - b337d6812e06c200ec9a2d3cfa9d20a7  # DV (Boost)
         assign_scores_to:
           - name: SQP-1 WEB (2160p)
             score: 1000
+          - name: SQP-4
+            score: 1000
       - trash_ids:
           - caa37d0df9c348912df1fb1d88f9273a  # HDR10+ Boost
         assign_scores_to:
           - name: SQP-1 WEB (2160p)
+            score: 100
+          - name: SQP-4
             score: 100
 
 sonarr:
