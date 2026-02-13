@@ -194,19 +194,19 @@ services:
         homepage.group: "Media"
         homepage.name: "Seerr"
         homepage.icon: "overseerr.png"
-        homepage.href: "https://seerr.in.hypyr.space"
+        homepage.href: "https://requests.in.hypyr.space"
         homepage.description: "Media requests"
         homepage.widget.type: "overseerr"
         homepage.widget.url: "http://seerr:5055"
 
         # Caddy: Reverse proxy (NO forward auth — Seerr has own auth via Plex/Jellyfin)
-        caddy: seerr.in.hypyr.space
+        caddy: requests.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 5055}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
 
         # AutoKuma: Uptime monitoring
         kuma.seerr.http.name: "Seerr"
-        kuma.seerr.http.url: "https://seerr.in.hypyr.space"
+        kuma.seerr.http.url: "https://requests.in.hypyr.space"
         kuma.seerr.http.interval: "60"
         kuma.seerr.http.maxretries: "3"
         kuma.seerr.http.accepted_statuscodes: '["200-299","301","302"]'
