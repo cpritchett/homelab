@@ -1,10 +1,10 @@
 ###############################################################################
 # Recyclarr — TRaSH Guides Quality Profile Sync
 #
-# Radarr:  SQP-2 (4K) + SQP-1 (1080p) + Anime   [sponsor profiles]
-# Sonarr:  WEB-2160p + WEB-1080p + Anime          [standard profiles]
+# Radarr:  SQP-1 WEB (2160p) + SQP-1 (1080p) + Anime   [sponsor profiles]
+# Sonarr:  WEB-2160p + WEB-1080p + Anime                 [standard profiles]
 #
-# Quality Definition: UHD (Radarr), Series (Sonarr)
+# Quality Definition: Streaming (Radarr), Series (Sonarr)
 # HDR: DV + HDR10+ boost enabled
 # Audio: Lossless preferred (TrueHD Atmos, DTS-X, DTS-HD MA via SQP scoring)
 ###############################################################################
@@ -15,12 +15,12 @@ radarr:
     api_key: 2247b270772b42ffbe5d0fe846333937
 
     include:
-      # Quality Definition (one per instance — UHD for best quality)
-      - template: radarr-quality-definition-sqp-uhd
+      # Quality Definition (one per instance — streaming-optimized sizes)
+      - template: radarr-quality-definition-sqp-streaming
 
-      # 4K profile: SQP-2 (Remux + Bluray + WEB, max quality)
-      - template: radarr-quality-profile-sqp-2
-      - template: radarr-custom-formats-sqp-2
+      # 4K profile: SQP-1 WEB (2160p) — WEB + Bluray, streaming file sizes
+      - template: radarr-quality-profile-sqp-1-web-2160p
+      - template: radarr-custom-formats-sqp-1-web-2160p
 
       # 1080p profile: SQP-1 (Bluray + WEB)
       - template: radarr-quality-profile-sqp-1-1080p
@@ -30,17 +30,17 @@ radarr:
       - template: radarr-quality-profile-anime
       - template: radarr-custom-formats-anime
 
-    # Enable DV Boost and HDR10+ Boost (commented out in SQP-2 defaults)
+    # Enable DV Boost and HDR10+ Boost (commented out in SQP-1 defaults)
     custom_formats:
       - trash_ids:
           - b337d6812e06c200ec9a2d3cfa9d20a7  # DV (Boost)
         assign_scores_to:
-          - name: SQP-2
+          - name: SQP-1 (2160p)
             score: 1000
       - trash_ids:
           - caa37d0df9c348912df1fb1d88f9273a  # HDR10+ Boost
         assign_scores_to:
-          - name: SQP-2
+          - name: SQP-1 (2160p)
             score: 100
 
 sonarr:
