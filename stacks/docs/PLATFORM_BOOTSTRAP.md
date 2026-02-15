@@ -31,9 +31,9 @@ Your repo contains Kubernetes homelab content at the root. Docker/Komodo stacks 
 
 Relevant layout:
 
-- `stacks/platform/secrets/op-connect/compose.yaml`
+- `stacks/infrastructure/op-connect-compose.yaml`
 - `stacks/platform/auth/authentik/compose.yaml`
-- `stacks/platform/observability/uptime-kuma/compose.yaml`
+- `stacks/platform/observability/compose.yaml` (consolidated)
 - `stacks/platform/backups/restic/compose.yaml`
 - `stacks/scripts/create-op-items.sh`
 - `stacks/scripts/setup-op-connect.sh`
@@ -101,7 +101,7 @@ ssh truenas "chmod 600 /mnt/apps01/secrets/op/1password-credentials.json"
 
 In Komodo, deploy:
 
-- `stacks/platform/secrets/op-connect/compose.yaml`
+- `stacks/infrastructure/op-connect-compose.yaml`
 
 Verify on host:
 
@@ -173,7 +173,7 @@ Verify:
 
 Deploy:
 
-- `stacks/platform/observability/uptime-kuma/compose.yaml`
+- `stacks/platform/observability/compose.yaml` (consolidated stack includes Uptime Kuma)
 
 Verify:
 - `https://status.in.hypyr.space` loads

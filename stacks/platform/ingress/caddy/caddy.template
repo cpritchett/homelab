@@ -1,2 +1,0 @@
-CADDY_EMAIL=op://Homelab/caddy-admin-email/username
-# CLOUDFLARE_API_TOKEN is set via Docker Swarm secret, not injected via 1password
