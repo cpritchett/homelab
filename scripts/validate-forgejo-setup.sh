@@ -95,6 +95,11 @@ ensure_dir_with_ownership() {
 # Forgejo application data (runs as UID 1000)
 ensure_dir_with_ownership "${APPDATA_PATH}/forgejo" "1000:1000" "755"
 
+# Forgejo internal directories (gitea data, config)
+for subdir in gitea gitea/conf custom custom/conf ssh; do
+    ensure_dir_with_ownership "${APPDATA_PATH}/forgejo/${subdir}" "1000:1000" "755"
+done
+
 # Secrets directory (written by 1password/op:2 as opuser 999:999)
 ensure_dir_with_ownership "${APPDATA_PATH}/forgejo/secrets" "999:999" "750"
 
