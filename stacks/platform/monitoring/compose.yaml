@@ -23,7 +23,7 @@ services:
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       if op inject -i /templates/grafana.env.template -o /secrets/grafana.env -f; then
-        chmod 600 /secrets/grafana.env &&
+        chmod 644 /secrets/grafana.env &&
         echo 'Monitoring secrets injected successfully';
       elif [ -s /secrets/grafana.env ]; then
         echo 'Monitoring secret injection failed; using existing /secrets/grafana.env';
