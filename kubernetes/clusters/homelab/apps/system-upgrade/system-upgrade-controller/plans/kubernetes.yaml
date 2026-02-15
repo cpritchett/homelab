@@ -16,7 +16,7 @@ spec:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
   upgrade:
-    image: ghcr.io/siderolabs/talosctl:$(TALOS_VERSION)
+    image: ghcr.io/siderolabs/talosctl@sha256:32ab841d0c8fe9e347b5bc105eedb15a99e96862bc7481448c2f8bd662018260:$(TALOS_VERSION)
     args:
       - --nodes=$(SYSTEM_UPGRADE_NODE_NAME)
       - upgrade-k8s
