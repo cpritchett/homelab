@@ -285,6 +285,19 @@ poll_for_updates = true
 webhook_enabled = true
 send_alerts = true
 
+# ── Stacks (Infrastructure tier — step-ca) ────────────────
+
+[[stack]]
+name = "infrastructure_step-ca"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/infrastructure"
+file_paths = ["step-ca-compose.yaml"]
+auto_pull = true
+send_alerts = true
+
 # ── Stacks (Infrastructure tier — PXE) ───────────────────
 
 [[stack]]
