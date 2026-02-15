@@ -35,27 +35,11 @@ docker stack deploy -c ${STACKS_DIR}/infrastructure/caddy-compose.yaml caddy || 
 echo "Waiting for caddy to be ready..."
 sleep 30
 
-# Deploy platform stacks
-echo ""
-echo "--- Deploying platform stacks ---"
-
-STACKS=(
-    "authentik:stacks/platform/auth/authentik/compose.yaml"
-    "forgejo:stacks/platform/cicd/forgejo/compose.yaml"
-    "woodpecker:stacks/platform/cicd/woodpecker/compose.yaml"
-    "restic:stacks/platform/backups/restic/compose.yaml"
-)
-
-for stack in "${STACKS[@]}"; do
-    IFS=':' read -r name compose_path <<< "$stack"
-    echo "Deploying ${name}..."
-    docker stack deploy -c "${REPO_DIR}/${compose_path}" ${name} || echo "${name} deploy failed"
-    echo "Waiting for ${name}..."
-    sleep 15
-done
+# Platform and application stacks are managed by Komodo (ADR-0022).
+# Use Komodo UI or `km execute deploy-stack <name>` to deploy them.
 
 echo ""
-echo "=== Deployment Complete ==="
+echo "=== Infrastructure Deployment Complete ==="
 echo "Finished at: $(date)"
 
 # Show stack status

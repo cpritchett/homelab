@@ -285,6 +285,46 @@ poll_for_updates = true
 webhook_enabled = true
 send_alerts = true
 
+# ── Stacks (Platform tier — CI/CD) ────────────────────────
+
+[[stack]]
+name = "platform_forgejo"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/cicd/forgejo"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+# ---
+
+[[stack]]
+name = "platform_woodpecker"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/cicd/woodpecker"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+# ── Stacks (Platform tier — Backups) ──────────────────────
+
+[[stack]]
+name = "platform_restic"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/backups/restic"
+auto_pull = true
+send_alerts = true
+
 # ── Stacks (Infrastructure tier — step-ca) ────────────────
 
 [[stack]]
