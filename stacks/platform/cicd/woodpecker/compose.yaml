@@ -28,7 +28,8 @@ services:
       "
 
   woodpecker-server:
-    image: woodpeckerci/woodpecker-server:v3.13.0@sha256:428eb0965754e25e67b8b086648438858b4fa64487b1cd3cc8e4101b396e459a
+    image: woodpeckerci/woodpecker-server:v3.13.0-alpine
+    user: "0:0"
     deploy:
       replicas: 1
       placement:
@@ -84,7 +85,7 @@ services:
        exec /bin/woodpecker-server"
 
   woodpecker-agent:
-    image: woodpeckerci/woodpecker-agent:v3.13.0@sha256:a983b1016217ad94cdab48d732ec97b5b1f72718725d651183d7ec885f7caf35
+    image: woodpeckerci/woodpecker-agent:v3.13.0-alpine
     deploy:
       replicas: 1
       placement:
