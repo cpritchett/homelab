@@ -28,8 +28,8 @@ services:
       op inject -i /templates/authentik.template -o /secrets/authentik.env -f &&
       op inject -i /templates/postgres.template -o /secrets/postgres.env -f &&
       op inject -i /templates/homepage-token.yaml.template -o /blueprints-out/homepage-token.yaml -f &&
-      chmod 600 /secrets/*.env /blueprints-out/*.yaml &&
-      chmod 700 /secrets /blueprints-out &&
+      chmod 644 /secrets/*.env /blueprints-out/*.yaml &&
+      chmod 755 /secrets /blueprints-out &&
       echo 'Secrets injected successfully'
       "
 
