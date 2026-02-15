@@ -23,7 +23,7 @@ services:
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       if op inject -i /templates/homepage.env.template -o /secrets/homepage.env -f; then
-        chmod 644 /secrets/homepage.env &&
+        chmod 600 /secrets/homepage.env &&
         echo 'Homepage secrets injected successfully';
       elif [ -s /secrets/homepage.env ]; then
         echo 'Homepage secret injection failed; using existing /secrets/homepage.env';
@@ -106,10 +106,14 @@ services:
       retries: 3
 
   # Uptime Kuma Monitoring
+  # Pinned to barbary — SQLite DB, no postgres support
   uptime-kuma:
     image: louislam/uptime-kuma:2.0.2@sha256:4c364ef96aaddac7ec4c85f5e5f31c3394d35f631381ccbbf93f18fd26ac7cba
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s

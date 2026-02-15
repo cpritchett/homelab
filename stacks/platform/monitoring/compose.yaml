@@ -23,7 +23,7 @@ services:
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       if op inject -i /templates/grafana.env.template -o /secrets/grafana.env -f; then
-        chmod 644 /secrets/grafana.env &&
+        chmod 600 /secrets/grafana.env &&
         echo 'Monitoring secrets injected successfully';
       elif [ -s /secrets/grafana.env ]; then
         echo 'Monitoring secret injection failed; using existing /secrets/grafana.env';
@@ -33,10 +33,14 @@ services:
       fi
       "
 
+  # Pinned to barbary — TSDB requires local storage
   prometheus:
     image: prom/prometheus:v2.48.1
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -81,10 +85,14 @@ services:
       - monitoring
       - proxy_network
 
+  # Pinned to barbary — chunk storage requires local disk
   loki:
     image: grafana/loki:2.9.8
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -123,6 +131,7 @@ services:
       - monitoring
       - proxy_network
 
+  # Floats freely — state in PostgreSQL
   grafana:
     image: grafana/grafana:10.4.8
     deploy:
@@ -163,6 +172,10 @@ services:
       GF_SERVER_ROOT_URL: https://grafana.in.hypyr.space
       GF_SECURITY_DISABLE_GRAVATAR: "true"
       GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: postgresql:5432
+      GF_DATABASE_NAME: grafana
+      GF_DATABASE_SSL_MODE: require
     volumes:
       - /mnt/data01/appdata/monitoring/grafana:/var/lib/grafana
       - /mnt/apps01/appdata/monitoring/secrets:/run/monitoring-secrets:ro
@@ -170,6 +183,7 @@ services:
     networks:
       - monitoring
       - proxy_network
+      - postgres
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a;
@@ -240,6 +254,9 @@ networks:
     driver: overlay
     attachable: true
   proxy_network:
+    external: true
+  postgres:
+    name: platform_postgres_postgres
     external: true
   op-connect:
     name: op-connect_op-connect

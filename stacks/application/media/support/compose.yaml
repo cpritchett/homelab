@@ -28,10 +28,14 @@ services:
     command: sync
 
   # ── Bazarr ───────────────────────────────────────────────────
+  # Pinned to barbary — SQLite DB, no postgres support
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -78,10 +82,14 @@ services:
       - proxy_network
 
   # ── Tautulli ─────────────────────────────────────────────────
+  # Pinned to barbary — SQLite DB, Plex-adjacent
   tautulli:
     image: lscr.io/linuxserver/tautulli:latest
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -127,11 +135,15 @@ services:
       - proxy_network
 
   # ── Maintainerr ──────────────────────────────────────────────
+  # Pinned to barbary — SQLite DB
   maintainerr:
     image: ghcr.io/jorenn92/maintainerr:latest
     user: "1701:1702"
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -172,12 +184,16 @@ services:
       - proxy_network
 
   # ── Seerr ────────────────────────────────────────────────────
+  # Pinned to barbary — SQLite DB
   # Media request management (formerly Jellyseerr)
   seerr:
     image: ghcr.io/fallenbagel/jellyseerr:latest
     user: "1701:1702"
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -217,11 +233,15 @@ services:
       - proxy_network
 
   # ── Wizarr ──────────────────────────────────────────────────
+  # Pinned to barbary — SQLite DB
   # User invitation & onboarding for Plex/Jellyfin
   wizarr:
     image: ghcr.io/wizarrrr/wizarr:latest
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s

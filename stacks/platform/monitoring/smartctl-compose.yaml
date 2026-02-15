@@ -9,7 +9,8 @@ services:
     restart: unless-stopped
     cap_add:
       - SYS_RAWIO
-      - SYS_ADMIN
+    security_opt:
+      - no-new-privileges:true
     user: root
     devices:
       - /dev/sda:/dev/sda

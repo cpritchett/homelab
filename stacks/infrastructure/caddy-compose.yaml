@@ -87,8 +87,8 @@ services:
       op inject -i /templates/cloudflared-config.template -o /secrets/config.yaml -f &&
       . /secrets/cloudflared.env &&
       echo \"$${CREDENTIALS_JSON}\" | base64 -d > /secrets/credentials.json &&
-      chmod 644 /secrets/cloudflared.env /secrets/credentials.json /secrets/config.yaml &&
-      chmod 755 /secrets &&
+      chmod 600 /secrets/cloudflared.env /secrets/credentials.json /secrets/config.yaml &&
+      chmod 700 /secrets &&
       echo 'Cloudflared secrets injected successfully'
       "
 

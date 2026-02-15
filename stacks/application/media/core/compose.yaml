@@ -33,15 +33,19 @@ services:
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/media.template -o /secrets/media.env -f &&
-      chmod 644 /secrets/media.env &&
+      chmod 600 /secrets/media.env &&
       echo 'Secrets injected successfully'
       "
 
   # ── Plex ─────────────────────────────────────────────────────
+  # Pinned to barbary — large metadata DB + iGPU transcoding
   plex:
     image: lscr.io/linuxserver/plex:latest
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -98,10 +102,14 @@ services:
        exec /init"
 
   # ── Jellyfin ─────────────────────────────────────────────────
+  # Pinned to barbary — large metadata DB + iGPU transcoding
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -150,6 +158,7 @@ services:
       - proxy_network
 
   # ── Sonarr ───────────────────────────────────────────────────
+  # Floats freely — state in PostgreSQL
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     deploy:
@@ -192,6 +201,10 @@ services:
       PUID: "1701"
       PGID: "1702"
       TZ: "America/Chicago"
+      SONARR__POSTGRES__HOST: postgresql
+      SONARR__POSTGRES__PORT: "5432"
+      SONARR__POSTGRES__MAINDB: sonarr-main
+      SONARR__POSTGRES__LOGDB: sonarr-log
     volumes:
       - /mnt/apps01/appdata/media/sonarr/config:/config
       - /mnt/data01/data:/data
@@ -199,12 +212,14 @@ services:
     networks:
       - media
       - proxy_network
+      - postgres
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
        exec /init"
 
   # ── Radarr ───────────────────────────────────────────────────
+  # Floats freely — state in PostgreSQL
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     deploy:
@@ -247,6 +262,10 @@ services:
       PUID: "1701"
       PGID: "1702"
       TZ: "America/Chicago"
+      RADARR__POSTGRES__HOST: postgresql
+      RADARR__POSTGRES__PORT: "5432"
+      RADARR__POSTGRES__MAINDB: radarr-main
+      RADARR__POSTGRES__LOGDB: radarr-log
     volumes:
       - /mnt/apps01/appdata/media/radarr/config:/config
       - /mnt/data01/data:/data
@@ -254,12 +273,14 @@ services:
     networks:
       - media
       - proxy_network
+      - postgres
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
        exec /init"
 
   # ── Prowlarr ─────────────────────────────────────────────────
+  # Floats freely — state in PostgreSQL
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
     deploy:
@@ -302,22 +323,31 @@ services:
       PUID: "1701"
       PGID: "1702"
       TZ: "America/Chicago"
+      PROWLARR__POSTGRES__HOST: postgresql
+      PROWLARR__POSTGRES__PORT: "5432"
+      PROWLARR__POSTGRES__MAINDB: prowlarr-main
+      PROWLARR__POSTGRES__LOGDB: prowlarr-log
     volumes:
       - /mnt/apps01/appdata/media/prowlarr/config:/config
       - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
     networks:
       - media
       - proxy_network
+      - postgres
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
        exec /init"
 
   # ── SABnzbd ──────────────────────────────────────────────────
+  # Pinned to barbary — SQLite DB, no postgres support
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd:latest
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -374,6 +404,9 @@ networks:
   media:
     driver: overlay
   proxy_network:
+    external: true
+  postgres:
+    name: platform_postgres_postgres
     external: true
   op-connect:
     name: op-connect_op-connect

@@ -36,7 +36,7 @@ services:
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/torrent.template -o /secrets/torrent.env -f &&
-      chmod 644 /secrets/torrent.env &&
+      chmod 600 /secrets/torrent.env &&
       echo 'Secrets injected successfully'
       "
 
