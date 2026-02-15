@@ -12,10 +12,8 @@ These conditions must **always be true**. Any change that would violate an invar
 |----------|-------|-------|
 | Management VLAN | 100 | Fixed |
 | Management CIDR | `10.0.100.0/24` | Fixed |
-| K8s Cluster VLAN | 5 | Fixed |
-| K8s Cluster CIDR | `10.0.5.0/24` | Fixed |
-| IoT secondary network VLAN | 10 | For Multus workloads |
-| LoadBalancer pool VLAN | 48 | For Cilium L2-announced IPs |
+| Swarm Node VLAN | 5 | Fixed |
+| Swarm Node CIDR | `10.0.5.0/24` | Fixed |
 | Public zone | `hypyr.space` | Cloudflare-managed |
 | Internal zone | `in.hypyr.space` | Local DNS only |
 
@@ -29,29 +27,18 @@ These conditions must **always be true**. Any change that would violate an invar
 
 ## Storage Configuration Invariants
 
-**Storage System:** Longhorn CSI (see ADR-0010)
+**Storage System:** TrueNAS ZFS (host paths) + NFS exports to swarm nodes
 
-All Talos nodes MUST include:
-- Kernel modules: `nbd`, `iscsi_tcp`, `dm_multipath`
-- System extension: `siderolabs/open-iscsi` (iSCSI initiator)
-- Containerd config: `discard_unpacked_layers = false` (for image caching)
-
-Rationale:
-- **NBD:** Block device replication (Longhorn volumes)
-- **iSCSI:** Data path between replicas in cluster
-- **dm_multipath:** Path redundancy for storage reliability
-- **open-iscsi:** Daemon for initiating iSCSI connections
-
-These are non-negotiable for Longhorn functionality. Violations break storage.
+NFS mounts on swarm nodes:
+- `/mnt/apps01/appdata` — application configuration data
+- `/mnt/data01/data` — media and bulk data
 
 ## Hardware Constraints
 
 | Resource | Quantity | Notes |
 |----------|----------|-------|
-| Talos k8s nodes | 4 | Commodity/repurposed consumer hardware |
-| Total cluster RAM | 352GB | Heterogeneous (32-128GB per node) |
-| QuickSync nodes | 2 | Beelink EQ12 units |
-| GPU nodes | 1 | Lenovo P520 with NVIDIA P2000 |
+| Docker Swarm managers | 2 | Proxmox VMs (ching, angre) |
+| Docker Swarm workers | 2 | Bare metal (lorcha, dhow) |
 | Primary NAS | 1 | 45Drives HL15 (TrueNAS, ~100TB, brownfield) |
 | Secondary NAS | 1 | Synology DS918+ (DSM, S3 via Garage, brownfield) |
 
@@ -71,10 +58,7 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
 4. **Overlay agents are prohibited on Management VLAN devices**
    - Overlay is transport for trusted humans, not management infrastructure
 
-5. **Secondary networks (IoT, LoadBalancer) must not bypass primary cluster network**
-   - VLAN 10 (IoT) provides Multus attachment only; pods remain primarily on K8s network
-   - VLAN 48 (LoadBalancer IPs) is L2-announced only; no cluster management traffic
-   - No management infrastructure operates on secondary networks
+5. **No management infrastructure operates on secondary networks**
 
 ## DNS Invariants
 
@@ -104,12 +88,11 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
      - `requirements/*/spec.md`, `requirements/*/checks.md`
      - `specs/NNN-*/spec.md`, `specs/NNN-*/plan.md`, `specs/NNN-*/research.md`, `specs/NNN-*/data-model.md`, `specs/NNN-*/quickstart.md`, `specs/NNN-*/contracts/`, `specs/NNN-*/checklists/`, `specs/NNN-*/tasks.md`
      - `infra/README.md`, `infra/<domain>/README.md`
-   - Domain dirs: `talos/`, `bootstrap/` (README.md and checks.md only; specs relocated to `specs/NNN-*` per ADR-0026)
+     - `ansible/README.md`, `opentofu/README.md`
 
 3. **Specification placement is constrained** (see ADR-0026)
    - Canonical specs **only** under `requirements/<domain>/spec.md`
    - Non-canonical/operational specs **only** under `specs/NNN-<slug>/spec.md`
-   - `spec.md` is prohibited in any other path (e.g., `kubernetes/`, `bootstrap/`, `talos/`)
    - Enforced by `scripts/check-spec-placement.sh` and CI gate wiring
 
 4. **Documentation must be properly located**:
@@ -120,9 +103,10 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - Implementation → `infra/<domain>/`
 
 5. **Deployment targets are separated by directory**:
-   - Kubernetes workloads → `kubernetes/`
-   - NAS/non-K8s workloads → `stacks/` (Docker Compose, systemd units)
-   - Infrastructure provisioning → `infra/`
+   - Docker Swarm stacks → `stacks/` (Compose files, deployed via Komodo)
+   - Node configuration → `ansible/` (Ansible playbooks and roles)
+   - VM provisioning → `opentofu/` (Proxmox VM creation)
+   - Infrastructure config → `infra/` (DNS, Cloudflare, UniFi)
 
 6. **CI enforcement is mandatory**
    - All structural rules MUST be validated in CI (`.github/workflows/guardrails.yml`)
@@ -139,32 +123,21 @@ These are non-negotiable for Longhorn functionality. Violations break storage.
    - All production secrets MUST be stored in 1Password
    - No secrets in git history, commit messages, or unencrypted files
 
-2. **Kubernetes secrets MUST use External Secrets Operator**
-   - ESO pulls from 1Password Connect Server
-   - No manually created K8s secrets (except ESO bootstrap)
-
-3. **Docker Swarm secrets MUST use 1Password Connect pattern**
+2. **Docker Swarm secrets MUST use 1Password Connect pattern**
    - Stacks use `secrets-init` containers with `op inject`
    - Shared Swarm secret `op_connect_token` for all stacks
    - Secrets hydrated at startup, never pre-materialized to host disk
 
-4. **Plaintext secrets on disk are prohibited**
+3. **Plaintext secrets on disk are prohibited**
    - Exception: 1Password Connect credentials file at `/mnt/apps01/secrets/op/1password-credentials.json` (600 permissions, never committed)
-   - Exception: Kubernetes bootstrap secrets (encrypted via SOPS/age, rotated regularly)
 
-5. **Secret scanning MUST be enabled**
+4. **Secret scanning MUST be enabled**
    - Pre-commit hooks scan for secrets
    - CI gates block merges with detected secrets
    - Gitleaks or equivalent tool required
 
-## GitOps Invariants
-
-| ID | Description | Risk | Check Script | Remediation |
-|----|-------------|------|--------------|-------------|
-| `flux-kustomize-builds` | All Flux Kustomization target paths build successfully with kustomize | High | `scripts/check-kustomize-build.sh` | Fix invalid kustomization.yaml, missing resources, or ordering issues |
-| `flux-helmrelease-renders` | All HelmReleases can be templated (best-effort) without contacting a cluster | Medium | `scripts/check-helmrelease-template.sh` | Pin chart versions, ensure values refs exist, stub secrets for offline rendering |
-| `no-plaintext-secrets` | No Kubernetes Secret manifests stored in plaintext (SOPS-encrypted allowed) | High | `scripts/check-no-plaintext-secrets.sh` | Convert to SOPS, ESO, or sealed secret pattern |
-| `deprecated-k8s-apis` | Detect removed/deprecated Kubernetes API versions in manifests | High | `scripts/check-deprecated-apis.sh` | Update manifests to supported apiVersions |
-| `talos-ytt-renders` | Talos machine configs render from ytt without missing values | High | `scripts/check-talos-ytt-render.sh` | Fix ytt schema/data-values, eliminate hidden defaults, document required inputs |
-| `no-cross-env-leakage` | Flux sources and Kustomizations do not reference paths across clusters/environments | High | `scripts/check-cross-env-refs.sh` | Introduce shared bases or per-cluster overlays; avoid path traversal |
-| `crds-before-crs` | CRDs/controllers reconcile before CR instances (ordering validated) | High | `scripts/check-crd-ordering.sh` | Add explicit `dependsOn` and/or split kustomizations into infra/controllers/apps layers |
+5. **World-readable permissions on secrets directories are prohibited**
+   - `chmod 777` or `chmod 666` on any directory or file containing secrets, credentials, or sensitive configuration is a hard stop
+   - Secrets directories MUST be owned by the writing process UID (e.g., 999:999 for 1Password op) with mode 750 or stricter
+   - Secret files MUST have mode 644 or stricter (644 when consumed by non-root services, 600 when consumed by root only)
+   - Pre-deploy validation scripts MUST enforce correct ownership and permissions

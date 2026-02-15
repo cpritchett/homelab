@@ -235,6 +235,10 @@ poll_for_updates = true
 webhook_enabled = true
 send_alerts = true
 
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-postgres-setup.sh"
+
 # ── Stacks (Application tier — Media) ─────────────────
 
 [[stack]]
@@ -299,6 +303,10 @@ poll_for_updates = true
 webhook_enabled = true
 send_alerts = true
 
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-forgejo-setup.sh"
+
 # ---
 
 [[stack]]
@@ -313,6 +321,10 @@ poll_for_updates = true
 webhook_enabled = true
 send_alerts = true
 
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-woodpecker-setup.sh"
+
 # ── Stacks (Platform tier — Backups) ──────────────────────
 
 [[stack]]
@@ -324,6 +336,10 @@ linked_repo = "homelab-repo"
 run_directory = "stacks/platform/backups/restic"
 auto_pull = true
 send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-restic-setup.sh"
 
 # ── Stacks (Infrastructure tier — step-ca) ────────────────
 
