@@ -96,12 +96,12 @@ ensure_dir_with_ownership() {
 # Application config directories (apps01 — fast tier)
 # ---------------------------------------------------------------------------
 
-for svc in plex sonarr radarr prowlarr sabnzbd bazarr tautulli maintainerr; do
+for svc in plex sonarr radarr prowlarr sabnzbd bazarr tautulli maintainerr seerr; do
     ensure_dir_with_ownership "${APPDATA_PATH}/media/${svc}/config" "${MEDIA_OWNER}" "755"
 done
 
 # Secrets directories for stacks that use 1Password hydration
-for stack in core torrent; do
+for stack in core torrent support; do
     ensure_dir_with_ownership "${APPDATA_PATH}/media/${stack}/secrets" "999:999" "755"
 done
 

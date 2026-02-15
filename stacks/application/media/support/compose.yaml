@@ -4,10 +4,39 @@
 # Services: Bazarr, Tautulli, Maintainerr, Recyclarr, Seerr, Wizarr
 # Tier: Application (depends on Infrastructure + Platform + Media Core)
 # Spec: specs/007-media-stack-migration
-# ADR: ADR-0033 Phase 3, ADR-0034 (labels)
+# ADR: ADR-0033 Phase 3, ADR-0034 (labels), ADR-0035 (secrets)
 ###############################################################################
 
 services:
+  # ── Secret Hydration (one-shot job) ──────────────────────────
+  op-secrets:
+    image: 1password/op:2
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./support.env.template:/templates/support.template:ro
+      - /mnt/apps01/appdata/media/support/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/support.template -o /secrets/support.env -f &&
+      chmod 644 /secrets/support.env &&
+      echo 'Secrets injected successfully'
+      "
+
   # ── Recyclarr ────────────────────────────────────────────────
   # Syncs TRaSH Guides quality profiles to Sonarr/Radarr (one-shot per deploy)
   recyclarr:
@@ -184,16 +213,13 @@ services:
       - proxy_network
 
   # ── Seerr ────────────────────────────────────────────────────
-  # Pinned to barbary — SQLite DB
+  # Floats freely — state in PostgreSQL
   # Media request management (formerly Jellyseerr)
   seerr:
-    image: ghcr.io/fallenbagel/jellyseerr:latest
-    user: "1701:1702"
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
     deploy:
       replicas: 1
-      placement:
-        constraints:
-          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -209,7 +235,7 @@ services:
         # Homepage: Media dashboard
         homepage.group: "Media"
         homepage.name: "Seerr"
-        homepage.icon: "overseerr.png"
+        homepage.icon: "seerr.png"
         homepage.href: "https://requests.in.hypyr.space"
         homepage.description: "Media requests"
         homepage.widget.type: "overseerr"
@@ -226,11 +252,22 @@ services:
         kuma.seerr.http.interval: "60"
         kuma.seerr.http.maxretries: "3"
         kuma.seerr.http.accepted_statuscodes: '["200-299","301","302"]'
+    environment:
+      DB_TYPE: postgres
+      DB_HOST: postgresql
+      DB_PORT: "5432"
+      DB_NAME: seerr
     volumes:
       - /mnt/apps01/appdata/media/seerr/config:/app/config
+      - /mnt/apps01/appdata/media/support/secrets:/secrets:ro
     networks:
       - media_support
       - proxy_network
+      - postgres
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/support.env ] && . /secrets/support.env && set +a &&
+       exec npm start"
 
   # ── Wizarr ──────────────────────────────────────────────────
   # Pinned to barbary — SQLite DB
@@ -285,5 +322,16 @@ networks:
   media_support:
     driver: overlay
   proxy_network:
+    external: true
+  postgres:
+    name: platform_postgres_postgres
+    external: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+# ── Secrets ──────────────────────────────────────────────────
+secrets:
+  op_connect_token:
     external: true
 

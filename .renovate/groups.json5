@@ -32,125 +32,65 @@
     {
       description: "1Password Connect Group",
       groupName: "1Password Connect",
-      matchDatasources: ["docker", "helm"],
+      matchDatasources: ["docker"],
       matchPackageNames: ["/1password/"],
       semanticCommitScope: "1password",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
-      description: "Actions Runner Controller Group",
-      groupName: "Actions Runner Controller",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: ["/gha-runner-scale-set-controller/", "/gha-runner-scale-set/"],
-      semanticCommitScope: "ci",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
-      description: "Cert-Manager Group",
-      groupName: "Cert-Manager",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: ["/cert-manager/"],
-      semanticCommitScope: "cert-manager",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
-      description: "Cilium Group",
-      groupName: "Cilium",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: ["/cilium/"],
-      semanticCommitScope: "networking",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
-      description: "CoreDNS Group",
-      groupName: "CoreDNS",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: ["/coredns/"],
-      semanticCommitScope: "dns",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
-      description: "External Secrets Operator Group",
-      groupName: "External Secrets Operator",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: ["/external-secrets/"],
-      semanticCommitScope: "secrets",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
-      description: "Flux Operator Group",
-      groupName: "Flux Operator",
-      matchDatasources: ["docker", "github-releases", "helm"],
-      matchPackageNames: ["/flux-operator/", "/flux-instance/", "fluxcd/flux2"],
-      semanticCommitScope: "gitops",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
-      description: "Spegel Group",
-      groupName: "Spegel",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: ["/spegel/"],
-      semanticCommitScope: "registry",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
-      description: "Kubernetes and Talos Group",
-      groupName: "Kubernetes and Talos",
-      matchDatasources: ["github-releases", "docker"],
-      matchPackageNames: [
-        "siderolabs/talos",
-        "kubernetes/kubernetes",
-        "ghcr.io/siderolabs/talosctl",
-        "ghcr.io/jfroy/tnu"
-      ],
-      semanticCommitScope: "k8s",
-      group: { commitMessageTopic: "{{{groupName}}} group" },
-      minimumReleaseAge: "3 days"
-    },
-    {
-      description: "Kube-Prometheus-Stack Group",
-      groupName: "Kube-Prometheus-Stack",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: [
-        "/kube-prometheus-stack/",
-        "/prometheus-operator/",
-        "/prometheus/",
-        "/alertmanager/",
-        "/grafana/"
-      ],
-      semanticCommitScope: "monitoring",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
       description: "Cloudflare Group",
       groupName: "Cloudflare",
-      matchDatasources: ["docker", "helm", "github-releases"],
+      matchDatasources: ["docker", "github-releases"],
       matchPackageNames: ["/cloudflare/", "/cloudflared/"],
       semanticCommitScope: "dns",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
-      description: "VolSync Group",
-      groupName: "VolSync",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: ["/volsync/"],
-      semanticCommitScope: "storage",
-      group: { commitMessageTopic: "{{{groupName}}} group" }
-    },
-    {
       description: "PostgreSQL Group",
       groupName: "PostgreSQL",
-      matchDatasources: ["docker", "helm"],
-      matchPackageNames: ["/postgresql/", "/postgres/", "/cloudnative-pg/"],
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/postgresql/", "/postgres/"],
       semanticCommitScope: "database",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
       description: "Home Automation Stack",
       groupName: "Home Automation",
-      matchDatasources: ["docker", "helm"],
+      matchDatasources: ["docker"],
       matchPackageNames: ["/home-assistant/", "/zigbee2mqtt/", "/mosquitto/"],
       semanticCommitScope: "home",
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Monitoring Stack Group",
+      groupName: "Monitoring Stack",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/prometheus/", "/grafana/", "/alertmanager/", "/loki/", "/promtail/", "/alloy/"],
+      semanticCommitScope: "monitoring",
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Media Stack Group",
+      groupName: "Media Stack",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/sonarr/", "/radarr/", "/prowlarr/", "/bazarr/", "/plex/", "/seerr/", "/tdarr/", "/recyclarr/", "/flaresolverr/", "/qbittorrent/", "/wizarr/"],
+      semanticCommitScope: "media",
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Authentik Group",
+      groupName: "Authentik",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/authentik/"],
+      semanticCommitScope: "auth",
+      group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Caddy Group",
+      groupName: "Caddy",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/caddy/"],
+      semanticCommitScope: "ingress",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     }
   ]

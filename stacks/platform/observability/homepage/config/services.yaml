@@ -136,7 +136,7 @@
           key: "{{HOMEPAGE_VAR_JELLYFIN_API_KEY}}"
 
     - Seerr:
-        icon: overseerr.png
+        icon: seerr.png
         href: https://requests.in.hypyr.space
         description: Media requests
         widget:
