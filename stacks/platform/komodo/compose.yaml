@@ -81,10 +81,16 @@ services:
         source: /mnt/apps01/secrets
         target: /mnt/apps01/secrets
         type: bind
+      - /mnt/apps01/appdata/step-ca/issued:/homelab-ca:ro
     # env_file removed - using entrypoint wrapper to load env at runtime
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      "set -a && [ -f /secrets/komodo.env ] && . /secrets/komodo.env && set +a &&
+      "if [ -f /homelab-ca/root_ca.crt ]; then
+         cat /etc/ssl/certs/ca-certificates.crt /homelab-ca/root_ca.crt > /tmp/ca-bundle.crt 2>/dev/null ||
+         cat /homelab-ca/root_ca.crt > /tmp/ca-bundle.crt;
+         export SSL_CERT_FILE=/tmp/ca-bundle.crt;
+       fi &&
+       set -a && [ -f /secrets/komodo.env ] && . /secrets/komodo.env && set +a &&
        exec /app/core"
   mongo:
     cap_drop:
@@ -159,6 +165,8 @@ services:
       PERIPHERY_PORT: '8120'
       PERIPHERY_ROOT_DIRECTORY: /mnt/apps01/appdata/komodo/periphery
       PERIPHERY_SSL_ENABLED: 'true'
+      PERIPHERY_SSL_CERT_FILE: /certs/cert.pem
+      PERIPHERY_SSL_KEY_FILE: /certs/key.pem
       TZ: America/Chicago
       UMASK: '002'
       UMASK_SET: '002'
@@ -207,6 +215,7 @@ services:
         target: /mnt/apps01/secrets
         type: bind
       - /mnt/apps01/appdata/komodo/secrets:/secrets:ro
+      - /mnt/apps01/appdata/step-ca/issued/periphery:/certs:ro
     # env_file removed - using entrypoint wrapper to load env at runtime
     entrypoint: ["/bin/sh", "-c"]
     command: >

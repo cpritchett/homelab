@@ -17,6 +17,10 @@ SECRETS_PATH="${SECRETS_PATH:-/mnt/apps01/secrets}"
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
 LOG_FILE="${LOG_FILE:-/var/log/homelab-bootstrap.log}"
 
+# Restrict log file permissions (contains service details)
+touch "$LOG_FILE"
+chmod 0600 "$LOG_FILE"
+
 # Logging function
 log() {
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
@@ -144,7 +148,7 @@ fi
 # Ensure directory structure exists
 log "Creating application data directories..."
 
-mkdir -p "${APPDATA_PATH}"/{op-connect,komodo,proxy}
+mkdir -p "${APPDATA_PATH}"/{op-connect,komodo,proxy,step-ca}
 mkdir -p "${APPDATA_PATH}/komodo"/{mongodb,sync,backups,secrets,periphery}
 mkdir -p "${APPDATA_PATH}/proxy"/{caddy-data,caddy-config,caddy-secrets}
 
@@ -183,7 +187,40 @@ else
     exit 1
 fi
 
-# 2. Deploy Komodo (orchestration platform)
+# 2. Deploy step-ca (internal PKI — ADR-0038)
+log "Deploying step-ca stack..."
+if docker stack deploy -c "${REPO_PATH}/stacks/infrastructure/step-ca-compose.yaml" step-ca; then
+    log "step-ca stack deployed successfully"
+else
+    log_error "Failed to deploy step-ca stack"
+    exit 1
+fi
+
+log "Waiting 30 seconds for step-ca initialization..."
+sleep 30
+
+# Poll for periphery certificate (up to 24 tries x 5s = 120s)
+log "Waiting for periphery certificate to be issued..."
+CERT_PATH="${APPDATA_PATH}/step-ca/issued/periphery/cert.pem"
+CERT_TRIES=0
+CERT_MAX_TRIES=24
+while [ $CERT_TRIES -lt $CERT_MAX_TRIES ]; do
+    if [ -f "$CERT_PATH" ]; then
+        log "Periphery certificate issued successfully"
+        break
+    fi
+    CERT_TRIES=$((CERT_TRIES + 1))
+    log "Attempt $CERT_TRIES/$CERT_MAX_TRIES - certificate not yet issued, waiting 5s..."
+    sleep 5
+done
+
+if [ ! -f "$CERT_PATH" ]; then
+    log_error "Periphery certificate was not issued within timeout"
+    log_error "Check step-ca and cert-init service logs"
+    exit 1
+fi
+
+# 3. Deploy Komodo (orchestration platform)
 log "Deploying komodo stack..."
 if docker stack deploy -c "${REPO_PATH}/stacks/infrastructure/komodo-compose.yaml" komodo; then
     log "komodo stack deployed successfully"
@@ -203,7 +240,7 @@ else
     exit 1
 fi
 
-# 3. Deploy Caddy (ingress/reverse proxy)
+# 4. Deploy Caddy (ingress/reverse proxy)
 log "Deploying caddy stack..."
 if docker stack deploy -c "${REPO_PATH}/stacks/infrastructure/caddy-compose.yaml" caddy; then
     log "caddy stack deployed successfully"
@@ -229,6 +266,7 @@ log "========================================="
 log ""
 log "Infrastructure tier is now running:"
 log "  - 1Password Connect: http://op-connect-api:8080"
+log "  - Smallstep CA: https://step-ca:9000 (internal PKI)"
 log "  - Komodo UI: https://komodo.in.hypyr.space"
 log "  - Caddy Proxy: Running and serving TLS certificates"
 log ""
@@ -240,6 +278,7 @@ log ""
 log "Service status:"
 docker stack ls
 docker service ls --filter "label=com.docker.stack.namespace=op-connect"
+docker service ls --filter "label=com.docker.stack.namespace=step-ca"
 docker service ls --filter "label=com.docker.stack.namespace=komodo"
 docker service ls --filter "label=com.docker.stack.namespace=caddy"
 

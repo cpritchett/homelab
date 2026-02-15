@@ -29,7 +29,12 @@ services:
 
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      "export KOMODO_DATABASE_PASSWORD=$$(cat /run/secrets/komodo_db_password) &&
+      "if [ -f /homelab-ca/root_ca.crt ]; then
+         cat /etc/ssl/certs/ca-certificates.crt /homelab-ca/root_ca.crt > /tmp/ca-bundle.crt 2>/dev/null ||
+         cat /homelab-ca/root_ca.crt > /tmp/ca-bundle.crt;
+         export SSL_CERT_FILE=/tmp/ca-bundle.crt;
+       fi &&
+       export KOMODO_DATABASE_PASSWORD=$$(cat /run/secrets/komodo_db_password) &&
        export KOMODO_PASSKEY=$$(cat /run/secrets/komodo_passkey) &&
        exec entrypoint.sh core"
     environment:
@@ -62,6 +67,7 @@ services:
     volumes:
       - /mnt/apps01/appdata/komodo/backups:/backups
       - /mnt/apps01/appdata/komodo/sync:/syncs
+      - /mnt/apps01/appdata/step-ca/issued:/homelab-ca:ro
     secrets:
       - komodo_db_password
       - komodo_passkey
@@ -121,6 +127,8 @@ services:
       PERIPHERY_PORT: "8120"
       PERIPHERY_ROOT_DIRECTORY: /mnt/apps01/repos
       PERIPHERY_SSL_ENABLED: "true"
+      PERIPHERY_SSL_CERT_FILE: /certs/cert.pem
+      PERIPHERY_SSL_KEY_FILE: /certs/key.pem
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
       UMASK: '002'
@@ -136,6 +144,7 @@ services:
     volumes:
       - /mnt/apps01/repos:/mnt/apps01/repos
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/apps01/appdata/step-ca/issued/periphery:/certs:ro
     secrets:
       - komodo_passkey
 

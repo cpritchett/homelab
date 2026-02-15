@@ -17,6 +17,12 @@ docker stack deploy -c ${STACKS_DIR}/infrastructure/op-connect-compose.yaml op-c
 echo "Waiting for op-connect to be ready..."
 sleep 30
 
+echo "Deploying step-ca stack..."
+docker stack deploy -c ${STACKS_DIR}/infrastructure/step-ca-compose.yaml step-ca || echo "step-ca deploy failed (may already exist)"
+
+echo "Waiting for step-ca to be ready..."
+sleep 45
+
 echo "Deploying komodo stack..."
 docker stack deploy -c ${STACKS_DIR}/infrastructure/komodo-compose.yaml komodo || echo "Komodo deploy failed (may already exist)"
 

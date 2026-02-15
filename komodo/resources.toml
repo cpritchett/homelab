@@ -5,13 +5,109 @@
 # Excludes: system procedures (auto-created by Komodo),
 # webhook_secret / passkey (auto-generated secrets).
 
-# ── Server ──────────────────────────────────────────────
+# ── Servers ─────────────────────────────────────────────
 
 [[server]]
 name = "barbary-periphery"
 
 [server.config]
 address = "https://periphery:8120"
+# TLS verified via Smallstep CA (ADR-0038)
+enabled = true
+auto_rotate_keys = true
+auto_prune = true
+stats_monitoring = true
+send_unreachable_alerts = true
+send_cpu_alerts = true
+send_mem_alerts = true
+send_disk_alerts = true
+send_version_mismatch_alerts = true
+cpu_warning = 90.0
+cpu_critical = 99.0
+mem_warning = 75.0
+mem_critical = 95.0
+disk_warning = 75.0
+disk_critical = 95.0
+
+# ---
+
+[[server]]
+name = "ching-periphery"
+
+[server.config]
+address = "https://10.0.5.93:8120"
+insecure_tls = true
+enabled = true
+auto_rotate_keys = true
+auto_prune = true
+stats_monitoring = true
+send_unreachable_alerts = true
+send_cpu_alerts = true
+send_mem_alerts = true
+send_disk_alerts = true
+send_version_mismatch_alerts = true
+cpu_warning = 90.0
+cpu_critical = 99.0
+mem_warning = 75.0
+mem_critical = 95.0
+disk_warning = 75.0
+disk_critical = 95.0
+
+# ---
+
+[[server]]
+name = "angre-periphery"
+
+[server.config]
+address = "https://10.0.5.130:8120"
+insecure_tls = true
+enabled = true
+auto_rotate_keys = true
+auto_prune = true
+stats_monitoring = true
+send_unreachable_alerts = true
+send_cpu_alerts = true
+send_mem_alerts = true
+send_disk_alerts = true
+send_version_mismatch_alerts = true
+cpu_warning = 90.0
+cpu_critical = 99.0
+mem_warning = 75.0
+mem_critical = 95.0
+disk_warning = 75.0
+disk_critical = 95.0
+
+# ---
+
+[[server]]
+name = "lorcha-periphery"
+
+[server.config]
+address = "https://10.0.5.215:8120"
+insecure_tls = true
+enabled = true
+auto_rotate_keys = true
+auto_prune = true
+stats_monitoring = true
+send_unreachable_alerts = true
+send_cpu_alerts = true
+send_mem_alerts = true
+send_disk_alerts = true
+send_version_mismatch_alerts = true
+cpu_warning = 90.0
+cpu_critical = 99.0
+mem_warning = 75.0
+mem_critical = 95.0
+disk_warning = 75.0
+disk_critical = 95.0
+
+# ---
+
+[[server]]
+name = "dhow-periphery"
+
+[server.config]
+address = "https://10.0.5.220:8120"
 insecure_tls = true
 enabled = true
 auto_rotate_keys = true
@@ -35,7 +131,7 @@ disk_critical = 95.0
 name = "homelab-swarm"
 
 [swarm.config]
-server_ids = ["barbary-periphery"]
+server_ids = ["barbary-periphery", "ching-periphery", "angre-periphery", "lorcha-periphery", "dhow-periphery"]
 send_unhealthy_alerts = true
 
 # ── Builder ─────────────────────────────────────────────
@@ -125,6 +221,20 @@ send_alerts = true
 path = "/mnt/apps01/repos/homelab/scripts/"
 command = "sh validate-authentik-setup.sh"
 
+# ---
+
+[[stack]]
+name = "platform_postgres"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/postgres"
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
 # ── Stacks (Application tier — Media) ─────────────────
 
 [[stack]]
@@ -175,7 +285,37 @@ poll_for_updates = true
 webhook_enabled = true
 send_alerts = true
 
+# ── Stacks (Infrastructure tier — PXE) ───────────────────
+
+[[stack]]
+name = "infrastructure_pxe"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/infrastructure/pxe"
+auto_pull = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-pxe-setup.sh"
+
+# ---
+
 # ── Stack (Compose mode — Swarm-incompatible) ──────────
+
+[[stack]]
+name = "dnsmasq-proxypxe"
+
+[stack.config]
+server = "barbary-periphery"
+linked_repo = "homelab-repo"
+run_directory = "stacks/infrastructure/pxe"
+file_paths = ["dnsmasq-compose.yaml"]
+send_alerts = true
+
+# ---
 
 [[stack]]
 name = "smartctl-exporter"
