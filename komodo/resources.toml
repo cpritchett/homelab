@@ -193,6 +193,10 @@ poll_for_updates = true
 webhook_enabled = true
 send_alerts = true
 
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-observability-setup.sh"
+
 [[stack.config.config_files]]
 path = "homepage/config/services.yaml"
 requires = "Restart"
@@ -294,6 +298,10 @@ auto_pull = true
 poll_for_updates = true
 webhook_enabled = true
 send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-media-setup.sh"
 
 # ── Stacks (Platform tier — CI/CD) ────────────────────────
 

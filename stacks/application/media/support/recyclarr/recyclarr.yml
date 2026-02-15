@@ -7,12 +7,17 @@
 # Quality Definition: Streaming (Radarr), Series (Sonarr)
 # HDR: DV + HDR10+ boost enabled
 # Audio: Lossless preferred (TrueHD Atmos, DTS-X, DTS-HD MA via SQP scoring)
+#
+# NOTE: This is the version-controlled reference config. The runtime copy
+# lives at /mnt/apps01/appdata/media/recyclarr/config/recyclarr.yml on the
+# host (mounted into the container at /config). API keys use !env_var syntax
+# here; the host copy contains actual values.
 ###############################################################################
 
 radarr:
   radarr:
     base_url: http://radarr:7878
-    api_key: 2247b270772b42ffbe5d0fe846333937
+    api_key: !env_var RADARR_API_KEY
 
     include:
       # Quality Definition (one per instance — streaming-optimized sizes)
@@ -65,7 +70,7 @@ radarr:
 sonarr:
   sonarr:
     base_url: http://sonarr:8989
-    api_key: ee76b15acab3451c8aebfa02c3637c87
+    api_key: !env_var SONARR_API_KEY
 
     include:
       # Quality Definition (one per instance)

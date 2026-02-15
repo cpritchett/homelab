@@ -96,7 +96,25 @@ stacks/application/media/support/
 stacks/platform/monitoring/
 ├── compose.yaml
 └── grafana.env.template        # op:// references
+
+stacks/platform/cicd/forgejo/
+├── compose.yaml
+└── env.template                # op:// references (DB + Forgejo internals)
+
+stacks/platform/cicd/woodpecker/
+├── compose.yaml
+└── env.template                # op:// references (Forgejo OAuth, agent secret)
+
+stacks/platform/auth/authentik/
+├── compose.yaml
+├── env.template                # op:// references (Authentik core)
+├── postgres.template           # op:// references (Authentik DB)
+└── blueprints/
+    ├── oauth2-forgejo.yaml.template  # op:// refs in YAML blueprint (op inject → /blueprints/custom/generated/)
+    └── homepage-token.yaml.template  # op:// refs in YAML blueprint
 ```
+
+Note: Authentik uses two kinds of templates — standard `.env.template` files for environment variables, and `.yaml.template` files for blueprints that contain `op://` references within YAML config. Both are processed by `op inject` during the secrets-init job.
 
 Templates are checked into git (they contain only reference URIs, not actual secrets). The hydrated `.env` files are written to host volumes under `/mnt/apps01/appdata/*/secrets/` and are never committed.
 

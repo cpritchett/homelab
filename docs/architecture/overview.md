@@ -21,6 +21,7 @@ flowchart TB
         postgres["PostgreSQL (shared DB)"]
         monitoring["Prometheus + Loki + Grafana"]
         observability["Homepage + Uptime Kuma"]
+        cicd["Forgejo + Woodpecker (CI/CD)"]
     end
 
     subgraph application["Application Tier"]
@@ -97,7 +98,9 @@ See [ansible/README.md](../../ansible/README.md) and the [runbooks](../runbooks/
 | Logging | Loki + Promtail | Centralized log aggregation |
 | Dashboard | Homepage | Service dashboard with label-driven registration |
 | Uptime | Uptime Kuma + AutoKuma | Health checks, label-driven monitor creation |
-| Database | PostgreSQL (shared) | App databases for Sonarr, Radarr, Prowlarr, Seerr, Grafana |
+| Git Forge | Forgejo | Self-hosted Git hosting, container registry, OAuth2 provider |
+| CI/CD | Woodpecker CI | Pipeline execution via Forgejo webhooks, Docker backend |
+| Database | PostgreSQL (shared + dedicated) | Shared: Sonarr, Radarr, Prowlarr, Seerr, Grafana; Dedicated: Authentik, Forgejo |
 | Storage | TrueNAS ZFS | Dataset management, snapshots, NFS exports |
 | Provisioning | OpenTofu + Ansible | VM creation, node bootstrap, hardening |
 | PXE | dnsmasq + matchbox | Network boot for bare-metal nodes |

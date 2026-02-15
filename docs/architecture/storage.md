@@ -34,6 +34,12 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │   │   ├── backups/                  # Daily pg_dumpall
 │   │   └── secrets/                  # Injected env
 │   ├── uptime-kuma/                  # SQLite DB
+│   ├── forgejo/
+│   │   ├── gitea/                    # Repos, LFS, config (app.ini)
+│   │   └── secrets/                  # Injected env
+│   ├── woodpecker/
+│   │   ├── woodpecker.db             # SQLite DB
+│   │   └── secrets/                  # Injected env
 │   └── media/
 │       ├── plex/config/
 │       ├── jellyfin/config/
@@ -66,6 +72,8 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │   ├── authentik/
 │   │   ├── postgres/                 # Authentik DB
 │   │   └── redis/                    # Session store
+│   ├── forgejo/
+│   │   └── postgres/                 # Forgejo-dedicated DB
 │   └── postgres/
 │       └── data/                     # Shared app databases
 └── data/                             # Media library
@@ -96,6 +104,8 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 | PostgreSQL | `/mnt/data01/appdata/postgres/data` | All shared app databases | Yes |
 | Uptime Kuma | `/mnt/apps01/appdata/uptime-kuma` | SQLite DB | Yes |
 | MongoDB | `/mnt/apps01/appdata/komodo/mongodb` | Komodo state | Yes |
+| Forgejo | `/mnt/apps01/appdata/forgejo` | Git repos, LFS, config (DB in dedicated PostgreSQL) | Yes |
+| Woodpecker | `/mnt/apps01/appdata/woodpecker` | SQLite DB | Yes |
 
 ## Backup Strategy
 
@@ -105,7 +115,7 @@ A `pg-backup` sidecar runs daily `pg_dumpall` with 7-day retention:
 
 - **Destination:** `/mnt/apps01/appdata/postgres/backups/`
 - **Schedule:** Nightly
-- **Databases:** grafana, sonarr-main, sonarr-log, radarr-main, radarr-log, prowlarr-main, prowlarr-log, seerr
+- **Databases:** grafana, sonarr-main, sonarr-log, radarr-main, radarr-log, prowlarr-main, prowlarr-log, seerr (shared PostgreSQL); forgejo (dedicated PostgreSQL)
 
 ### Application Config (future)
 
@@ -125,8 +135,11 @@ Services running on non-barbary nodes use these NFS mounts transparently. Servic
 | User/Group | UID | GID | Services |
 |-----------|-----|-----|----------|
 | media | 1701 | 1702 | Plex, Jellyfin, Sonarr, Radarr, Prowlarr, SABnzbd, Bazarr, Recyclarr, Kometa, TitleCardMaker, Posterizarr |
+| node | 1000 | 1000 | Seerr, Forgejo |
 | caddy | 1701 | 1702 | Caddy (shares media group for socket access) |
+| opuser | 999 | 999 | 1Password Connect init jobs (secrets dirs must be 999:999 mode 750) |
 | cloudflared | 65532 | 65532 | cloudflared (nonroot default) |
+| postgres | 70 | 70 | PostgreSQL (alpine image) |
 | mongodb | 568 | 568 | Komodo MongoDB |
 
 All media services run as `PUID=1701 PGID=1702` to ensure consistent file ownership across the shared `/mnt/data01/data` mount.

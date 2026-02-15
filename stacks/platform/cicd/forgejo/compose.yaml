@@ -22,8 +22,8 @@ services:
     command: >
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
-      op inject -i /templates/env.template -o /secrets/postgres.env -f &&
-      chmod 644 /secrets/postgres.env &&
+      op inject -i /templates/env.template -o /secrets/forgejo.env -f &&
+      chmod 644 /secrets/forgejo.env &&
       echo 'Secrets injected successfully'
       "
 
@@ -57,7 +57,7 @@ services:
       - forgejo
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
+      "set -a && [ -f /secrets/forgejo.env ] && . /secrets/forgejo.env && set +a &&
        exec docker-entrypoint.sh postgres"
 
   forgejo:
@@ -120,7 +120,7 @@ services:
           - forgejo
     entrypoint: ["/bin/sh", "-c"]
     command: >
-      "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
+      "set -a && [ -f /secrets/forgejo.env ] && . /secrets/forgejo.env && set +a &&
        exec /usr/bin/entrypoint /usr/bin/s6-svscan /etc/s6"
 
 networks:
