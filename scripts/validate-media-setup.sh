@@ -96,9 +96,12 @@ ensure_dir_with_ownership() {
 # Application config directories (apps01 — fast tier)
 # ---------------------------------------------------------------------------
 
-for svc in plex sonarr radarr prowlarr sabnzbd bazarr tautulli maintainerr seerr; do
+for svc in plex sonarr radarr prowlarr sabnzbd bazarr tautulli maintainerr; do
     ensure_dir_with_ownership "${APPDATA_PATH}/media/${svc}/config" "${MEDIA_OWNER}" "755"
 done
+
+# Seerr runs as node:node (UID 1000) — not an LSIO image
+ensure_dir_with_ownership "${APPDATA_PATH}/media/seerr/config" "1000:1000" "755"
 
 # Secrets directories for stacks that use 1Password hydration
 for stack in core torrent support; do
