@@ -27,7 +27,7 @@ services:
       "if [ ! -f /home/step/config/ca.json ]; then
          echo 'First boot: initializing Smallstep CA...' &&
          step ca init --name 'Homelab CA' --dns 'step-ca,localhost' --address ':9000' --provisioner admin --password-file /run/secrets/step_ca_password --provisioner-password-file /run/secrets/step_ca_password &&
-         sed -i 's|maxTLSCertDuration.*|maxTLSCertDuration\": \"8760h\",|' /home/step/config/ca.json &&
+         sed -i 's|\"provisioners\"|\"claims\": {\"maxTLSCertDuration\": \"8760h\", \"defaultTLSCertDuration\": \"720h\"},\n\t\t\"provisioners\"|' /home/step/config/ca.json &&
          echo 'CA initialized with 1-year max cert duration';
        fi &&
        exec step-ca --password-file /run/secrets/step_ca_password /home/step/config/ca.json"
