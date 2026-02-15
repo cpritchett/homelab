@@ -1,0 +1,95 @@
+---
+# ── OS Hardening ─────────────────────────────────────────
+- name: Apply OS hardening
+  ansible.builtin.include_role:
+    name: devsec.hardening.os_hardening
+
+# ── SSH Hardening ────────────────────────────────────────
+- name: Apply SSH hardening
+  ansible.builtin.include_role:
+    name: devsec.hardening.ssh_hardening
+
+# ── Firewall (nftables) ─────────────────────────────────
+- name: Install nftables
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+
+- name: Deploy nftables ruleset
+  ansible.builtin.copy:
+    dest: /etc/nftables.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      #!/usr/sbin/nft -f
+      flush ruleset
+
+      table inet filter {
+        chain input {
+          type filter hook input priority 0; policy drop;
+
+          # Allow established/related connections
+          ct state established,related accept
+
+          # Allow loopback
+          iif "lo" accept
+
+          # Allow ICMP
+          ip protocol icmp accept
+          ip6 nexthdr icmpv6 accept
+
+          # Allow SSH
+          tcp dport 22 accept
+
+          # Allow Periphery
+          tcp dport 8120 accept
+
+          # Allow Docker Swarm
+          tcp dport { 2377, 7946 } accept
+          udp dport { 7946, 4789 } accept
+        }
+
+        chain forward {
+          type filter hook forward priority 0; policy accept;
+        }
+
+        chain output {
+          type filter hook output priority 0; policy accept;
+        }
+      }
+  notify: Restart nftables
+
+- name: Enable nftables
+  ansible.builtin.systemd:
+    name: nftables
+    enabled: true
+    state: started
+
+# ── Fail2ban ─────────────────────────────────────────────
+- name: Install fail2ban
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+
+- name: Configure fail2ban SSH jail
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/sshd.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [sshd]
+      enabled = true
+      port = ssh
+      filter = sshd
+      maxretry = 5
+      bantime = 3600
+      findtime = 600
+  notify: Restart fail2ban
+
+- name: Enable fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started

@@ -1,0 +1,98 @@
+---
+version: "3"
+
+vars:
+  ANSIBLE_DIR: "{{.ROOT_DIR}}/ansible"
+
+tasks:
+  deps:
+    desc: Install Ansible Galaxy roles and collections
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-galaxy install -r requirements.yml
+    preconditions:
+      - which ansible-galaxy
+
+  ping:
+    desc: Ping all swarm nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible all -m ping
+
+  ping:managers:
+    desc: Ping manager nodes only
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible managers -m ping
+
+  ping:workers:
+    desc: Ping worker nodes only
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible workers -m ping
+
+  bootstrap:
+    desc: Full bootstrap — all roles, all nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - |
+        ansible-playbook playbooks/site.yml \
+          --extra-vars "komodo_passkey=$(op read 'op://homelab/Komodo - Barbary/credential')"
+    preconditions:
+      - which ansible-playbook
+      - which op
+
+  bootstrap:check:
+    desc: Dry run of full bootstrap (--check --diff)
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - |
+        ansible-playbook playbooks/site.yml --check --diff \
+          --extra-vars "komodo_passkey=$(op read 'op://homelab/Komodo - Barbary/credential')"
+    preconditions:
+      - which ansible-playbook
+      - which op
+
+  bootstrap:node:
+    desc: Bootstrap a single node (set NODE=hostname)
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - |
+        ansible-playbook playbooks/site.yml \
+          --limit {{.NODE}} \
+          --extra-vars "komodo_passkey=$(op read 'op://homelab/Komodo - Barbary/credential')"
+    requires:
+      vars: [NODE]
+    preconditions:
+      - which ansible-playbook
+      - which op
+
+  harden:
+    desc: Run hardening role on all nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-playbook playbooks/hardening.yml
+    preconditions:
+      - which ansible-playbook
+
+  docker:
+    desc: Run Docker role on all nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible-playbook playbooks/docker.yml
+    preconditions:
+      - which ansible-playbook
+
+  facts:
+    desc: Gather and display facts from all nodes
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible swarm_nodes -m setup -a "filter=ansible_distribution,ansible_architecture,ansible_memtotal_mb,ansible_processor_vcpus"
+
+  shell:
+    desc: Run ad-hoc command on all nodes (set CMD="...")
+    dir: "{{.ANSIBLE_DIR}}"
+    cmds:
+      - ansible swarm_nodes -a "{{.CMD}}"
+    requires:
+      vars: [CMD]

@@ -54,7 +54,6 @@ declare -a ALLOWLIST=(
   # ops/
   "^\.\/ops\/README\.md$"
   "^\.\/ops\/CHANGELOG\.md$"
-  "^\.\/ops\/runbooks\/[^/]*\.md$"
   
   # requirements/* - canonical specs and checks only
   "^\.\/requirements\/[^/]*\/spec\.md$"
@@ -71,16 +70,8 @@ declare -a ALLOWLIST=(
   "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/checklists\/[^/]+\.md$"
   "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/tasks\.md$"
   
-  # talos/
-  "^\.\/talos\/README\.md$"
-  "^\.\/talos\/checks\.md$"
-  
-  # bootstrap/
-  "^\.\/bootstrap\/README\.md$"
-  "^\.\/bootstrap\/checks\.md$"
-  
-  # kubernetes/ - README only
-  "^\.\/kubernetes\/README\.md$"
+  # ansible/
+  "^\.\/ansible\/README\.md$"
   
   # constitution/ - canonical files
   "^\.\/constitution\/constitution\.md$"
@@ -95,28 +86,21 @@ declare -a ALLOWLIST=(
   "^\.\/infra\/README\.md$"
   "^\.\/infra\/[^/]*\/README\.md$"
   
-  # kubernetes/ - specific permitted subdirectories only
-  "^\.\/kubernetes\/components\/README\.md$"
-  "^\.\/kubernetes\/components\/[^/]*\/README\.md$"
-  "^\.\/kubernetes\/components\/[^/]*\/templates\/README\.md$"
-  "^\.\/kubernetes\/profiles\/README\.md$"
-  "^\.\/kubernetes\/clusters\/homelab\/apps\/[^/]*\/README\.md$"
-  "^\.\/kubernetes\/clusters\/homelab\/apps\/[^/]*\/[^/]*\/plans\/README\.md$"
+  # opentofu/
+  "^\.\/opentofu\/README\.md$"
   
-  # bootstrap/ - values and nested
-  "^\.\/bootstrap\/values\/[^/]*\.md$"
-  
-  # stacks/ - docs and platform docs (brownfield)
+  # .claude/commands/ - Claude Code skill commands
+  "^\.\/\.claude\/commands\/[^/]*\.md$"
+
+  # stacks/ - docs and stack-level READMEs (brownfield)
   "^\.\/stacks\/docs\/[^/]*\.md$"
   "^\.\/stacks\/platform\/[^/]*\/README\.md$"
   "^\.\/stacks\/platform\/[^/]*/[^/]*\/README\.md$"
+  "^\.\/stacks\/application\/[^/]*\/README\.md$"
+  "^\.\/stacks\/application\/[^/]*/[^/]*\/README\.md$"
   
-  # test/ - policy test docs
-  "^\.\/test\/[^/]*\/README\.md$"
-
   # policies/ - policy docs
   "^\.\/policies\/[^/]*\.md$"
-  "^\.\/policies\/[^/]*/[^/]*\.md$"
 )
 
 # Function to check if file matches allowlist
@@ -155,12 +139,12 @@ else
   echo "Permitted locations:"
   echo "  - Root: README.md, CONTRIBUTING.md, CLAUDE.md, agents.md"
   echo "  - docs/adr/ADR-NNNN-*.md (append-only)"
-  echo "  - docs/*, docs/governance/*, docs/operations/*"
-  echo "  - ops/CHANGELOG.md, ops/README.md, ops/runbooks/*"
+  echo "  - docs/*, docs/governance/*, docs/architecture/*, docs/runbooks/*"
+  echo "  - ops/CHANGELOG.md, ops/README.md"
   echo "  - requirements/*/spec.md, requirements/*/checks.md"
   echo "  - specs/NNN-*/{spec,plan,research,data-model,quickstart}.md"
   echo "  - specs/NNN-*/{contracts,checklists,tasks}/"
-  echo "  - talos/, bootstrap/ (checks.md, README.md only; spec.md moved to specs/)"
+  echo "  - ansible/README.md, opentofu/README.md"
   echo "  - infra/README.md, infra/*/README.md"
   exit 1
 fi

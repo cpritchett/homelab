@@ -28,13 +28,6 @@
       automerge: false
     },
     {
-      description: "Helm chart updates",
-      matchDatasources: ["helm"],
-      semanticCommitScope: "helm",
-      commitMessageTopic: "Helm chart {{depName}}",
-      separateMinorPatch: true
-    },
-    {
       description: "GitHub Actions updates",
       matchManagers: ["github-actions"],
       semanticCommitScope: "ci",
@@ -82,18 +75,6 @@
     {
       description: "Disable updates for local dependencies",
       matchPackageNames: ["/^file:/"],
-      enabled: false
-    },
-    {
-      description: "Increase stability period for critical infrastructure",
-      matchPackageNames: ["/cilium/", "/cert-manager/", "/external-secrets/"],
-      matchUpdateTypes: ["major"],
-      minimumReleaseAge: "14 days",
-      dependencyDashboardApproval: true
-    },
-    {
-      description: "Disable updates for qbr - repository not publicly accessible",
-      matchPackageNames: ["ghcr.io/buroa/qbr"],
       enabled: false
     }
   ]

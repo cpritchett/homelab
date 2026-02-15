@@ -1,0 +1,58 @@
+---
+version: "3"
+
+vars:
+  SSH_HOST: truenas_admin@barbary
+
+tasks:
+  nodes:
+    desc: List Docker Swarm nodes
+    cmds:
+      - ssh {{.SSH_HOST}} sudo docker node ls
+
+  services:
+    desc: List all Swarm services
+    cmds:
+      - ssh {{.SSH_HOST}} sudo docker service ls
+
+  stacks:
+    desc: List all deployed stacks
+    cmds:
+      - ssh {{.SSH_HOST}} sudo docker stack ls
+
+  ps:
+    desc: Show tasks for a stack (set STACK=name)
+    cmds:
+      - ssh {{.SSH_HOST}} sudo docker stack ps {{.STACK}} --no-trunc
+    requires:
+      vars: [STACK]
+
+  logs:
+    desc: Tail logs for a service (set SVC=name)
+    cmds:
+      - ssh {{.SSH_HOST}} sudo docker service logs --tail 50 -f {{.SVC}}
+    requires:
+      vars: [SVC]
+
+  networks:
+    desc: List overlay networks
+    cmds:
+      - ssh {{.SSH_HOST}} sudo docker network ls --filter driver=overlay
+
+  secrets:
+    desc: List Swarm secrets
+    cmds:
+      - ssh {{.SSH_HOST}} sudo docker secret ls
+
+  health:
+    desc: Quick health check — nodes, stacks, and service count
+    cmds:
+      - |
+        echo "==> Swarm Nodes"
+        ssh {{.SSH_HOST}} sudo docker node ls
+        echo ""
+        echo "==> Stacks"
+        ssh {{.SSH_HOST}} sudo docker stack ls
+        echo ""
+        echo "==> Services (running/total)"
+        ssh {{.SSH_HOST}} 'sudo docker service ls --format "{{`{{.Name}}`}}\t{{`{{.Replicas}}`}}"'

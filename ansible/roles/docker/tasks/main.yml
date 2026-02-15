@@ -1,0 +1,17 @@
+---
+- name: Install Docker CE via geerlingguy.docker
+  ansible.builtin.include_role:
+    name: geerlingguy.docker
+  vars:
+    docker_install_compose_plugin: true
+    docker_users:
+      - deploy
+
+- name: Deploy Docker daemon configuration
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart docker

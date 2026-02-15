@@ -1,0 +1,6 @@
+---
+- name: Restart periphery
+  ansible.builtin.systemd:
+    name: periphery
+    state: restarted
+    daemon_reload: true

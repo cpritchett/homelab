@@ -1,0 +1,5 @@
+---
+- name: Harden swarm nodes
+  hosts: swarm_nodes
+  roles:
+    - hardening

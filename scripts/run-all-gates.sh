@@ -166,38 +166,4 @@ else
 fi
 echo
 
-echo "==> Gate 10: Talos templates (conditional)"
-if has_changes '^(talos/|scripts/test-talos-templates.sh)'; then
-  if command -v ytt >/dev/null 2>&1; then
-    (cd talos && ./render.sh all)
-    ./scripts/test-talos-templates.sh
-  else
-    if [ -n "${CI:-}" ]; then
-      echo "ERROR: ytt is required in CI for Talos template checks." >&2
-      exit 1
-    else
-      echo "⚠️  ytt not installed, skipping Talos template checks."
-    fi
-  fi
-else
-  echo "No Talos-related changes; skipping."
-fi
-echo
-
-echo "==> Gate 11: Invariants (informational, conditional)"
-if has_changes '^(kubernetes/|bootstrap/|talos/|scripts/)'; then
-  set +e
-  ./scripts/check-kustomize-build.sh
-  ./scripts/check-helmrelease-template.sh
-  ./scripts/check-no-plaintext-secrets.sh
-  ./scripts/check-deprecated-apis.sh
-  ./scripts/check-talos-ytt-render.sh
-  ./scripts/check-cross-env-refs.sh
-  ./scripts/check-crd-ordering.sh
-  set -e
-else
-  echo "No relevant changes; skipping informational invariants."
-fi
-echo
-
 echo "✅ All gates passed!"

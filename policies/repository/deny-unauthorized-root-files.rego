@@ -19,20 +19,19 @@ allowed_root_dirs := {
     ".github",
     ".specify",
     ".vscode",
+    "ansible",
     "constitution",
     "contracts",
-    "bootstrap",
     "specs",
     "docs",
     "infra",
-    "kubernetes",
+    "komodo",
+    "opentofu",
     "ops",
     "policies",
     "requirements",
     "scripts",
     "stacks",
-    "talos",
-    "test",
 }
 
 # Prohibited file patterns in root (case-insensitive)

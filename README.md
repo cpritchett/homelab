@@ -10,7 +10,7 @@ Conflicts are resolved by precedence (highest first):
 2. **`contracts/`** — Agent operating rules; must comply with constitution
 3. **`requirements/`** — Domain specs; must comply with constitution and contracts
 4. **`docs/`** — Explanatory only; no normative authority
-5. **`infra/` + `ops/`** — Implementation; must satisfy requirements
+5. **`stacks/` + `ansible/` + `opentofu/` + `ops/`** — Implementation; must satisfy requirements
 
 ## Quick links
 
@@ -19,7 +19,6 @@ Conflicts are resolved by precedence (highest first):
 - Agent contract: [`contracts/agents.md`](contracts/agents.md)
 - Hard-stops: [`contracts/hard-stops.md`](contracts/hard-stops.md)
 - Invariants: [`contracts/invariants.md`](contracts/invariants.md)
-- Compute spec: [`requirements/compute/spec.md`](requirements/compute/spec.md)
 - DNS spec: [`requirements/dns/spec.md`](requirements/dns/spec.md)
 - Ingress spec: [`requirements/ingress/spec.md`](requirements/ingress/spec.md)
 - Management spec: [`requirements/management/spec.md`](requirements/management/spec.md)
@@ -29,14 +28,19 @@ Conflicts are resolved by precedence (highest first):
 - Tooling spec: [`requirements/tooling/spec.md`](requirements/tooling/spec.md)
 - Workflow spec: [`requirements/workflow/spec.md`](requirements/workflow/spec.md)
 
+### Infrastructure
+- Docker Swarm stacks: [`stacks/`](stacks/)
+- Ansible (node config & hardening): [`ansible/`](ansible/)
+- OpenTofu (Proxmox VMs): [`opentofu/`](opentofu/)
+- Komodo resources: [`komodo/`](komodo/)
+- Runbooks: [`docs/runbooks/`](docs/runbooks/)
+
 ### Explanatory (why)
+- Architecture: [`docs/architecture/`](docs/architecture/)
 - Rationale: [`docs/rationale.md`](docs/rationale.md)
 - Glossary: [`docs/glossary.md`](docs/glossary.md)
 - ADRs: [`docs/adr/`](docs/adr/)
 - Risk register: [`docs/risk/risk-register.md`](docs/risk/risk-register.md)
-
-### Spec-Kit
-- `.specify/` — Spec-Kit compatibility layer for AI agents
 
 ## Change discipline
 - Update `requirements/` or `contracts/` when rules change

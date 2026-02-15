@@ -1,0 +1,13 @@
+# Copy to terraform.tfvars and fill in values.
+# terraform.tfvars is gitignored (contains secrets).
+
+# Proxmox API tokens — create in Proxmox UI after Phase 1 install.
+# Format: "user@realm!tokenid=uuid-secret"
+# These target the *-pve hosts (10.0.5.92, 10.0.5.129), not the VMs.
+proxmox_ching_token = ""
+proxmox_angre_token = ""
+
+# VM MAC addresses — must match Matchbox group selectors.
+# Default values are pre-assigned; change if needed.
+ching_vm_mac = "BC:24:11:00:05:93"
+angre_vm_mac = "BC:24:11:00:05:30"

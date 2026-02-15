@@ -26,18 +26,6 @@ secret.yaml
 # 1Password CLI artifacts
 .op
 
-# Kubernetes secrets (unless using SOPS/sealed-secrets)
-*-secret.yaml
-*-secret.yml
-*.secret.yaml
-*.secret.yml
-
-# Kubernetes configs
-kubeconfig
-kubeconfig.*
-*.kubeconfig
-*.kubeconfig.*
-*.kube
 
 # Terraform/Tofu secrets
 *.tfvars
@@ -45,7 +33,9 @@ kubeconfig.*
 !*.example.tfvars
 terraform.tfstate
 terraform.tfstate.backup
+*.tfstate.*
 .terraform/
+.opentofu/
 
 # Ansible vault files (unless properly encrypted)
 vault.yml
@@ -107,7 +97,8 @@ lerna-debug.log*
 .pnpm-debug.log*
 *.tsbuildinfo
 
-# Talos rendered configs (generated from templates)
-talos/rendered/
+# Ansible retry files
+*.retry
+
 .continue/
 .playwright-mcp/

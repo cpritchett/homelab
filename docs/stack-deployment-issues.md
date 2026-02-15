@@ -27,24 +27,24 @@ command: >
   export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
   op inject -i /templates/authentik.template -o /secrets/authentik.env -f &&
   op inject -i /templates/postgres.template -o /secrets/postgres.env -f &&
-  chmod 644 /secrets/*.env &&
-  chmod 755 /secrets &&
+  chmod 600 /secrets/*.env &&
+  chmod 700 /secrets &&
   echo 'Secrets injected successfully'
   "
 ```
 
 ### Key Permission Requirements
-- Secrets directory: `755` (execute needed for traversal)
-- Secrets files: `644` (read needed by containers)
+- Secrets directory: `700` (owner-only access with execute for traversal)
+- Secrets files: `600` (owner-only read/write)
 - Group: Set appropriately for container users (999, 1000, etc.)
 
 ### Manual Fix (if stack already deployed)
 ```bash
 # Fix directory permissions
-sudo chmod 755 /mnt/apps01/appdata/*/secrets
+sudo chmod 700 /mnt/apps01/appdata/*/secrets
 
 # Fix file permissions
-sudo chmod 644 /mnt/apps01/appdata/*/secrets/*.env
+sudo chmod 600 /mnt/apps01/appdata/*/secrets/*.env
 
 # Fix ownership if needed (for uid 1000)
 sudo chgrp 1000 /mnt/apps01/appdata/*/secrets
@@ -109,7 +109,7 @@ When deploying stacks with secrets initialization:
 1. **Create secrets directories with proper permissions:**
    ```bash
    mkdir -p /mnt/apps01/appdata/{authentik,forgejo,komodo,restic,woodpecker}/secrets
-   chmod 755 /mnt/apps01/appdata/*/secrets
+   chmod 700 /mnt/apps01/appdata/*/secrets
    ```
 
 2. **Ensure ZFS ACLs allow access:**

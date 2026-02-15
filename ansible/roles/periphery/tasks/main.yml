@@ -1,0 +1,79 @@
+---
+- name: Set Periphery download URL based on architecture
+  ansible.builtin.set_fact:
+    periphery_arch: >-
+      {{ 'x86_64-unknown-linux-gnu' if ansible_architecture == 'x86_64'
+         else 'aarch64-unknown-linux-gnu' if ansible_architecture == 'aarch64'
+         else '' }}
+
+- name: Fail if architecture is unsupported
+  ansible.builtin.fail:
+    msg: "Unsupported architecture: {{ ansible_architecture }}"
+  when: periphery_arch == ''
+
+- name: Download Periphery binary
+  ansible.builtin.get_url:
+    url: "https://github.com/moghtech/komodo/releases/{{ periphery_version }}/download/periphery-{{ periphery_arch }}"
+    dest: /usr/local/bin/periphery
+    mode: "0755"
+    force: false
+
+- name: Create Periphery config directory
+  ansible.builtin.file:
+    path: /etc/komodo
+    state: directory
+    mode: "0755"
+
+- name: Deploy Periphery configuration
+  ansible.builtin.template:
+    src: periphery.config.toml.j2
+    dest: /etc/komodo/periphery.config.toml
+    owner: root
+    group: root
+    mode: "0640"
+  notify: Restart periphery
+
+- name: Create Periphery SSL directory
+  ansible.builtin.file:
+    path: /etc/komodo/ssl
+    state: directory
+    mode: "0750"
+
+- name: Generate self-signed SSL certificate
+  ansible.builtin.command:
+    cmd: >-
+      openssl req -x509 -newkey rsa:4096
+      -keyout /etc/komodo/ssl/key.pem
+      -out /etc/komodo/ssl/cert.pem
+      -days 3650 -nodes
+      -subj "/CN={{ inventory_hostname }}.{{ domain }}"
+    creates: /etc/komodo/ssl/cert.pem
+
+- name: Deploy Periphery systemd unit
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/periphery.service
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Komodo Periphery Agent
+      After=network-online.target docker.service
+      Wants=network-online.target
+
+      [Service]
+      Type=simple
+      ExecStart=/usr/local/bin/periphery --config-path /etc/komodo/periphery.config.toml
+      Restart=on-failure
+      RestartSec=10
+
+      [Install]
+      WantedBy=multi-user.target
+  notify: Restart periphery
+
+- name: Enable and start Periphery
+  ansible.builtin.systemd:
+    name: periphery
+    enabled: true
+    state: started
+    daemon_reload: true

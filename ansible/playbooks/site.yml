@@ -1,0 +1,9 @@
+---
+- name: Bootstrap swarm nodes
+  hosts: swarm_nodes
+  roles:
+    - common
+    - hardening
+    - docker
+    - nfs
+    - periphery

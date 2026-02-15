@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: tailscale-app-connector
-  namespace: networking
-data:
-  routes: "10.0.5.0/24"

@@ -27,17 +27,15 @@ Repository root structure is **fixed and enumerated** to prevent:
 |-----------|---------|-------|
 | `constitution/` | Immutable principles | Governance |
 | `contracts/` | Hard-stops, invariants, agent rules | Governance |
-| `bootstrap/` | Bootstrap assets and Helmfile scaffolding | Infrastructure |
 | `requirements/` | Domain requirements and checks | Governance |
-| `docs/` | Documentation (including ADRs) | Documentation |
-| `infra/` | Infrastructure as code | Implementation |
-| `kubernetes/` | GitOps manifests and cluster overlays | Implementation |
-| `stacks/` | NAS deployment manifests (Docker Compose, systemd) | Implementation |
-| `ops/` | Operational docs (runbooks, changelogs) | Operations |
-| `policies/` | Kyverno admission policies | Policy |
+| `docs/` | Documentation (ADRs, architecture, runbooks) | Documentation |
+| `stacks/` | Docker Swarm/Compose deployment manifests | Implementation |
+| `ansible/` | Node configuration and hardening playbooks | Implementation |
+| `opentofu/` | Proxmox VM provisioning | Implementation |
+| `komodo/` | Komodo ResourceSync declarative config | Implementation |
+| `ops/` | Changelog only (runbooks moved to docs/runbooks/) | Operations |
+| `policies/` | OPA Rego admission policies | Policy |
 | `scripts/` | CI/validation scripts | Tooling |
-| `talos/` | Talos node configuration templates and values | Infrastructure |
-| `test/` | Test manifests for policies | Testing |
 | `specs/` | Non-canonical specs and design docs (speckit outputs) | Governance |
 | `.github/` | GitHub Actions, templates | Tooling |
 | `.claude/` | Claude Code configuration | Tooling |
@@ -66,16 +64,16 @@ Repository root structure is **fixed and enumerated** to prevent:
 |--------------|-------------------|-------|
 | Architecture decision | `docs/adr/ADR-NNNN-*.md` | Numbered, immutable after merge |
 | Technical documentation | `docs/*.md` | General purpose docs |
-| Runbook | `ops/runbooks/*.md` | Operational procedures |
+| Architecture documentation | `docs/architecture/*.md` | System architecture with diagrams |
+| Runbook | `docs/runbooks/*.md` | Operational procedures |
 | Change log | `ops/CHANGELOG.md` | Single file, append-only |
 | Canonical spec | `requirements/<domain>/spec.md` | One per domain |
 | Non-canonical spec | `specs/NNN-<slug>/spec.md` | speckit outputs, archived as needed |
-| Policy definition | `policies/<domain>/*.yaml` | Kyverno ClusterPolicy YAML |
-| Infrastructure config | `infra/<domain>/` | Kubernetes manifests, configs |
-| GitOps manifests | `kubernetes/` | Flux sources, cluster overlays, app stacks |
-| NAS deployment manifests | `stacks/` | Docker Compose, systemd units for non-K8s nodes |
-| Bootstrap manifests | `bootstrap/` | Bootstrap resources/Helmfile scaffolding |
-| Test case | `test/<domain>/` | Test manifests, fixtures |
+| Policy definition | `policies/<domain>/*.rego` | OPA Rego policies |
+| Deployment manifests | `stacks/` | Docker Compose for Swarm/Compose stacks |
+| Node configuration | `ansible/` | Ansible playbooks and roles |
+| VM provisioning | `opentofu/` | OpenTofu Proxmox provider |
+| Komodo resources | `komodo/resources.toml` | Declarative stack definitions |
 | CI script | `scripts/*.sh` | Validation scripts |
 
 ## NAS stacks deployment
@@ -108,6 +106,6 @@ Repository root structure is **fixed and enumerated** to prevent:
 
 - **Invariants:** [contracts/invariants.md](../../contracts/invariants.md#repository-structure-invariants)
 - **Agent Rules:** [contracts/agents.md](../../contracts/agents.md#repository-structure-constraints)
-- **Policy Enforcement:** [docs/policy-enforcement.md](../policy-enforcement.md)
 - **ADR-0020:** [Bootstrap, Storage, Repository Governance, and NAS Stacks Codification](../../docs/adr/ADR-0020-bootstrap-storage-governance-codification.md)
 - **ADR-0022:** [Komodo-Managed NAS Stacks](../../docs/adr/ADR-0022-truenas-komodo-stacks.md)
+- **ADR-0037:** [Documentation Consolidation](../../docs/adr/ADR-0037-documentation-consolidation.md)

@@ -5,18 +5,12 @@ version: '3'
 
 vars:
   PROJECT_NAME: hypyr-homelab
-  BOOTSTRAP_DIR: "{{.ROOT_DIR}}/bootstrap"
-  KUBERNETES_DIR: "{{.ROOT_DIR}}/kubernetes"
-  TALOS_DIR: "{{.ROOT_DIR}}/talos"
-
-env:
-  KUBECONFIG: "{{.KUBERNETES_DIR}}/kubeconfig"
-  TALOSCONFIG: "{{.TALOS_DIR}}/talosconfig"
 
 includes:
-  k8s: .taskfiles/kubernetes
-  volsync: .taskfiles/volsync
-  workstation: .taskfiles/workstation
+  ansible: .taskfiles/ansible
+  tofu: .taskfiles/opentofu
+  komodo: .taskfiles/komodo
+  swarm: .taskfiles/swarm
 
 tasks:
   default:
@@ -29,41 +23,20 @@ tasks:
     cmds:
       - echo "Installing mise tools..."
       - mise install
-      - 'echo "OK: Tools installed: conftest, kyverno"'
+      - 'echo "OK: Tools installed"'
+      - echo ""
+      - echo "Installing Ansible Galaxy dependencies..."
+      - task: ansible:deps
+      - echo ""
       - echo "Bootstrap complete. Run 'task validate' to verify."
-
-  bootstrap:prereqs:
-    desc: Apply bootstrap prerequisites (namespaces/secret seed + CRD pre-seed) per ADR-0019
-    cmds:
-      - |
-        if ! command -v op >/dev/null 2>&1; then
-          echo "❌ op CLI not found. Login to 1Password and retry."
-          exit 1
-        fi
-      - |
-        echo "Applying bootstrap resources (namespaces + 1Password seed) via op inject..."
-        op inject -i bootstrap/resources.yaml | kubectl apply -f -
-      - |
-        echo "Applying bootstrap CRDs (envoy-gateway excluded)..."
-        helmfile -f bootstrap/helmfile.d/00-crds.yaml template --selector name!=envoy-gateway | kubectl apply -f -
-
-  bootstrap:apps:
-    desc: Apply bootstrap app stack in ADR-0019 order (requires prereqs & values)
-    deps:
-      - bootstrap:prereqs
-    cmds:
-      - |
-        echo "Applying bootstrap app stack (Cilium → CoreDNS → Spegel → cert-manager → ESO → 1Password store → kube-vip → Flux Operator → Flux Instance)..."
-        helmfile -f bootstrap/helmfile.d/01-apps.yaml apply
 
   validate:
     desc: Run all validation checks
     deps:
       - validate:governance
       - validate:tools
-      - validate:policies
       - validate:structure
-      - validate:invariants
+      - validate:compose
 
   validate:governance:
     desc: Validate governance compliance
@@ -80,124 +53,49 @@ tasks:
       - mise doctor
       - 'echo "OK: Tools validated"'
 
-  validate:policies:
-    desc: Validate Kyverno policies and test manifests
-    cmds:
-      - echo "Validating Kyverno policies..."
-      - task: validate:policies:syntax
-      - task: validate:policies:test
-
-  validate:policies:syntax:
-    desc: Validate Kyverno policy YAML syntax
-    cmds:
-      - |
-        if ! command -v kyverno &> /dev/null; then
-          echo "⚠️  Kyverno CLI not found. Run: task bootstrap"
-          echo "   (Kyverno installed via mise, not brew/curl)"
-          exit 1
-        fi
-      - |
-        echo "Checking policy syntax..."
-        for policy in policies/**/*.yaml; do
-          echo "  Validating $policy..."
-          kyverno validate "$policy"
-        done
-        echo "OK: All policies have valid syntax"
-
-  validate:policies:test:
-    desc: Test policies against invalid test manifests (should fail)
-    cmds:
-      - |
-        if ! command -v kyverno &> /dev/null; then
-          echo "⚠️  Kyverno CLI not found. Run: task bootstrap"
-          exit 1
-        fi
-      - |
-        echo "Testing policies against invalid manifests (expecting failures)..."
-        failed=0
-        for manifest in test/policies/*/invalid/*.yaml; do
-          echo "  Testing $manifest..."
-          policy_domain=$(echo "$manifest" | cut -d'/' -f3)
-          if kyverno apply policies/"$policy_domain"/*.yaml --resource "$manifest" > /dev/null 2>&1; then
-            echo "    ❌ FAIL: Policy did not block invalid manifest: $manifest"
-            failed=1
-          else
-            echo "    OK: Policy correctly blocked: $manifest"
-          fi
-        done
-        
-        echo ""
-        echo "Testing policies against valid manifests (expecting success)..."
-        for manifest in test/policies/*/valid/*.yaml; do
-          echo "  Testing $manifest..."
-          policy_domain=$(echo "$manifest" | cut -d'/' -f3)
-          if kyverno apply policies/"$policy_domain"/*.yaml --resource "$manifest" > /dev/null 2>&1; then
-            echo "    OK: Policy allowed valid manifest: $manifest"
-          else
-            echo "    ❌ FAIL: Policy incorrectly blocked valid manifest: $manifest"
-            failed=1
-          fi
-        done
-        
-        if [ $failed -eq 1 ]; then
-          echo ""
-          echo "❌ Policy tests failed. Review output above."
-          exit 1
-        else
-          echo ""
-          echo "OK: All policy tests passed"
-        fi
-
-  test:policies:
-    desc: Alias for validate:policies:test
-    cmds:
-      - task: validate:policies:test
-
   validate:structure:
     desc: Validate repository root structure
     cmds:
       - |
         if ! command -v conftest &> /dev/null; then
-          echo "⚠️  Conftest not found. Run: task bootstrap"
-          echo "   (Conftest installed via mise, not brew/curl)"
+          echo "Conftest not found. Run: task bootstrap"
           exit 1
         fi
       - ./scripts/enforce-root-structure.sh
 
-  validate:invariants:
-    desc: Run GitOps invariant checks (best-effort)
+  validate:compose:
+    desc: Validate all Docker Compose files
     cmds:
-      - SKIP_REMOTE=0 ./scripts/check-kustomize-build.sh
-      - ./scripts/check-helmrelease-template.sh
-      - ./scripts/check-no-plaintext-secrets.sh
-      - ./scripts/check-deprecated-apis.sh
-      - ./scripts/check-talos-ytt-render.sh
-      - ./scripts/check-cross-env-refs.sh
-      - ./scripts/check-crd-ordering.sh
+      - |
+        echo "Validating Compose files..."
+        failed=0
+        for f in $(find stacks -name 'compose.yaml' -o -name 'compose.yml' -o -name 'docker-compose.yaml' -o -name 'docker-compose.yml' 2>/dev/null); do
+          if docker compose -f "$f" config --quiet 2>/dev/null; then
+            echo "  OK: $f"
+          else
+            echo "  FAIL: $f"
+            failed=1
+          fi
+        done
+        if [ $failed -eq 1 ]; then
+          echo "Some Compose files failed validation"
+          exit 1
+        fi
+        echo "OK: All Compose files valid"
 
-  flux:build:
-    desc: Build Flux kustomizations (platform + apps) for homelab cluster
+  validate:tofu:
+    desc: Validate OpenTofu configuration
     cmds:
-      - |
-        flux build kustomization platform \
-          --namespace flux-system \
-          --path ./kubernetes/clusters/homelab/flux
-      - |
-        flux build kustomization apps \
-          --namespace flux-system \
-          --path ./kubernetes/clusters/homelab/flux
+      - task: tofu:validate
 
-  flux:reconcile:
-    desc: Reconcile Flux kustomizations (platform + apps) for homelab cluster
+  status:
+    desc: Quick status of entire infrastructure
     cmds:
-      - |
-        flux reconcile kustomization platform \
-          --namespace flux-system \
-          --path ./kubernetes/clusters/homelab/flux
-      - |
-        flux reconcile kustomization apps \
-          --namespace flux-system \
-          --path ./kubernetes/clusters/homelab/flux
+      - echo "==> Ansible — Node Connectivity"
+      - task: ansible:ping
+      - echo ""
+      - echo "==> Docker Swarm — Health"
+      - task: swarm:health
 
   docs:
     desc: Generate/update documentation
@@ -209,4 +107,4 @@ tasks:
     cmds:
       - echo "Cleaning temporary files..."
       - rm -rf .task/
-      - echo "✓ Clean complete"
+      - echo "Clean complete"

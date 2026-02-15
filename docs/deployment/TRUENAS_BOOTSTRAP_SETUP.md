@@ -572,7 +572,7 @@ getfacl /mnt/apps01/secrets/cloudflare/api-token
      - Execute permission on parent directories
    - Fix:
      ```bash
-     chmod 755 /mnt/apps01/secrets
+     chmod 700 /mnt/apps01/secrets
      chmod 750 /mnt/apps01/secrets/op
      setfacl -m u:568:r-x /mnt/apps01/secrets/op
      setfacl -m u:568:r-- /mnt/apps01/secrets/op/connect-token

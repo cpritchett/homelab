@@ -45,7 +45,7 @@ fi
 git_files=$(git diff --cached --diff-filter=ACM --name-only 2>/dev/null || true)
 
 # Also check files being added/modified in working tree if not in CI
-if [ -z "$CI" ] || [ "$CI" != "true" ]; then
+if [ -z "${CI:-}" ] || [ "${CI:-}" != "true" ]; then
     git_files="$(echo "$git_files"; git diff --diff-filter=ACM --name-only 2>/dev/null || true)"
     git_files=$(echo "$git_files" | sort -u)
 fi

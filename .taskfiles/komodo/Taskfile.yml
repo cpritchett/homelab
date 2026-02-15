@@ -1,0 +1,51 @@
+---
+version: "3"
+
+vars:
+  KM: "{{.HOME}}/bin/km"
+
+tasks:
+  sync:
+    desc: Trigger Komodo ResourceSync (pull latest resources.toml)
+    cmds:
+      - |
+        PATH="{{.HOME}}/bin:$PATH" km --profile barbary write \
+          ExecuteResourceSync '{"resource_sync": "homelab-resources"}'
+    preconditions:
+      - test -x {{.KM}}
+
+  stacks:
+    desc: List all Komodo stacks
+    cmds:
+      - PATH="{{.HOME}}/bin:$PATH" km --profile barbary read ListStacks '{}'
+    preconditions:
+      - test -x {{.KM}}
+
+  servers:
+    desc: List all Komodo servers
+    cmds:
+      - PATH="{{.HOME}}/bin:$PATH" km --profile barbary read ListServers '{}'
+    preconditions:
+      - test -x {{.KM}}
+
+  deploy:
+    desc: Deploy a stack by name (set STACK=name)
+    cmds:
+      - |
+        PATH="{{.HOME}}/bin:$PATH" km --profile barbary write \
+          DeployStack '{"stack": "{{.STACK}}"}'
+    requires:
+      vars: [STACK]
+    preconditions:
+      - test -x {{.KM}}
+
+  status:
+    desc: Get status of a stack by name (set STACK=name)
+    cmds:
+      - |
+        PATH="{{.HOME}}/bin:$PATH" km --profile barbary read \
+          GetStack '{"stack": "{{.STACK}}"}'
+    requires:
+      vars: [STACK]
+    preconditions:
+      - test -x {{.KM}}

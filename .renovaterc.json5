@@ -16,14 +16,8 @@
     "github>cpritchett/homelab//.renovate/packageRules.json5",
     "github>cpritchett/homelab//.renovate/groups.json5"
   ],
-  flux: {
-    fileMatch: ["(^|/)kubernetes/.*\\.ya?ml$", "(^|/)bootstrap/.*\\.ya?ml$"]
-  },
-  "helm-values": {
-    fileMatch: ["(^|/)kubernetes/.*\\.ya?ml$", "(^|/)bootstrap/.*\\.ya?ml$"]
-  },
-  kubernetes: {
-    fileMatch: ["(^|/)kubernetes/.*\\.ya?ml$", "(^|/)bootstrap/.*\\.ya?ml$"]
+  "docker-compose": {
+    fileMatch: ["(^|/)stacks/.+/compose\\.ya?ml$", "(^|/)ansible/.+/compose\\.ya?ml$"]
   },
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   dependencyDashboardHeader: "This issue lists Renovate updates and detected dependencies. Read the Dependency Dashboard docs to learn more.",

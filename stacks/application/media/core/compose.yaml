@@ -158,11 +158,14 @@ services:
       - proxy_network
 
   # ── Sonarr ───────────────────────────────────────────────────
-  # Floats freely — state in PostgreSQL
+  # Pinned to barbary — SQLite DB on NFS
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: on-failure
         delay: 5s

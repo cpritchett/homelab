@@ -1,0 +1,64 @@
+---
+version: "3"
+
+vars:
+  TOFU_DIR: "{{.ROOT_DIR}}/opentofu"
+
+tasks:
+  init:
+    desc: Initialize OpenTofu (download providers)
+    dir: "{{.TOFU_DIR}}"
+    cmds:
+      - tofu init
+    preconditions:
+      - which tofu
+
+  plan:
+    desc: Preview infrastructure changes
+    dir: "{{.TOFU_DIR}}"
+    cmds:
+      - tofu plan
+    preconditions:
+      - which tofu
+      - test -d {{.TOFU_DIR}}/.terraform
+
+  apply:
+    desc: Apply infrastructure changes (creates/updates Proxmox VMs)
+    dir: "{{.TOFU_DIR}}"
+    cmds:
+      - tofu apply
+    preconditions:
+      - which tofu
+      - test -d {{.TOFU_DIR}}/.terraform
+
+  output:
+    desc: Show OpenTofu outputs (VM IPs)
+    dir: "{{.TOFU_DIR}}"
+    cmds:
+      - tofu output
+    preconditions:
+      - which tofu
+
+  validate:
+    desc: Validate OpenTofu configuration
+    dir: "{{.TOFU_DIR}}"
+    cmds:
+      - tofu validate
+    preconditions:
+      - which tofu
+
+  fmt:
+    desc: Format OpenTofu files
+    dir: "{{.TOFU_DIR}}"
+    cmds:
+      - tofu fmt -recursive
+    preconditions:
+      - which tofu
+
+  fmt:check:
+    desc: Check OpenTofu formatting (no changes)
+    dir: "{{.TOFU_DIR}}"
+    cmds:
+      - tofu fmt -check -recursive
+    preconditions:
+      - which tofu

@@ -12,13 +12,13 @@ This directory contains modular Renovate Bot configuration files that customize 
   - Ensures compatibility with release-please for automated releases
 
 - **`packageRules.json5`** — Dependency-specific rules and scoping
-  - Configures semantic commit scopes by dependency type (helm, docker, ci, tools, etc.)
+  - Configures semantic commit scopes by dependency type (docker, ci, tools, etc.)
   - Sets update policies (major/minor/patch release ages, approval requirements)
   - Defines file match patterns for different managers
 
 - **`groups.json5`** — Grouped updates for related components
-  - Groups related dependencies (e.g., Cilium, Kubernetes + Talos, monitoring stack)
-  - Applies domain-specific scopes (k8s, networking, monitoring, database, etc.)
+  - Groups related dependencies (e.g., Media Stack, Monitoring, Authentik)
+  - Applies domain-specific scopes (media, monitoring, auth, ingress, database, etc.)
   - Reduces PR noise by bundling related updates
 
 ### Other Configuration Files
@@ -26,9 +26,17 @@ This directory contains modular Renovate Bot configuration files that customize 
 - **`allowedVersions.json5`** — Version constraints for specific packages
 - **`autoMerge.json5`** — Auto-merge rules (extended from remote config)
 - **`customManagers.json5`** — Custom regex managers for non-standard dependency formats
+  - Annotated YAML dependencies (`datasource=... depName=...` comments)
+  - mise.toml tool versions (opentofu, conftest, task)
 - **`grafanaDashboards.json5`** — Grafana dashboard update rules (extended from remote config)
 - **`labels.json5`** — PR label configuration (extended from remote config)
-- **`talosFactory.json5`** — Talos-specific update rules (extended from remote config)
+
+## Managed Formats
+
+- **Docker Compose** — Primary format; matches `stacks/**/compose.yaml` and `ansible/**/compose.yaml`
+- **GitHub Actions** — Workflow files in `.github/workflows/`
+- **mise.toml** — Tool version management via custom regex managers
+- **Annotated YAML** — Any YAML file with `datasource=... depName=...` comments
 
 ## Semantic Commit Scopes
 
@@ -46,22 +54,17 @@ These scopes match the packages defined in `.github/release-please-config.json` 
 - `dev-deps` — Development dependencies
 
 ### Infrastructure Components
-- `helm` — Helm chart updates
 - `docker` — Docker image updates
 - `ci` — GitHub Actions and CI tool updates
 - `tools` — CLI tools from mise.toml
 
 ### Grouped Updates (Domain-Specific)
-- `k8s` — Kubernetes and Talos updates
-- `networking` — Cilium and network-related components
-- `monitoring` — Prometheus, Grafana, and observability stack
-- `database` — PostgreSQL and database systems
-- `storage` — VolSync and storage solutions
-- `dns` — CoreDNS and Cloudflare
-- `secrets` — External Secrets Operator
-- `gitops` — Flux Operator and GitOps tools
-- `registry` — Spegel and container registry components
-- `cert-manager` — Certificate management
+- `monitoring` — Prometheus, Grafana, Loki, Alloy, and observability stack
+- `media` — Sonarr, Radarr, Prowlarr, Plex, qBittorrent, and media services
+- `auth` — Authentik SSO
+- `ingress` — Caddy reverse proxy
+- `database` — PostgreSQL
+- `dns` — Cloudflare and cloudflared tunnel
 - `1password` — 1Password Connect
 - `home` — Home automation stack (Home Assistant, Zigbee2MQTT, Mosquitto)
 
@@ -79,19 +82,20 @@ Renovate PRs include:
 ```
 # Stack-specific updates (for release-please tagging)
 chore(op-export): update op-export stack
-chore(forgejo-stack): update forgejo stack  
+chore(forgejo-stack): update forgejo stack
 chore(woodpecker-stack): update woodpecker stack
 chore(backstage): update backstage dependencies
 
-# Infrastructure updates
-chore(helm): update Cilium chart to v1.14.0
-chore(docker): update nginx image to v1.21.0
-chore(ci): update GitHub Action checkout to v4
+# Docker Compose image updates
+chore(docker): update Docker image lscr.io/linuxserver/sonarr to v4.0.14
+chore(media): update Media Stack group
+chore(monitoring): update Monitoring Stack group
+chore(auth): update Authentik group
 
-# Grouped domain updates
-chore(k8s): update Kubernetes and Talos group
-chore(monitoring): update Kube-Prometheus-Stack group
-chore(deps): update eslint to v8.0.0
+# CI and tooling
+chore(ci): update GitHub Action checkout to v4
+chore(tools): update tool opentofu/opentofu
+chore(deps): update conftest to v0.66.0
 ```
 
 ## Integration with Release-Please

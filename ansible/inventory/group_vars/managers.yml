@@ -1,0 +1,3 @@
+---
+# Manager-specific vars (if needed)
+swarm_role: manager

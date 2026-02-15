@@ -13,59 +13,27 @@
     },
     {
       customType: "regex",
-      description: "Process mise.toml talosctl tool versions",
+      description: "Process mise.toml opentofu tool version",
       fileMatch: ["\\.mise\\.toml$"],
-      matchStrings: ["talosctl = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+[^\"]*)\""],
+      matchStrings: ["opentofu = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+[^\"]*)\""],
       datasourceTemplate: "github-releases",
-      depNameTemplate: "siderolabs/talos"
+      depNameTemplate: "opentofu/opentofu"
     },
     {
       customType: "regex",
-      description: "Process mise.toml kubectl tool versions",
+      description: "Process mise.toml conftest tool version",
       fileMatch: ["\\.mise\\.toml$"],
-      matchStrings: ["kubectl = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+[^\"]*)\""],
+      matchStrings: ["conftest = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+[^\"]*)\""],
       datasourceTemplate: "github-releases",
-      depNameTemplate: "kubernetes/kubernetes"
+      depNameTemplate: "open-policy-agent/conftest"
     },
     {
       customType: "regex",
-      description: "Process mise.toml helm tool versions",
+      description: "Process mise.toml task tool version",
       fileMatch: ["\\.mise\\.toml$"],
-      matchStrings: ["helm = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+[^\"]*)\""],
+      matchStrings: ["task = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+[^\"]*)\""],
       datasourceTemplate: "github-releases",
-      depNameTemplate: "helm/helm"
-    },
-    {
-      customType: "regex",
-      description: "Process mise.toml kustomize tool versions",
-      fileMatch: ["\\.mise\\.toml$"],
-      matchStrings: ["kustomize = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+[^\"]*)\""],
-      datasourceTemplate: "github-releases",
-      depNameTemplate: "kubernetes-sigs/kustomize"
-    },
-    {
-      customType: "regex",
-      description: "Process mise.toml flux2 tool versions",
-      fileMatch: ["\\.mise\\.toml$"],
-      matchStrings: ["flux2 = \"(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+[^\"]*)\""],
-      datasourceTemplate: "github-releases",
-      depNameTemplate: "fluxcd/flux2"
-    },
-    {
-      customType: "regex",
-      description: "Process system-upgrade Kubernetes version",
-      fileMatch: ["/kubernetes/clusters/.+/apps/system-upgrade/system-upgrade-controller/plans/cluster-versions\\.ya?ml$/"],
-      matchStrings: ["KUBERNETES_VERSION=(?<currentValue>v?[0-9]+\\.[0-9]+\\.[0-9]+[^\\n]*)"],
-      datasourceTemplate: "github-releases",
-      depNameTemplate: "kubernetes/kubernetes"
-    },
-    {
-      customType: "regex",
-      description: "Process system-upgrade Talos version",
-      fileMatch: ["/kubernetes/clusters/.+/apps/system-upgrade/system-upgrade-controller/plans/cluster-versions\\.ya?ml$/"],
-      matchStrings: ["TALOS_VERSION=(?<currentValue>v?[0-9]+\\.[0-9]+\\.[0-9]+[^\\n]*)"],
-      datasourceTemplate: "github-releases",
-      depNameTemplate: "siderolabs/talos"
+      depNameTemplate: "go-task/task"
     }
   ]
 }

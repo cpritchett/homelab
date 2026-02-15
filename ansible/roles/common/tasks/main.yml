@@ -1,0 +1,58 @@
+---
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Set /etc/hosts entry
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ inventory_hostname }}.{{ domain }} {{ inventory_hostname }}"
+    state: present
+
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+      - gnupg
+      - sudo
+      - htop
+      - tmux
+      - jq
+      - qemu-guest-agent
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Create media-users group
+  ansible.builtin.group:
+    name: media-users
+    gid: "{{ media_gid }}"
+    state: present
+
+- name: Create media user
+  ansible.builtin.user:
+    name: media
+    uid: "{{ media_uid }}"
+    group: media-users
+    shell: /usr/sbin/nologin
+    create_home: false
+    state: present
+
+- name: Add deploy user to media-users group
+  ansible.builtin.user:
+    name: deploy
+    groups: media-users
+    append: true
+
+- name: Enable qemu-guest-agent
+  ansible.builtin.systemd:
+    name: qemu-guest-agent
+    enabled: true
+    state: started
+  ignore_errors: true

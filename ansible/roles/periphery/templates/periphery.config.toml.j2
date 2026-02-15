@@ -1,0 +1,19 @@
+## Periphery Configuration
+title = "{{ inventory_hostname }}"
+
+## Passkey must match the Komodo Core passkey
+passkeys = ["{{ komodo_passkey }}"]
+
+## Listen on all interfaces
+port = {{ periphery_port }}
+ssl_enabled = true
+ssl_key_file = "/etc/komodo/ssl/key.pem"
+ssl_cert_file = "/etc/komodo/ssl/cert.pem"
+
+## Stats
+stats_polling_rate = "5-sec"
+
+## Docker
+docker_accounts = []
+repo_dir = "/etc/komodo/repos"
+stack_dir = "/etc/komodo/stacks"

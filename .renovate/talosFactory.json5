@@ -1,3 +1,0 @@
-{
-  extends: ["github>cpritchett/home-ops//.renovate/talosFactory.json5"]
-}

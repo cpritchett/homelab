@@ -1,0 +1,33 @@
+---
+# ── Domain & Networking ──────────────────────────────────
+domain: in.hypyr.space
+timezone: America/Chicago
+dns_servers:
+  - 10.0.5.1
+
+# ── Media User ───────────────────────────────────────────
+media_uid: 1701
+media_gid: 1702
+
+# ── NFS ──────────────────────────────────────────────────
+nfs_server: "{{ lookup('env', 'NFS_SERVER_IP') | default('10.0.5.XXX', true) }}"
+nfs_mounts:
+  - src: "{{ nfs_server }}:/mnt/apps01/appdata"
+    path: /mnt/apps01/appdata
+    opts: "defaults,soft,timeo=150,retrans=3,_netdev"
+  - src: "{{ nfs_server }}:/mnt/data01/data"
+    path: /mnt/data01/data
+    opts: "defaults,soft,timeo=150,retrans=3,_netdev"
+
+# ── Docker ───────────────────────────────────────────────
+docker_daemon_options:
+  storage-driver: overlay2
+  log-driver: json-file
+  log-opts:
+    max-size: "10m"
+    max-file: "3"
+
+# ── Periphery ───────────────────────────────────────────
+periphery_version: latest
+periphery_port: 8120
+# komodo_passkey: set via --extra-vars or vault
