@@ -1,0 +1,18 @@
+# Deployed as a Komodo Stack in Compose mode (server, no swarm).
+# NOT deployed via Swarm — requires host networking for proxyDHCP broadcasts
+# and TFTP on the physical network interface.
+
+services:
+  dnsmasq:
+    image: quay.io/poseidon/dnsmasq:latest
+    container_name: dnsmasq-proxypxe
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    network_mode: host
+    cpus: 0.25
+    mem_limit: 128m
+    volumes:
+      - ./dnsmasq.conf:/etc/dnsmasq.conf:ro
+    environment:
+      TZ: America/Chicago

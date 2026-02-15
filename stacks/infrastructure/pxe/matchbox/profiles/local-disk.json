@@ -1,0 +1,9 @@
+{
+  "id": "local-disk",
+  "name": "Boot from Disk",
+  "boot": {
+    "kernel": "",
+    "initrd": [],
+    "args": []
+  }
+}

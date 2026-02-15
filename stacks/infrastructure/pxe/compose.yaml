@@ -1,0 +1,68 @@
+###############################################################################
+# PXE Boot — Matchbox (Swarm Stack)
+#
+# CoreOS Matchbox provides iPXE boot profiles matched by MAC address.
+# Used to automate Debian 12 installs for swarm nodes and to serve
+# netboot.xyz as a fallback for unregistered machines.
+#
+# Services: matchbox
+# Tier: Infrastructure
+# Spec: specs/008-multi-node-swarm-bootstrap.md
+###############################################################################
+
+services:
+  matchbox:
+    image: quay.io/poseidon/matchbox:v0.11.0
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+      labels:
+        # Homepage dashboard
+        homepage.group: "Infrastructure"
+        homepage.name: "Matchbox PXE"
+        homepage.icon: "matchbox.png"
+        homepage.href: "https://pxe.in.hypyr.space"
+        homepage.description: "PXE boot server"
+
+        # Caddy reverse proxy
+        caddy: pxe.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8080}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma monitoring
+        kuma.matchbox.http.name: "Matchbox PXE"
+        kuma.matchbox.http.url: "http://matchbox:8080/"
+        kuma.matchbox.http.interval: "60"
+        kuma.matchbox.http.maxretries: "3"
+    command:
+      - -address=0.0.0.0:8080
+      - -log-level=debug
+    ports:
+      - target: 8080
+        published: 8480
+        protocol: tcp
+        mode: ingress
+    volumes:
+      - ./matchbox:/var/lib/matchbox:ro
+      - /mnt/apps01/appdata/pxe/assets:/var/lib/matchbox/assets:ro
+    networks:
+      - proxy_network
+    environment:
+      TZ: America/Chicago
+
+networks:
+  proxy_network:
+    external: true

@@ -1,0 +1,15 @@
+{
+  "id": "angre",
+  "name": "angre - NUC ITX Manager",
+  "profile": "debian-12-swarm",
+  "selector": {
+    "mac": "XX:XX:XX:XX:XX:XX"
+  },
+  "metadata": {
+    "hostname": "angre",
+    "ssh_authorized_key": "REPLACE_WITH_DEPLOY_SSH_PUBLIC_KEY",
+    "static_ip": "10.0.5.130",
+    "gateway": "10.0.5.1",
+    "nameserver": "10.0.5.1"
+  }
+}
