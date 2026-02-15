@@ -40,7 +40,7 @@ services:
   # ── Recyclarr ────────────────────────────────────────────────
   # Syncs TRaSH Guides quality profiles to Sonarr/Radarr (one-shot per deploy)
   recyclarr:
-    image: ghcr.io/recyclarr/recyclarr:latest
+    image: ghcr.io/recyclarr/recyclarr:latest@sha256:2550848d43a453f2c6adf3582f2198ac719f76670691d76de0819053103ef2fb
     deploy:
       mode: replicated-job
       restart_policy:
@@ -59,7 +59,7 @@ services:
   # ── Bazarr ───────────────────────────────────────────────────
   # Pinned to barbary — SQLite DB, no postgres support
   bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:latest@sha256:18ff732dffcebd559d15a91845fc3360d49652ea01dccfbfd98b8248ceb86e38
     deploy:
       replicas: 1
       placement:
@@ -216,7 +216,7 @@ services:
   # Floats freely — state in PostgreSQL
   # Media request management (formerly Jellyseerr)
   seerr:
-    image: ghcr.io/seerr-team/seerr:latest
+    image: ghcr.io/seerr-team/seerr:latest@sha256:1b5fc1ea825631d9d165364472663b817a4c58ef6aa1013f58d82c1570d7c866
     init: true
     deploy:
       replicas: 1
@@ -273,7 +273,7 @@ services:
   # Pinned to barbary — SQLite DB
   # User invitation & onboarding for Plex/Jellyfin
   wizarr:
-    image: ghcr.io/wizarrrr/wizarr:latest
+    image: ghcr.io/wizarrrr/wizarr:latest@sha256:83fc0b50985d196226b7c28a27062a1c4e63124a5d6d2448710aee222637b79e
     deploy:
       replicas: 1
       placement:
