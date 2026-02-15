@@ -4,6 +4,7 @@
 #
 # This script runs once via /docker-entrypoint-initdb.d/ when the data
 # directory is empty (first start). Each app gets its own user + databases.
+# All statements are idempotent (safe to re-run).
 ###############################################################################
 
 set -eu
@@ -16,13 +17,23 @@ create_user_and_dbs() {
 
     echo "Creating user: ${app_user}"
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-SQL
-        CREATE USER "${app_user}" WITH PASSWORD '${app_pass}';
+        DO \$\$
+        BEGIN
+            IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${app_user}') THEN
+                CREATE USER "${app_user}" WITH PASSWORD '${app_pass}';
+            ELSE
+                ALTER USER "${app_user}" WITH PASSWORD '${app_pass}';
+            END IF;
+        END
+        \$\$;
 SQL
 
     for db_name in "$main_db" "$log_db"; do
         echo "Creating database: ${db_name} (owner: ${app_user})"
         psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-SQL
-            CREATE DATABASE "${db_name}" OWNER "${app_user}";
+            SELECT 'CREATE DATABASE "${db_name}" OWNER "${app_user}"'
+            WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${db_name}')
+            \gexec
             GRANT ALL PRIVILEGES ON DATABASE "${db_name}" TO "${app_user}";
 SQL
     done
@@ -32,7 +43,9 @@ create_db() {
     db_name="$1"
     echo "Creating database: ${db_name}"
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-SQL
-        CREATE DATABASE "${db_name}";
+        SELECT 'CREATE DATABASE "${db_name}"'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${db_name}')
+        \gexec
         GRANT ALL PRIVILEGES ON DATABASE "${db_name}" TO "${POSTGRES_USER}";
 SQL
 }
