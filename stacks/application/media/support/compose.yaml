@@ -10,7 +10,7 @@
 services:
   # ── Secret Hydration (one-shot job) ──────────────────────────
   op-secrets:
-    image: 1password/op:2
+    image: 1password/op:2@sha256:4ac3658f1e91a27ec9503f2134d4b2b77769b36d35b2e370ac89b5976573a17b
     deploy:
       mode: replicated-job
       restart_policy:
