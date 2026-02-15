@@ -1,0 +1,136 @@
+###############################################################################
+# Shared PostgreSQL — Application Databases
+#
+# Services: op-secrets, postgresql, pg-backup
+# Tier: Platform (depends on Infrastructure tier)
+# Purpose: Shared PostgreSQL for arr apps (Sonarr, Radarr, Prowlarr) and
+#          Grafana. Separate from Authentik's postgres (different lifecycle).
+#
+# Databases created on first boot via POSTGRES_MULTIPLE_DATABASES env var
+# pattern (init script). Each app gets its own database.
+###############################################################################
+
+services:
+  # ── Secret Hydration (one-shot job) ──────────────────────────
+  op-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./postgres.env.template:/templates/postgres.template:ro
+      - /mnt/apps01/appdata/postgres/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/postgres.template -o /secrets/postgres.env -f &&
+      chmod 600 /secrets/postgres.env &&
+      echo 'Postgres secrets injected successfully'
+      "
+
+  # ── PostgreSQL ──────────────────────────────────────────────
+  postgresql:
+    image: postgres:17-alpine
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage dashboard
+        homepage.group: "Platform"
+        homepage.name: "PostgreSQL"
+        homepage.icon: "postgres.png"
+        homepage.description: "Shared app database"
+
+        # AutoKuma monitoring
+        kuma.postgres-shared.tcp.name: "PostgreSQL (Shared)"
+        kuma.postgres-shared.tcp.hostname: "postgresql"
+        kuma.postgres-shared.tcp.port: "5432"
+        kuma.postgres-shared.tcp.interval: "60"
+        kuma.postgres-shared.tcp.maxretries: "3"
+    volumes:
+      - /mnt/data01/appdata/postgres/data:/var/lib/postgresql/data
+      - /mnt/apps01/appdata/postgres/secrets:/secrets:ro
+      - ./init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-homelab}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - postgres
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
+       exec docker-entrypoint.sh postgres"
+
+  # ── Backup (pg_dump cron) ───────────────────────────────────
+  pg-backup:
+    image: postgres:17-alpine
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: on-failure
+        delay: 60s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    volumes:
+      - /mnt/apps01/appdata/postgres/secrets:/secrets:ro
+      - /mnt/apps01/appdata/postgres/backups:/backups
+    networks:
+      - postgres
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
+       while true; do
+         echo \"[pg-backup] Starting backup at $$(date -Iseconds)\";
+         pg_dumpall -h postgresql -U $${POSTGRES_USER:-homelab} | gzip > /backups/all-databases-$$(date +%Y%m%d-%H%M%S).sql.gz;
+         echo \"[pg-backup] Backup complete\";
+         find /backups -name '*.sql.gz' -mtime +7 -delete;
+         echo \"[pg-backup] Cleaned backups older than 7 days\";
+         sleep 86400;
+       done"
+
+# ── Networks ─────────────────────────────────────────────────
+networks:
+  postgres:
+    driver: overlay
+    attachable: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+# ── Secrets ──────────────────────────────────────────────────
+secrets:
+  op_connect_token:
+    external: true
