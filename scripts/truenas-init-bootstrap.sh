@@ -145,6 +145,16 @@ else
     log "Secret already exists: komodo_passkey"
 fi
 
+# step_ca_password (Smallstep CA provisioner password — ADR-0038)
+# Auto-generated on first bootstrap if not present
+if ! docker secret inspect step_ca_password >/dev/null 2>&1; then
+    log "Generating step_ca_password secret..."
+    head -c 30 /dev/urandom | base64 | docker secret create step_ca_password -
+    log "Created secret: step_ca_password"
+else
+    log "Secret already exists: step_ca_password"
+fi
+
 # Ensure directory structure exists
 log "Creating application data directories..."
 

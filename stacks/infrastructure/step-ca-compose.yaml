@@ -23,29 +23,14 @@ services:
         kuma.step-ca.http.interval: "60"
         kuma.step-ca.http.maxretries: "3"
     entrypoint: ["/bin/sh", "-c"]
-    command: |
-      set -e
-      STEPPATH=/home/step
-
-      # First boot: generate password, init CA, patch max cert duration
-      if [ ! -f "$${STEPPATH}/config/ca.json" ]; then
-        echo "First boot: initializing Smallstep CA..."
-        mkdir -p "$${STEPPATH}/secrets"
-        head -c 30 /dev/urandom | base64 | tr -d '\n' > "$${STEPPATH}/secrets/password"
-        step ca init \
-          --name "Homelab CA" \
-          --dns "step-ca,localhost" \
-          --address ":9000" \
-          --provisioner admin \
-          --password-file "$${STEPPATH}/secrets/password" \
-          --provisioner-password-file "$${STEPPATH}/secrets/password"
-        # Increase max TLS cert duration from 24h to 8760h (1 year)
-        sed -i 's/"maxTLSCertDuration": "24h"/"maxTLSCertDuration": "8760h"/' "$${STEPPATH}/config/ca.json"
-        echo "CA initialized with 1-year max cert duration"
-      fi
-
-      echo "Starting step-ca..."
-      exec step-ca --password-file "$${STEPPATH}/secrets/password" "$${STEPPATH}/config/ca.json"
+    command: >
+      "if [ ! -f /home/step/config/ca.json ]; then
+         echo 'First boot: initializing Smallstep CA...' &&
+         step ca init --name 'Homelab CA' --dns 'step-ca,localhost' --address ':9000' --provisioner admin --password-file /run/secrets/step_ca_password --provisioner-password-file /run/secrets/step_ca_password &&
+         sed -i 's|maxTLSCertDuration.*|maxTLSCertDuration\": \"8760h\",|' /home/step/config/ca.json &&
+         echo 'CA initialized with 1-year max cert duration';
+       fi &&
+       exec step-ca --password-file /run/secrets/step_ca_password /home/step/config/ca.json"
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
@@ -68,6 +53,8 @@ services:
       - default
     volumes:
       - /mnt/apps01/appdata/step-ca:/home/step
+    secrets:
+      - step_ca_password
 
   cert-init:
     image: smallstep/step-cli:latest
@@ -77,59 +64,28 @@ services:
         constraints:
           - node.hostname == barbary
     entrypoint: ["/bin/sh", "-c"]
-    command: |
-      set -e
-      CA_DATA=/step-ca-data
-      ISSUED_DIR=$${CA_DATA}/issued/periphery
-      ROOT_CA=$${CA_DATA}/certs/root_ca.crt
-      CA_URL=https://step-ca:9000
-      PASSWORD_FILE=$${CA_DATA}/secrets/password
-
-      echo "Waiting for step-ca to become healthy..."
-      TRIES=0
-      MAX_TRIES=60
-      while [ $$TRIES -lt $$MAX_TRIES ]; do
-        if step ca health --ca-url "$$CA_URL" --root "$$ROOT_CA" 2>/dev/null; then
-          echo "step-ca is healthy"
-          break
-        fi
-        TRIES=$$((TRIES + 1))
-        echo "Attempt $$TRIES/$$MAX_TRIES - step-ca not ready, waiting 5s..."
-        sleep 5
-      done
-
-      if [ $$TRIES -eq $$MAX_TRIES ]; then
-        echo "ERROR: step-ca did not become healthy after $$MAX_TRIES attempts"
-        exit 1
-      fi
-
-      # Issue certificate for periphery
-      mkdir -p "$$ISSUED_DIR"
-      echo "Issuing certificate for periphery..."
-      step ca certificate periphery \
-        "$$ISSUED_DIR/cert.pem" \
-        "$$ISSUED_DIR/key.pem" \
-        --san periphery \
-        --san localhost \
-        --san barbary \
-        --san barbary.in.hypyr.space \
-        --not-after 8760h \
-        --ca-url "$$CA_URL" \
-        --root "$$ROOT_CA" \
-        --provisioner admin \
-        --provisioner-password-file "$$PASSWORD_FILE" \
-        --force
-
-      # Set permissions
-      chmod 644 "$$ISSUED_DIR/cert.pem"
-      chmod 600 "$$ISSUED_DIR/key.pem"
-
-      # Copy root CA for consumers
-      cp "$$ROOT_CA" "$${CA_DATA}/issued/root_ca.crt"
-      chmod 644 "$${CA_DATA}/issued/root_ca.crt"
-
-      echo "Certificate issued successfully:"
-      step certificate inspect "$$ISSUED_DIR/cert.pem" --short
+    command: >
+      "CA=/step-ca-data &&
+       ISSUED=$$CA/issued/periphery &&
+       ROOT=$$CA/certs/root_ca.crt &&
+       URL=https://step-ca:9000 &&
+       TRIES=0 &&
+       echo 'Waiting for step-ca...' &&
+       while [ $$TRIES -lt 60 ]; do
+         step ca health --ca-url $$URL --root $$ROOT 2>/dev/null && break;
+         TRIES=$$((TRIES + 1));
+         echo \"Attempt $$TRIES/60 - waiting 5s...\";
+         sleep 5;
+       done &&
+       if [ $$TRIES -eq 60 ]; then echo 'ERROR: step-ca timeout'; exit 1; fi &&
+       mkdir -p $$ISSUED &&
+       step ca certificate periphery $$ISSUED/cert.pem $$ISSUED/key.pem --san periphery --san localhost --san barbary --san barbary.in.hypyr.space --not-after 8760h --ca-url $$URL --root $$ROOT --provisioner admin --provisioner-password-file /run/secrets/step_ca_password --force &&
+       chmod 644 $$ISSUED/cert.pem &&
+       chmod 600 $$ISSUED/key.pem &&
+       cp $$ROOT $$CA/issued/root_ca.crt &&
+       chmod 644 $$CA/issued/root_ca.crt &&
+       echo 'Certificate issued:' &&
+       step certificate inspect $$ISSUED/cert.pem --short"
     environment:
       NVIDIA_VISIBLE_DEVICES: void
       TZ: America/Chicago
@@ -137,9 +93,15 @@ services:
       - default
     volumes:
       - /mnt/apps01/appdata/step-ca:/step-ca-data
+    secrets:
+      - step_ca_password
 
 networks:
   proxy_network:
     external: true
   default:
     driver: overlay
+
+secrets:
+  step_ca_password:
+    external: true
