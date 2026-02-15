@@ -1,6 +1,14 @@
 services:
   secrets-init:
     image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     environment:
       OP_CONNECT_HOST: http://op-connect-api:8080
       OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
@@ -12,16 +20,26 @@ services:
     networks:
       - op-connect
     command: >
-      sh -c "
+      sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/restic.template -o /secrets/restic.env -f &&
+      chmod 644 /secrets/restic.env &&
       echo 'Secrets injected successfully'
       "
-    restart: "no"
 
   restic:
     image: restic/restic:0.18.1@sha256:39d9072fb5651c80d75c7a811612eb60b4c06b32ffe87c2e9f3c7222e1797e76
-    restart: "no"
+    deploy:
+      replicas: 0
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
     environment:
       # Set by Komodo when running job: backup | prune | check | snapshots
       RESTIC_TASK: backup
@@ -30,10 +48,8 @@ services:
       RESTIC_TAGS: "homelab,barbary,truenas"
       # Cache on fast storage
       RESTIC_CACHE_DIR: /cache
-
     volumes:
       - /mnt/apps01/appdata/restic/secrets:/secrets:ro
-      # read sources
       - type: bind
         source: /mnt/apps01
         target: /src/apps01
@@ -42,13 +58,9 @@ services:
         source: /mnt/data01
         target: /src/data01
         read_only: true
-
-      # cache on fast pool
       - type: bind
         source: /mnt/apps01/appdata/restic/cache
         target: /cache
-
-      # scripts + exclude file from this stack directory
       - type: bind
         source: ./run.sh
         target: /scripts/run.sh
@@ -57,12 +69,8 @@ services:
         source: ./excludes.txt
         target: /scripts/excludes.txt
         read_only: true
-
-    depends_on:
-      - secrets-init
     networks:
       - op-connect
-    # env_file removed - using entrypoint wrapper to load env at runtime
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/restic.env ] && . /secrets/restic.env && set +a &&
@@ -70,9 +78,8 @@ services:
 
 networks:
   op-connect:
+    name: op-connect_op-connect
     external: true
-
-
 
 secrets:
   op_connect_token:

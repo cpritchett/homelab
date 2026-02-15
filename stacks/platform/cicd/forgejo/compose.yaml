@@ -1,6 +1,14 @@
 services:
   secrets-init:
     image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     environment:
       OP_CONNECT_HOST: http://op-connect-api:8080
       OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
@@ -12,16 +20,31 @@ services:
     networks:
       - op-connect
     command: >
-      sh -c "
+      sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/env.template -o /secrets/postgres.env -f &&
+      chmod 644 /secrets/postgres.env &&
       echo 'Secrets injected successfully'
       "
-    restart: "no"
 
   forgejo-db:
     image: postgres:18@sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
-    restart: unless-stopped
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
     volumes:
       - /mnt/data01/appdata/forgejo/postgres:/var/lib/postgresql
       - /mnt/apps01/appdata/forgejo/secrets:/secrets:ro
@@ -32,9 +55,6 @@ services:
       retries: 5
     networks:
       - forgejo
-    depends_on:
-      - secrets-init
-    # env_file removed - using entrypoint wrapper to load env at runtime
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
@@ -42,36 +62,62 @@ services:
 
   forgejo:
     image: codeberg.org/forgejo/forgejo:14.0.2@sha256:fa8ce5aba7c20e106c649e00da1f568e8f39c58f1706bcf4f6921f16aaf5ba48
-    restart: unless-stopped
-    depends_on:
-      - forgejo-db
-      - secrets-init
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage dashboard
+        homepage.group: "Platform"
+        homepage.name: "Forgejo"
+        homepage.icon: "forgejo.png"
+        homepage.href: "https://git.in.hypyr.space"
+        homepage.description: "Git forge"
+
+        # Caddy reverse proxy
+        caddy: git.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3000}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma monitoring
+        kuma.forgejo.http.name: "Forgejo"
+        kuma.forgejo.http.url: "https://git.in.hypyr.space"
+        kuma.forgejo.http.interval: "60"
+        kuma.forgejo.http.maxretries: "3"
+        kuma.forgejo.http.accepted_statuscodes: '["200-299"]'
     environment:
       USER_UID: 1000
       USER_GID: 1000
       DB_TYPE: postgres
       DB_HOST: forgejo-db
       CONTAINER_REGISTRY_ENABLED: "true"
-      CLOUDFLARE_API_TOKEN_FILE: /run/secrets/CLOUDFLARE_API_TOKEN
-    secrets:
-      - CLOUDFLARE_API_TOKEN
     volumes:
       - /mnt/apps01/appdata/forgejo:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
       - /mnt/apps01/appdata/forgejo/secrets:/secrets:ro
     ports:
-      - "3022:22"
-    labels:
-      caddy: git.in.hypyr.space
-      caddy.tls.dns: "cloudflare ${CLOUDFLARE_API_TOKEN_FILE}"
-      caddy.reverse_proxy: "{{upstreamDialer \"forgejo:3000\"}}"
+      - target: 22
+        published: 3022
+        protocol: tcp
+        mode: ingress
     networks:
       forgejo:
       proxy_network:
         aliases:
           - forgejo
-    # env_file removed - using entrypoint wrapper to load env at runtime
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
@@ -84,12 +130,9 @@ networks:
   proxy_network:
     external: true
   op-connect:
+    name: op-connect_op-connect
     external: true
-
-
 
 secrets:
   op_connect_token:
-    external: true
-  CLOUDFLARE_API_TOKEN:
     external: true
