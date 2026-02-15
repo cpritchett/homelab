@@ -3,9 +3,9 @@
 # embedded outpost. Prefixed with zz- so it runs after individual provider
 # blueprints have been applied.
 #
-# Forward auth is for services with NO built-in authentication.
-# Services with their own auth (Grafana, Komodo, Forgejo, Uptime Kuma,
-# Woodpecker) should use native OAuth2/OIDC provider integration instead.
+# Forward auth is for services with no built-in auth or where SSO gating
+# is preferred. Services with their own auth that support OIDC natively
+# (Forgejo, Woodpecker) use OAuth2/OIDC provider integration instead.
 #
 # When adding a new service:
 #   1. Create forward-auth-<service>.yaml (provider + application)
@@ -33,6 +33,7 @@ entries:
         - !Find [authentik_providers_proxy.proxyprovider, [name, prometheus-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, loki-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, homepage-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, grafana-forward-auth]]
         # Media — core stack
         - !Find [authentik_providers_proxy.proxyprovider, [name, sonarr-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, radarr-forward-auth]]
@@ -42,3 +43,10 @@ entries:
         - !Find [authentik_providers_proxy.proxyprovider, [name, bazarr-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, tautulli-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, maintainerr-forward-auth]]
+        # Media — torrent stack
+        - !Find [authentik_providers_proxy.proxyprovider, [name, qbittorrent-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, cross-seed-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, autobrr-forward-auth]]
+        # Media — enrichment stack
+        - !Find [authentik_providers_proxy.proxyprovider, [name, titlecards-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, posterizarr-forward-auth]]
