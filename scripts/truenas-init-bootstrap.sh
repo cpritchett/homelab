@@ -170,6 +170,9 @@ chown -R 1701:1702 "${APPDATA_PATH}/proxy" 2>/dev/null || true
 # Komodo/MongoDB runs as 568:568
 chown -R 568:568 "${APPDATA_PATH}/komodo" 2>/dev/null || true
 
+# step-ca runs as step (1000:1000)
+chown -R 1000:1000 "${APPDATA_PATH}/step-ca" 2>/dev/null || true
+
 log "Directory structure created and permissions set"
 
 # Deploy infrastructure tier
