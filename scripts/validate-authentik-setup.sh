@@ -119,11 +119,12 @@ ensure_dir_with_ownership "${APPDATA_PATH}/authentik/media" "1000:1000" "755"
 ensure_dir_with_ownership "${APPDATA_PATH}/authentik/custom-templates" "1000:1000" "755"
 
 # Secrets directory for op inject init container (UID 999:999)
-ensure_dir_with_ownership "${APPDATA_PATH}/authentik/secrets" "999:999" "755"
+# Authentik/postgres get access via group_add 999
+ensure_dir_with_ownership "${APPDATA_PATH}/authentik/secrets" "999:999" "750"
 
 # Blueprints directory for rendered blueprint templates
-# Owned by UID 999:999 (op container writes here), readable by authentik UID 1000
-ensure_dir_with_ownership "${APPDATA_PATH}/authentik/blueprints" "999:999" "755"
+# Owned by UID 999:999 (op container writes here); authentik gets access via group_add 999
+ensure_dir_with_ownership "${APPDATA_PATH}/authentik/blueprints" "999:999" "750"
 
 # Quick connectivity test to 1Password Connect (fail fast if unreachable)
 if ! docker run --rm --network op-connect_op-connect \

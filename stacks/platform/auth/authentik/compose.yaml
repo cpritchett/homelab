@@ -31,7 +31,6 @@ services:
       op inject -i /templates/homepage-token.yaml.template -o /blueprints-out/homepage-token.yaml -f &&
       op inject -i /templates/oauth2-forgejo.yaml.template -o /blueprints-out/oauth2-forgejo.yaml -f &&
       chmod 644 /secrets/*.env /blueprints-out/*.yaml &&
-      chmod 755 /secrets /blueprints-out &&
       echo 'Secrets injected successfully'
       "
 
@@ -93,6 +92,8 @@ services:
 
   authentik-server:
     image: ghcr.io/goauthentik/server:2025.12.4
+    group_add:
+      - "999"
     deploy:
       replicas: 1
       restart_policy:
@@ -150,6 +151,8 @@ services:
 
   authentik-worker:
     image: ghcr.io/goauthentik/server:2025.12.4
+    group_add:
+      - "999"
     deploy:
       replicas: 1
       restart_policy:

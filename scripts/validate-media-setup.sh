@@ -104,8 +104,9 @@ done
 ensure_dir_with_ownership "${APPDATA_PATH}/media/seerr/config" "1000:1000" "755"
 
 # Secrets directories for stacks that use 1Password hydration
+# Non-root consumers get access via group_add 999
 for stack in core torrent support; do
-    ensure_dir_with_ownership "${APPDATA_PATH}/media/${stack}/secrets" "999:999" "755"
+    ensure_dir_with_ownership "${APPDATA_PATH}/media/${stack}/secrets" "999:999" "750"
 done
 
 # ---------------------------------------------------------------------------

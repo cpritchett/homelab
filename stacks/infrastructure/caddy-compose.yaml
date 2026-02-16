@@ -88,7 +88,6 @@ services:
       . /secrets/cloudflared.env &&
       echo \"$${CREDENTIALS_JSON}\" | base64 -d > /secrets/credentials.json &&
       chmod 644 /secrets/cloudflared.env /secrets/credentials.json /secrets/config.yaml &&
-      chmod 755 /secrets &&
       echo 'Cloudflared secrets injected successfully'
       "
 
@@ -124,7 +123,7 @@ services:
       - /mnt/apps01/appdata/cloudflared/secrets:/secrets:ro
     networks:
       - proxy_network
-    user: '65532:65532'
+    user: '65532:999'
 
   docker-socket-proxy:
     deploy:

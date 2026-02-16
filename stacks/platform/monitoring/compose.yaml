@@ -24,7 +24,6 @@ services:
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       if op inject -i /templates/grafana.env.template -o /secrets/grafana.env -f; then
         chmod 644 /secrets/grafana.env &&
-        chmod 755 /secrets &&
         echo 'Monitoring secrets injected successfully';
       elif [ -s /secrets/grafana.env ]; then
         echo 'Monitoring secret injection failed; using existing /secrets/grafana.env';
@@ -135,6 +134,8 @@ services:
   # Floats freely — state in PostgreSQL
   grafana:
     image: grafana/grafana:12.3.3
+    group_add:
+      - "999"
     deploy:
       replicas: 1
       restart_policy:

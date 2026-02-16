@@ -86,8 +86,8 @@ ensure_dir_with_ownership() {
 }
 
 ensure_dir_with_ownership "${APPDATA_PATH}/monitoring" "root:root" "755"
-# Owned by UID 999:999 (op container writes here), readable by Grafana UID 472
-ensure_dir_with_ownership "${APPDATA_PATH}/monitoring/secrets" "999:999" "755"
+# Owned by UID 999:999 (op container writes here); Grafana gets access via group_add 999
+ensure_dir_with_ownership "${APPDATA_PATH}/monitoring/secrets" "999:999" "750"
 
 ensure_dir_with_ownership "${DATA_PATH}/monitoring" "root:root" "755"
 ensure_dir_with_ownership "${DATA_PATH}/monitoring/prometheus" "65534:65534" "755"

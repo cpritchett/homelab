@@ -85,8 +85,8 @@ ensure_dir_with_ownership() {
 }
 
 ensure_dir_with_ownership "${APPDATA_PATH}/cloudflared" "root:root" "755"
-# Owned by UID 999:999 (op container writes here), readable by cloudflared UID 65532
-ensure_dir_with_ownership "${APPDATA_PATH}/cloudflared/secrets" "999:999" "755"
+# Owned by UID 999:999 (op container writes here); cloudflared gets access via GID 999
+ensure_dir_with_ownership "${APPDATA_PATH}/cloudflared/secrets" "999:999" "750"
 
 if ! docker run --rm --network op-connect_op-connect \
     -e OP_CONNECT_HOST=http://op-connect-api:8080 \
