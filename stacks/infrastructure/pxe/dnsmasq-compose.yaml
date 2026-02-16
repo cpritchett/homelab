@@ -4,7 +4,7 @@
 
 services:
   dnsmasq:
-    image: quay.io/poseidon/dnsmasq:latest
+    image: quay.io/poseidon/dnsmasq:v0.5.0-47-g28ff327
     container_name: dnsmasq-proxypxe
     restart: unless-stopped
     cap_add:
