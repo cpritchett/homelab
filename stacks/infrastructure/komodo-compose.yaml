@@ -106,7 +106,7 @@ services:
         - db.adminCommand("ping")
         - '--quiet'
       timeout: 5s
-    image: mongo:8.2.3
+    image: mongo:8.2.5
     labels:
       komodo.skip: 'true'
     stop_grace_period: 60s

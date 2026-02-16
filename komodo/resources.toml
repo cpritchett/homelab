@@ -178,6 +178,18 @@ send_alerts = true
 path = "/mnt/apps01/repos/homelab/scripts/"
 command = "sh validate-monitoring-setup.sh"
 
+[[stack.config.config_files]]
+path = "alloy/config.alloy"
+requires = "Restart"
+
+[[stack.config.config_files]]
+path = "prometheus/prometheus.yml"
+requires = "Restart"
+
+[[stack.config.config_files]]
+path = "loki/loki-config.yaml"
+requires = "Restart"
+
 # ---
 
 [[stack]]

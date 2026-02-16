@@ -216,7 +216,7 @@ services:
   # Floats freely — state in PostgreSQL
   # Media request management (formerly Jellyseerr)
   seerr:
-    image: ghcr.io/seerr-team/seerr:latest
+    image: ghcr.io/seerr-team/seerr:v3.0.0
     init: true
     deploy:
       replicas: 1

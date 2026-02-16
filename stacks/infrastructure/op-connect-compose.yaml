@@ -1,6 +1,6 @@
 services:
   op-connect-api:
-    image: 1password/connect-api:1.7.3
+    image: 1password/connect-api:1.8.0
     hostname: op-connect-api
     deploy:
       restart_policy:
@@ -61,7 +61,7 @@ services:
       disable: true
 
   op-connect-sync:
-    image: 1password/connect-sync:1.7.3
+    image: 1password/connect-sync:1.8.0
     hostname: op-connect-sync
     deploy:
       restart_policy:

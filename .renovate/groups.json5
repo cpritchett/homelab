@@ -65,7 +65,7 @@
       description: "Monitoring Stack Group",
       groupName: "Monitoring Stack",
       matchDatasources: ["docker"],
-      matchPackageNames: ["/prometheus/", "/grafana/", "/alertmanager/", "/loki/", "/promtail/", "/alloy/"],
+      matchPackageNames: ["/prometheus/", "/grafana/", "/alertmanager/", "/loki/", "/alloy/", "/cadvisor/"],
       semanticCommitScope: "monitoring",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },

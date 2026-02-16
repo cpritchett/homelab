@@ -93,6 +93,7 @@ ensure_dir_with_ownership "${DATA_PATH}/monitoring" "root:root" "755"
 ensure_dir_with_ownership "${DATA_PATH}/monitoring/prometheus" "65534:65534" "755"
 ensure_dir_with_ownership "${DATA_PATH}/monitoring/grafana" "472:472" "755"
 ensure_dir_with_ownership "${DATA_PATH}/monitoring/loki" "10001:10001" "755"
+ensure_dir_with_ownership "${DATA_PATH}/monitoring/alloy-data" "0:0" "755"
 
 if ! docker run --rm --network op-connect_op-connect \
     -e OP_CONNECT_HOST=http://op-connect-api:8080 \

@@ -35,7 +35,7 @@ services:
 
   # Pinned to barbary — TSDB requires local storage
   prometheus:
-    image: prom/prometheus:v2.48.1
+    image: prom/prometheus:v3.5.1
     deploy:
       replicas: 1
       placement:
@@ -87,7 +87,7 @@ services:
 
   # Pinned to barbary — chunk storage requires local disk
   loki:
-    image: grafana/loki:2.9.8
+    image: grafana/loki:3.6.5
     deploy:
       replicas: 1
       placement:
@@ -133,7 +133,7 @@ services:
 
   # Floats freely — state in PostgreSQL
   grafana:
-    image: grafana/grafana:10.4.8
+    image: grafana/grafana:12.3.3
     deploy:
       replicas: 1
       restart_policy:
@@ -197,7 +197,7 @@ services:
        exec /run.sh"
 
   node-exporter:
-    image: prom/node-exporter:v1.8.2
+    image: prom/node-exporter:v1.10.2
     deploy:
       mode: global
       resources:
@@ -217,7 +217,7 @@ services:
       - monitoring
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.51.0
+    image: ghcr.io/google/cadvisor:v0.56.2
     deploy:
       mode: global
       resources:
@@ -235,20 +235,23 @@ services:
     networks:
       - monitoring
 
-  promtail:
-    image: grafana/promtail:2.9.8
+  alloy:
+    image: grafana/alloy:v1.13.1
     deploy:
       mode: global
       resources:
         limits:
           cpus: '0.5'
           memory: 256M
-    command: -config.file=/etc/promtail/promtail-config.yaml
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
     volumes:
-      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
-      - /mnt/.ix-apps/docker/containers:/var/lib/docker/containers:ro
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /mnt/data01/appdata/monitoring/promtail-positions:/positions
+      - /mnt/.ix-apps/docker/containers:/var/lib/docker/containers:ro
+      - /mnt/data01/appdata/monitoring/alloy-data:/var/lib/alloy/data
     networks:
       - monitoring
 
