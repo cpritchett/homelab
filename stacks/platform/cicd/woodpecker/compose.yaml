@@ -106,7 +106,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /mnt/apps01/appdata/woodpecker/secrets:/secrets:ro
     environment:
-      WOODPECKER_SERVER: "ws://woodpecker-server:8000"
+      WOODPECKER_SERVER: "woodpecker-server:9000"
       WOODPECKER_AGENT_BACKEND: docker
       WOODPECKER_DOCKER_HOST: unix:///var/run/docker.sock
       WOODPECKER_LOG_LEVEL: info

@@ -425,6 +425,7 @@ server = "barbary-periphery"
 linked_repo = "homelab-repo"
 run_directory = "stacks/platform/monitoring"
 file_paths = ["smartctl-compose.yaml"]
+auto_pull = true
 send_alerts = true
 
 # ── ResourceSync (self-referencing) ─────────────────────
