@@ -43,6 +43,7 @@ services:
     command:
       - -address=0.0.0.0:8080
       - -log-level=debug
+      - -assets-path=/assets
     ports:
       - target: 8080
         published: 8480
@@ -50,7 +51,7 @@ services:
         mode: ingress
     volumes:
       - ./matchbox:/var/lib/matchbox:ro
-      - /mnt/apps01/appdata/pxe/assets:/var/lib/matchbox/assets:ro
+      - /mnt/apps01/appdata/pxe/assets:/assets:ro
     networks:
       - proxy_network
     environment:

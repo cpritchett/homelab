@@ -8,7 +8,7 @@
       "initrd=initrd.gz",
       "auto=true",
       "priority=critical",
-      "url=http://BARBARY_IP:8480/generic?mac=${mac:hexhyp}",
+      "url=http://10.0.5.121:8480/generic?mac=${mac:hexhyp}",
       "hostname={{.hostname}}",
       "domain=in.hypyr.space",
       "console=tty0",
