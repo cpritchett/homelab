@@ -30,13 +30,6 @@ services:
           cpus: '0.1'
           memory: 64M
       labels:
-        # Homepage dashboard
-        homepage.group: "Infrastructure"
-        homepage.name: "Matchbox PXE"
-        homepage.icon: "matchbox.png"
-        homepage.href: "https://pxe.in.hypyr.space"
-        homepage.description: "PXE boot server"
-
         # Caddy reverse proxy
         caddy: pxe.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 8080}}"

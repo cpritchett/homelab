@@ -18,11 +18,6 @@
             - field: version
               label: Version
 
-    - Caddy:
-        icon: caddy.png
-        href: https://barbary.in.hypyr.space
-        description: Reverse proxy & TLS
-
 - Platform:
     - Authentik:
         icon: authentik.png

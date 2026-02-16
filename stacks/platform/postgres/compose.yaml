@@ -60,12 +60,6 @@ services:
           cpus: '0.5'
           memory: 512M
       labels:
-        # Homepage dashboard
-        homepage.group: "Platform"
-        homepage.name: "PostgreSQL"
-        homepage.icon: "postgres.png"
-        homepage.description: "Shared app database"
-
         # AutoKuma monitoring
         kuma.postgres-shared.tcp.name: "PostgreSQL (Shared)"
         kuma.postgres-shared.tcp.hostname: "postgresql"

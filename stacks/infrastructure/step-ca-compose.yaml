@@ -10,12 +10,6 @@ services:
           cpus: '1'
           memory: 512M
       labels:
-        # Homepage dashboard
-        homepage.group: "Infrastructure"
-        homepage.name: "Smallstep CA"
-        homepage.icon: "mdi-certificate"
-        homepage.description: "Internal PKI certificate authority"
-
         # AutoKuma monitoring
         kuma.step-ca.http.name: "Smallstep CA"
         kuma.step-ca.http.url: "https://step-ca:9000/health"

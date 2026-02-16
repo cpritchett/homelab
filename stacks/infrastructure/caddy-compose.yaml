@@ -6,13 +6,6 @@ services:
           cpus: '2'
           memory: 2048M
       labels:
-        # Homepage dashboard
-        homepage.group: "Infrastructure"
-        homepage.name: "Caddy"
-        homepage.icon: "caddy.png"
-        homepage.href: "https://barbary.in.hypyr.space"
-        homepage.description: "Reverse proxy & TLS"
-
         # Caddy self-configuration
         caddy.email: admin@hypyr.space
         caddy_10: barbary.in.hypyr.space
