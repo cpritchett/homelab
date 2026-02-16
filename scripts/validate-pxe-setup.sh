@@ -48,23 +48,30 @@ fi
 
 # Debian 12 netboot assets
 DEBIAN_ASSETS="${ASSETS_PATH}/debian-12"
+DEBIAN_MIRROR="https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/debian-installer/amd64"
 
-if [ ! -f "${DEBIAN_ASSETS}/linux" ]; then
-    log_error "Debian netboot kernel not found at ${DEBIAN_ASSETS}/linux"
-    log_error "Run: scripts/download-matchbox-assets.sh"
-    exit 1
+mkdir -p "${DEBIAN_ASSETS}"
+
+if [ ! -s "${DEBIAN_ASSETS}/linux" ]; then
+    log "Downloading Debian 12 netboot kernel..."
+    curl -fsSL "${DEBIAN_MIRROR}/linux" -o "${DEBIAN_ASSETS}/linux"
+    log "Kernel downloaded"
+else
+    log "Debian 12 netboot kernel present"
 fi
 
-if [ ! -f "${DEBIAN_ASSETS}/initrd.gz" ]; then
-    log_error "Debian netboot initrd not found at ${DEBIAN_ASSETS}/initrd.gz"
-    log_error "Run: scripts/download-matchbox-assets.sh"
-    exit 1
+if [ ! -s "${DEBIAN_ASSETS}/initrd.gz" ]; then
+    log "Downloading Debian 12 netboot initrd..."
+    curl -fsSL "${DEBIAN_MIRROR}/initrd.gz" -o "${DEBIAN_ASSETS}/initrd.gz"
+    log "Initrd downloaded"
+else
+    log "Debian 12 netboot initrd present"
 fi
 
-# Verify files are not empty
+# Final verification
 for f in "${DEBIAN_ASSETS}/linux" "${DEBIAN_ASSETS}/initrd.gz"; do
     if [ ! -s "$f" ]; then
-        log_error "Asset file is empty: $f"
+        log_error "Asset file is missing or empty after download: $f"
         exit 1
     fi
 done
