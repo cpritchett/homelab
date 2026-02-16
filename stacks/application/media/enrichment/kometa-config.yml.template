@@ -28,12 +28,12 @@ trakt:
   client_id: op://homelab/kometa/TRAKT_CLIENT_ID
   client_secret: op://homelab/kometa/TRAKT_CLIENT_SECRET
   authorization:
-    access_token:
+    access_token: op://homelab/kometa/TRAKT_ACCESS_TOKEN
     token_type: Bearer
-    expires_in: 7776000
-    refresh_token:
+    expires_in: 604800
+    refresh_token: op://homelab/kometa/TRAKT_REFRESH_TOKEN
     scope: public
-    created_at: 0
+    created_at: op://homelab/kometa/TRAKT_CREATED_AT
 
 ## ── Global Settings ───────────────────────────────────────────
 settings:
