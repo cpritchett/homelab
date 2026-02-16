@@ -412,6 +412,7 @@ server = "barbary-periphery"
 linked_repo = "homelab-repo"
 run_directory = "stacks/infrastructure/pxe"
 file_paths = ["dnsmasq-compose.yaml"]
+auto_pull = true
 send_alerts = true
 
 # ---
