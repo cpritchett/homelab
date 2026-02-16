@@ -61,10 +61,10 @@ services:
       TZ: "America/Chicago"
       KOMETA_TIMES: "03:00"
       KOMETA_RUN: "false"
-      KOMETA_READ_ONLY_CONFIG: "true"
+      KOMETA_READ_ONLY_CONFIG: "false"
     volumes:
       - /mnt/apps01/appdata/media/kometa/config:/config
-      - /mnt/apps01/appdata/media/enrichment/secrets/kometa-config.yml:/config/config.yml:ro
+      - /mnt/apps01/appdata/media/enrichment/secrets/kometa-config.yml:/config/config.yml
     networks:
       - proxy_network
 
