@@ -1,0 +1,114 @@
+###############################################################################
+# Kometa — Plex Metadata & Collections Manager (op inject template)
+#
+# Hydrated by op-secrets job before deployment.
+# API keys resolved from 1Password vault: homelab / kometa
+#
+# Nightly at 03:00 CT — collections, metadata fixes, CSM ratings
+# NO overlays — clean poster art only
+###############################################################################
+
+## ── Plex ──────────────────────────────────────────────────────
+plex:
+  url: http://plex:32400
+  token: op://homelab/kometa/PLEX_TOKEN
+  timeout: 60
+  clean_bundles: true
+  empty_trash: true
+  optimize: false
+
+## ── API Keys ──────────────────────────────────────────────────
+tmdb:
+  apikey: op://homelab/kometa/TMDB_API_KEY
+
+mdblist:
+  apikey: op://homelab/kometa/MDBLIST_API_KEY
+
+trakt:
+  client_id: op://homelab/kometa/TRAKT_CLIENT_ID
+  client_secret: op://homelab/kometa/TRAKT_CLIENT_SECRET
+  authorization:
+    access_token:
+    token_type: Bearer
+    expires_in: 7776000
+    refresh_token:
+    scope: public
+    created_at: 0
+
+## ── Global Settings ───────────────────────────────────────────
+settings:
+  cache: true
+  cache_expiration: 60
+  asset_directory: /config/assets
+  run_order:
+  - operations
+  - metadata
+  - collections
+  - overlays
+libraries:
+  Movies:
+    collection_files:
+      # Charts & lists
+    - default: basic
+    - default: imdb
+    - default: trakt
+
+      # Awards
+    - default: oscars
+    - default: golden
+    - default: sundance
+    - default: spirit
+
+      # Organization
+    - default: genre
+    - default: decade
+    - default: franchise
+    - default: universe
+    - default: seasonal
+    - default: studio
+    - default: streaming
+
+      # Content ratings
+    - default: content_rating_cs
+
+    operations:
+      mass_content_rating_update: mdb_commonsense
+
+  TV Shows:
+    collection_files:
+      # Charts & lists
+    - default: basic
+    - default: imdb
+    - default: trakt
+
+      # Awards
+    - default: emmy
+
+      # Organization
+    - default: genre
+    - default: decade
+    - default: franchise
+    - default: network
+    - default: streaming
+
+      # Content ratings
+    - default: content_rating_cs
+
+    operations:
+      mass_content_rating_update: mdb_commonsense
+
+  Anime Movies:
+    collection_files:
+    - default: basic
+    - default: myanimelist
+    - default: genre
+    - default: decade
+    - default: studio
+
+  Anime:
+    collection_files:
+    - default: basic
+    - default: myanimelist
+    - default: genre
+    - default: decade
+    - default: studio

@@ -25,6 +25,7 @@ services:
       - op_connect_token
     volumes:
       - ./preferences.yml.template:/templates/preferences.yml.template:ro
+      - ./kometa-config.yml.template:/templates/kometa-config.yml.template:ro
       - /mnt/apps01/appdata/media/enrichment/secrets:/secrets
     networks:
       - op-connect
@@ -32,7 +33,8 @@ services:
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       op inject -i /templates/preferences.yml.template -o /secrets/preferences.yml -f &&
-      chmod 644 /secrets/preferences.yml &&
+      op inject -i /templates/kometa-config.yml.template -o /secrets/kometa-config.yml -f &&
+      chmod 644 /secrets/preferences.yml /secrets/kometa-config.yml &&
       echo 'Enrichment secrets injected successfully'
       "
 
@@ -62,6 +64,7 @@ services:
       KOMETA_READ_ONLY_CONFIG: "true"
     volumes:
       - /mnt/apps01/appdata/media/kometa/config:/config
+      - /mnt/apps01/appdata/media/enrichment/secrets/kometa-config.yml:/config/config.yml:ro
     networks:
       - proxy_network
 
