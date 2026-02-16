@@ -134,8 +134,7 @@ services:
   # Floats freely — state in PostgreSQL
   grafana:
     image: grafana/grafana:12.3.3
-    group_add:
-      - "999"
+    user: "472:999"
     deploy:
       replicas: 1
       restart_policy:

@@ -179,9 +179,7 @@ services:
         kuma.autobrr.http.url: "https://autobrr.in.hypyr.space/api/healthz/liveness"
         kuma.autobrr.http.interval: "60"
         kuma.autobrr.http.maxretries: "3"
-    user: "1701:1702"
-    group_add:
-      - "999"
+    user: "1701:999"
     volumes:
       - /mnt/apps01/appdata/media/autobrr/config:/config
       - /mnt/apps01/appdata/media/torrent/secrets:/secrets:ro
