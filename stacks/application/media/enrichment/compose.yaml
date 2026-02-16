@@ -7,6 +7,35 @@
 ###############################################################################
 
 services:
+  # ── Secret Hydration (one-shot job) ──────────────────────────
+  op-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./preferences.yml.template:/templates/preferences.yml.template:ro
+      - /mnt/apps01/appdata/media/enrichment/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/preferences.yml.template -o /secrets/preferences.yml -f &&
+      chmod 644 /secrets/preferences.yml &&
+      echo 'Enrichment secrets injected successfully'
+      "
+
   # ── Kometa ──────────────────────────────────────────────────
   # Collections, metadata fixes, CSM ratings (Plex-only)
   # Runs nightly at 3 AM via built-in scheduler
@@ -81,6 +110,7 @@ services:
       TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/media/titlecardmaker/config:/config
+      - /mnt/apps01/appdata/media/enrichment/secrets/preferences.yml:/config/preferences.yml:ro
       - /mnt/data01/data:/data
     networks:
       - media_enrichment
@@ -140,4 +170,11 @@ networks:
   media_enrichment:
     driver: overlay
   proxy_network:
+    external: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+secrets:
+  op_connect_token:
     external: true

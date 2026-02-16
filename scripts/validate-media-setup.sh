@@ -96,16 +96,19 @@ ensure_dir_with_ownership() {
 # Application config directories (apps01 — fast tier)
 # ---------------------------------------------------------------------------
 
-for svc in plex sonarr radarr prowlarr sabnzbd bazarr tautulli maintainerr; do
+for svc in plex sonarr radarr prowlarr sabnzbd bazarr tautulli maintainerr titlecardmaker; do
     ensure_dir_with_ownership "${APPDATA_PATH}/media/${svc}/config" "${MEDIA_OWNER}" "755"
 done
+
+# TitleCardMaker source directory (card output)
+ensure_dir_with_ownership "${APPDATA_PATH}/media/titlecardmaker/config/source" "${MEDIA_OWNER}" "755"
 
 # Seerr runs as node:node (UID 1000) — not an LSIO image
 ensure_dir_with_ownership "${APPDATA_PATH}/media/seerr/config" "1000:1000" "755"
 
 # Secrets directories for stacks that use 1Password hydration
 # Non-root consumers get access via group_add 999
-for stack in core torrent support; do
+for stack in core torrent support enrichment; do
     ensure_dir_with_ownership "${APPDATA_PATH}/media/${stack}/secrets" "999:999" "750"
 done
 

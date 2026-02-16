@@ -1,0 +1,23 @@
+###############################################################################
+# TitleCardMaker — Preferences (op inject template)
+#
+# Hydrated by op-secrets job before deployment.
+# API keys resolved from 1Password vault: homelab / titlecardmaker
+###############################################################################
+
+options:
+  source: /config/source/
+  episode_data_source: sonarr
+  card_type: standard
+
+sonarr:
+  url: http://sonarr:8989
+  api_key: op://homelab/titlecardmaker/SONARR_API_KEY
+  downloaded_only: true
+
+plex:
+  url: http://plex:32400
+  token: op://homelab/titlecardmaker/PLEX_TOKEN
+
+tmdb:
+  api_key: op://homelab/titlecardmaker/TMDB_API_KEY
