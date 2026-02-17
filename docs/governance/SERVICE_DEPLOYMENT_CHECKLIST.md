@@ -398,6 +398,6 @@ When reviewing PRs that add new infrastructure tools:
 ## References
 
 - [ADR-0034: Label-Driven Infrastructure](../adr/ADR-0034-label-driven-infrastructure.md) - Governance requirement
-- [AutoKuma Label Examples](../deployment/OBSERVABILITY_AUTOKUMA_LABELS.md) - Comprehensive examples
+- [Label Patterns Reference](../reference/label-patterns.md) - Comprehensive examples
 - [Caddy Docker Proxy](https://github.com/lucaslorentz/caddy-docker-proxy) - Caddy label documentation
 - [AutoKuma GitHub](https://github.com/BigBoot/AutoKuma) - AutoKuma label documentation

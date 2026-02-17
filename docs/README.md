@@ -9,9 +9,13 @@ This folder contains explanatory content—*why* decisions were made.
 - [glossary.md](glossary.md) — Key terminology
 - [adr/](adr/) — Architectural Decision Records
 - [architecture/](architecture/) — System architecture and diagrams
+- [guides/](guides/) — Bootstrap, platform deployment, and service-specific guides
+- [reference/](reference/) — Label patterns, permissions, Renovate configuration
 - [runbooks/](runbooks/) — Operational procedures
+- [troubleshooting/](troubleshooting/) — Known issues and fixes
 - [risk/](risk/) — Risk register
-- [deployment/](deployment/) — Deployment guides
+- [governance/](governance/) — Repository structure and deployment policies
+- [security/](security/) — Security documentation
 
 ## Architecture
 

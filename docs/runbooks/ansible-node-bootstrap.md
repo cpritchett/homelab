@@ -182,4 +182,4 @@ If changes are detected on re-run, investigate what drifted.
 - [ansible/README.md](../../ansible/README.md) — Ansible directory overview
 - [Hardening Operations](ansible-hardening.md) — Re-hardening runbook
 - [Day-2 Operations](ansible-day2-operations.md) — Drift remediation and config updates
-- [Phase 1 Deployment Runbook](../../docs/deployment/PHASE1_DEPLOYMENT_RUNBOOK.md) — TrueNAS infrastructure bootstrap
+- [TrueNAS Bootstrap Guide](../guides/truenas-bootstrap.md) — TrueNAS infrastructure bootstrap

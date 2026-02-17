@@ -191,4 +191,4 @@ Setup script provided: `stacks/scripts/setup-op-connect.sh`
 - [ADR-0022: Komodo-Managed NAS Stacks](ADR-0022-truenas-komodo-stacks.md) — Deployment model
 - [1Password Connect Documentation](https://developer.1password.com/docs/connect/)
 - [stacks/platform/secrets/op-connect/README.md](../../stacks/platform/secrets/op-connect/README.md) — Implementation guide
-- [stacks/docs/OP_CONNECT_MIGRATION.md](../../stacks/docs/OP_CONNECT_MIGRATION.md) — Migration guide
+- [docs/guides/secrets-migration.md](../guides/secrets-migration.md) — Migration guide

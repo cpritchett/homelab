@@ -180,7 +180,7 @@ Homepage auto-discovers services from Docker labels. Manual configuration is opt
 **Auto-Discovery (Recommended)**:
 - Services with `homepage.*` labels automatically appear
 - No manual `services.yaml` editing needed
-- See `docs/deployment/OBSERVABILITY_COMPLETE_LABEL_EXAMPLES.md` for examples
+- See `docs/reference/label-patterns.md` for examples
 
 **Manual Configuration** (for services without labels):
 1. Access https://home.in.hypyr.space
@@ -216,7 +216,7 @@ services:
         kuma.myapp.http.interval: "60"
 ```
 
-See `docs/deployment/OBSERVABILITY_COMPLETE_LABEL_EXAMPLES.md` for comprehensive examples.
+See `docs/reference/label-patterns.md` for comprehensive examples.
 
 #### Homepage Label Patterns
 

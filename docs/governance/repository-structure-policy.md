@@ -33,7 +33,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 | `ansible/` | Node configuration and hardening playbooks | Implementation |
 | `opentofu/` | Proxmox VM provisioning | Implementation |
 | `komodo/` | Komodo ResourceSync declarative config | Implementation |
-| `ops/` | Changelog only (runbooks moved to docs/runbooks/) | Operations |
+| `ops/` | Operational artifacts (runbooks moved to docs/runbooks/) | Operations |
 | `policies/` | OPA Rego admission policies | Policy |
 | `scripts/` | CI/validation scripts | Tooling |
 | `specs/` | Non-canonical specs and design docs (speckit outputs) | Governance |
@@ -47,7 +47,7 @@ Repository root structure is **fixed and enumerated** to prevent:
 
 1. **No arbitrary root-level markdown files**
    - Summary documents → `docs/`
-   - Change logs → `ops/CHANGELOG.md` (single file)
+   - Change logs → use conventional commits and release-please
    - ADRs → `docs/adr/`
 
 2. **No temporary/scratch files in root**
@@ -65,8 +65,10 @@ Repository root structure is **fixed and enumerated** to prevent:
 | Architecture decision | `docs/adr/ADR-NNNN-*.md` | Numbered, immutable after merge |
 | Technical documentation | `docs/*.md` | General purpose docs |
 | Architecture documentation | `docs/architecture/*.md` | System architecture with diagrams |
+| Deployment/operational guide | `docs/guides/*.md` | Bootstrap, platform deployment, service-specific guides |
+| Convention reference | `docs/reference/*.md` | Label patterns, permissions, Renovate config |
+| Known issue / troubleshooting | `docs/troubleshooting/*.md` | Reactive issue documentation and fixes |
 | Runbook | `docs/runbooks/*.md` | Operational procedures |
-| Change log | `ops/CHANGELOG.md` | Single file, append-only |
 | Canonical spec | `requirements/<domain>/spec.md` | One per domain |
 | Non-canonical spec | `specs/NNN-<slug>/spec.md` | speckit outputs, archived as needed |
 | Policy definition | `policies/<domain>/*.rego` | OPA Rego policies |

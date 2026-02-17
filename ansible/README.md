@@ -136,4 +136,4 @@ For a more permanent solution, Ansible Vault can encrypt it in `group_vars/all.y
 - `opentofu/` — Proxmox VM creation (infrastructure layer)
 - `stacks/infrastructure/pxe/` — PXE boot and Matchbox preseed
 - `komodo/resources.toml` — Komodo resource sync (picks up Periphery after Ansible)
-- `docs/deployment/PHASE1_DEPLOYMENT_RUNBOOK.md` — TrueNAS infrastructure bootstrap
+- `docs/guides/truenas-bootstrap.md` — TrueNAS infrastructure bootstrap

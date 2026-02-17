@@ -84,7 +84,8 @@ NFS mounts on swarm nodes:
      - Root: `README.md`, `CONTRIBUTING.md`, `CLAUDE.md`, `agents.md`
      - `docs/adr/ADR-NNNN-*.md` (append-only)
      - `docs/`, `docs/governance/`, `docs/operations/`
-     - `ops/CHANGELOG.md`, `ops/README.md`, `ops/runbooks/`
+     - `docs/guides/`, `docs/reference/`, `docs/troubleshooting/`
+     - `ops/README.md`, `ops/runbooks/`
      - `requirements/*/spec.md`, `requirements/*/checks.md`
      - `specs/NNN-*/spec.md`, `specs/NNN-*/plan.md`, `specs/NNN-*/research.md`, `specs/NNN-*/data-model.md`, `specs/NNN-*/quickstart.md`, `specs/NNN-*/contracts/`, `specs/NNN-*/checklists/`, `specs/NNN-*/tasks.md`
      - `infra/README.md`, `infra/<domain>/README.md`
@@ -99,7 +100,8 @@ NFS mounts on swarm nodes:
    - Architecture decisions → `docs/adr/`
    - General documentation → `docs/`
    - Operational documentation → `ops/runbooks/`
-   - Change logs → `ops/CHANGELOG.md` (single file, append-only)
+   - Deployment guides → `docs/guides/`
+   - Reference docs → `docs/reference/`
    - Implementation → `infra/<domain>/`
 
 5. **Deployment targets are separated by directory**:

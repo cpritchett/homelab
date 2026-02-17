@@ -56,7 +56,7 @@ Examples (conceptual):
 ## Step 4: Record the decision (required)
 Within the same PR (or immediately after), add:
 - an ADR documenting the exception pattern **if it’s likely to recur**, OR
-- a short entry in `ops/CHANGELOG.md` describing what happened
+- a short entry in the PR description describing what happened
 
 If the invariant itself needs modification long-term:
 - create an amendment under `constitution/amendments/`
