@@ -11,8 +11,8 @@ Use these documents in order:
 1. Governance contract: `docs/governance/agent-contract.md`
 2. Deployment policy: `docs/governance/PRE-DEPLOYMENT-VALIDATION-POLICY.md`
 3. Service checklist: `docs/governance/SERVICE_DEPLOYMENT_CHECKLIST.md`
-4. Phase 2 execution guide: `docs/deployment/PHASE2_DEPLOYMENT_STEPS.md`
-5. Stack-specific guide (example): `docs/deployment/AUTHENTIK_DEPLOY.md`
+4. Platform deployment guide: `docs/guides/platform-deployment.md`
+5. Stack-specific guide (example): `docs/guides/authentik-deployment.md`
 
 ## Required Deployment Pattern
 

@@ -20,7 +20,7 @@ This guide covers migrating from the `op-export` pattern (env file materializati
 
 ### 1. Deploy 1Password Connect
 
-Follow [stacks/platform/secrets/op-connect/README.md](../platform/secrets/op-connect/README.md):
+Follow [stacks/platform/secrets/op-connect/README.md](../../stacks/platform/secrets/op-connect/README.md):
 
 1. Generate Connect server credentials on your workstation
 2. Copy to TrueNAS at `/mnt/apps01/secrets/op/1password-credentials.json`
@@ -78,7 +78,7 @@ Best for: Stacks that already use env files
 2. Add init container or wrapper script that runs `op inject`
 3. Mount templated output into main container
 
-See: [docs/deployment/AUTHENTIK_MIGRATION.md](../../docs/deployment/AUTHENTIK_MIGRATION.md) for full example
+See the [Authentik Migration History](#authentik-migration-history) section below for a full example
 
 #### Pattern B: Direct SDK (Code Integration)
 
@@ -207,5 +207,65 @@ If you need to rollback:
 
 - [1Password Connect Documentation](https://developer.1password.com/docs/connect/)
 - [op inject Reference](https://developer.1password.com/docs/cli/reference/commands/inject/)
-- [stacks/platform/secrets/op-connect/README.md](../platform/secrets/op-connect/README.md)
-- [ADR-0004: Secrets Management](../../docs/adr/ADR-0004-secrets-management.md)
+- [stacks/platform/secrets/op-connect/README.md](../../stacks/platform/secrets/op-connect/README.md)
+- [ADR-0004: Secrets Management](../adr/ADR-0004-secrets-management.md)
+
+## Authentik Migration History
+
+Authentik was the first stack migrated to 1Password Connect. This section documents the before/after patterns as a reference for migrating other stacks.
+
+### Legacy Approach (env_file + op-export)
+
+```yaml
+services:
+  authentik-server:
+    env_file:
+      - /mnt/apps01/secrets/authentik/authentik.env
+```
+
+This required running `op-export` as a separate job to materialize secrets to disk.
+
+### Current Approach (op inject)
+
+Authentik injects secrets at startup using `secrets-init` + `op inject`:
+
+**Template inputs** (`stacks/platform/auth/authentik/env.template`):
+
+```bash
+AUTHENTIK_SECRET_KEY=op://homelab/authentik-stack/secret_key
+AUTHENTIK_POSTGRESQL__PASSWORD=op://homelab/authentik-stack/postgres_password
+AUTHENTIK_POSTGRESQL__USER=authentik
+AUTHENTIK_POSTGRESQL__NAME=authentik
+AUTHENTIK_BOOTSTRAP_PASSWORD=op://homelab/authentik-stack/bootstrap_password
+AUTHENTIK_BOOTSTRAP_EMAIL=op://homelab/authentik-stack/bootstrap_email
+```
+
+**Runtime pattern** (from `stacks/platform/auth/authentik/compose.yaml`):
+
+```yaml
+services:
+  secrets-init:
+    image: 1password/op:2
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    networks:
+      - op-connect
+    command: >
+      sh -c "
+      export OP_CONNECT_TOKEN=$(cat /run/secrets/op_connect_token)
+      op inject -i /templates/authentik.template -o /secrets/authentik.env -f &&
+      op inject -i /templates/postgres.template -o /secrets/postgres.env -f &&
+      echo 'Secrets injected successfully'
+      "
+```
+
+### Validation Checklist (Post-Migration)
+
+- [x] `op-connect` stack deployed
+- [x] Connect token present as Swarm secret: `op_connect_token`
+- [x] Authentik templates use `op://homelab/authentik-stack/...` references
+- [x] `secrets-init` injects both `authentik.env` and `postgres.env`
+- [x] Legacy `op-export` dependency removed from Authentik stack
