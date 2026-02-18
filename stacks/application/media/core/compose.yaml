@@ -47,7 +47,7 @@ services:
         constraints:
           - node.hostname == barbary
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
         max_attempts: 3
       resources:
@@ -111,7 +111,7 @@ services:
         constraints:
           - node.hostname == barbary
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
         max_attempts: 3
       resources:
@@ -167,7 +167,7 @@ services:
         constraints:
           - node.hostname == barbary
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
         max_attempts: 3
       resources:
@@ -228,7 +228,7 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
         max_attempts: 3
       resources:
@@ -289,7 +289,7 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
         max_attempts: 3
       resources:
@@ -352,7 +352,7 @@ services:
         constraints:
           - node.hostname == barbary
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
         max_attempts: 3
       resources:
