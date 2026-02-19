@@ -184,6 +184,7 @@ services:
 networks:
   authentik:
     driver: overlay
+    attachable: true
   proxy_network:
     external: true
   op-connect:
