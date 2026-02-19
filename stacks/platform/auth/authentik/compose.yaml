@@ -93,12 +93,12 @@ services:
   authentik-server:
     image: ghcr.io/goauthentik/server:2025.12.4
     user: "1000:999"
+    stop_grace_period: 5m
     deploy:
       replicas: 1
       restart_policy:
         condition: any
         delay: 5s
-        max_attempts: 3
       resources:
         limits:
           cpus: '2'
@@ -151,12 +151,12 @@ services:
   authentik-worker:
     image: ghcr.io/goauthentik/server:2025.12.4
     user: "1000:999"
+    stop_grace_period: 5m
     deploy:
       replicas: 1
       restart_policy:
         condition: any
         delay: 5s
-        max_attempts: 3
       resources:
         limits:
           cpus: '2'
