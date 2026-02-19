@@ -70,6 +70,7 @@ services:
         # Caddy: Reverse proxy (NO forward auth — Plex has own auth)
         caddy: plex.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 32400}}"
+        caddy.reverse_proxy.flush_interval: "-1"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
 
         # AutoKuma: Uptime monitoring
@@ -134,6 +135,7 @@ services:
         # Caddy: Reverse proxy (NO forward auth — Jellyfin has own auth)
         caddy: jellyfin.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 8096}}"
+        caddy.reverse_proxy.flush_interval: "-1"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
 
         # AutoKuma: Uptime monitoring
