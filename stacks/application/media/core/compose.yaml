@@ -85,6 +85,11 @@ services:
       TZ: "America/Chicago"
       VERSION: "docker"
       PLEX_TRANSCODE_DIR: "/transcode"
+    ports:
+      - target: 32400
+        published: 32400
+        protocol: tcp
+        mode: host
     volumes:
       - /mnt/apps01/appdata/media/plex/config:/config
       - /mnt/data01/data:/data
@@ -147,6 +152,11 @@ services:
       PUID: "1701"
       PGID: "1702"
       TZ: "America/Chicago"
+    ports:
+      - target: 8096
+        published: 8096
+        protocol: tcp
+        mode: host
     volumes:
       - /mnt/apps01/appdata/media/jellyfin/config:/config
       - /mnt/data01/data:/data
