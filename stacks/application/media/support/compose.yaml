@@ -1,7 +1,7 @@
 ###############################################################################
 # Media Stack — Supporting Services
 #
-# Services: Bazarr, Tautulli, Maintainerr, Recyclarr, Seerr, Wizarr
+# Services: Bazarr, Tautulli, Maintainerr, Recyclarr, Seerr, Wizarr, Tracearr
 # Tier: Application (depends on Infrastructure + Platform + Media Core)
 # Spec: specs/007-media-stack-migration
 # ADR: ADR-0033 Phase 3, ADR-0034 (labels), ADR-0035 (secrets)
@@ -317,6 +317,119 @@ services:
     networks:
       - media_support
       - proxy_network
+
+  # ── Tracearr TimescaleDB ─────────────────────────────────────
+  # Pinned to barbary — ZFS-backed database
+  tracearr-timescaledb:
+    image: timescale/timescaledb:latest-pg17
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    volumes:
+      - /mnt/data01/appdata/tracearr/timescaledb:/var/lib/postgresql/data
+      - /mnt/apps01/appdata/media/support/secrets:/secrets:ro
+    networks:
+      - media_support
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/support.env ] && . /secrets/support.env && set +a &&
+       export POSTGRES_USER=tracearr &&
+       export POSTGRES_DB=tracearr &&
+       export POSTGRES_PASSWORD=\"$${TRACEARR_DB_PASSWORD}\" &&
+       exec docker-entrypoint.sh postgres
+       -c shared_preload_libraries=timescaledb
+       -c timescaledb.telemetry_level=off"
+
+  # ── Tracearr Redis ──────────────────────────────────────────
+  tracearr-redis:
+    image: redis:8-alpine
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    volumes:
+      - /mnt/data01/appdata/tracearr/redis:/data
+    networks:
+      - media_support
+    command: redis-server --appendonly yes
+
+  # ── Tracearr ────────────────────────────────────────────────
+  # Unified monitoring for Plex, Jellyfin, Emby
+  # Floats freely — state in TimescaleDB + Redis
+  tracearr:
+    image: ghcr.io/connorgallopo/tracearr:latest
+    user: "1001:999"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Media dashboard
+        homepage.group: "Media"
+        homepage.name: "Tracearr"
+        homepage.icon: "tracearr.png"
+        homepage.href: "https://tracearr.in.hypyr.space"
+        homepage.description: "Stream monitoring & analytics"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: tracearr.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3000}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.tracearr.http.name: "Tracearr"
+        kuma.tracearr.http.url: "https://tracearr.in.hypyr.space/health"
+        kuma.tracearr.http.interval: "60"
+        kuma.tracearr.http.maxretries: "3"
+    volumes:
+      - /mnt/apps01/appdata/media/tracearr/config:/app/config
+      - /mnt/apps01/appdata/media/tracearr/image-cache:/app/image-cache
+      - /mnt/apps01/appdata/media/support/secrets:/secrets:ro
+    networks:
+      - media_support
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/support.env ] && . /secrets/support.env && set +a &&
+       export DATABASE_URL=\"postgresql://tracearr:$${TRACEARR_DB_PASSWORD}@tracearr-timescaledb:5432/tracearr\" &&
+       export REDIS_URL=\"redis://tracearr-redis:6379\" &&
+       export JWT_SECRET=\"$${TRACEARR_JWT_SECRET}\" &&
+       export COOKIE_SECRET=\"$${TRACEARR_COOKIE_SECRET}\" &&
+       exec node server.js"
 
 # ── Networks ─────────────────────────────────────────────────
 networks:

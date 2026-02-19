@@ -106,11 +106,22 @@ ensure_dir_with_ownership "${APPDATA_PATH}/media/titlecardmaker/config/source" "
 # Seerr runs as node:node (UID 1000) — not an LSIO image
 ensure_dir_with_ownership "${APPDATA_PATH}/media/seerr/config" "1000:1000" "755"
 
+# Tracearr runs as tracearr:nodejs (UID 1001) — not an LSIO image
+ensure_dir_with_ownership "${APPDATA_PATH}/media/tracearr/config" "1001:1001" "755"
+ensure_dir_with_ownership "${APPDATA_PATH}/media/tracearr/image-cache" "1001:1001" "755"
+
 # Secrets directories for stacks that use 1Password hydration
 # Non-root consumers get access via group_add 999
 for stack in core torrent support enrichment; do
     ensure_dir_with_ownership "${APPDATA_PATH}/media/${stack}/secrets" "999:999" "750"
 done
+
+# ---------------------------------------------------------------------------
+# Tracearr infrastructure (data01 — databases)
+# ---------------------------------------------------------------------------
+
+ensure_dir_with_ownership "/mnt/data01/appdata/tracearr/timescaledb" "70:70" "700"
+ensure_dir_with_ownership "/mnt/data01/appdata/tracearr/redis" "999:999" "755"
 
 # ---------------------------------------------------------------------------
 # Media data directories (data01 — bulk tier)

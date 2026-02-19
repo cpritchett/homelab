@@ -73,7 +73,7 @@
       description: "Media Stack Group",
       groupName: "Media Stack",
       matchDatasources: ["docker"],
-      matchPackageNames: ["/sonarr/", "/radarr/", "/prowlarr/", "/bazarr/", "/plex/", "/seerr/", "/tdarr/", "/recyclarr/", "/flaresolverr/", "/qbittorrent/", "/wizarr/"],
+      matchPackageNames: ["/sonarr/", "/radarr/", "/prowlarr/", "/bazarr/", "/plex/", "/seerr/", "/tdarr/", "/recyclarr/", "/flaresolverr/", "/qbittorrent/", "/wizarr/", "/tracearr/", "/timescaledb/"],
       semanticCommitScope: "media",
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },

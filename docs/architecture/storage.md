@@ -53,6 +53,8 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │       ├── seerr/config/
 │       ├── wizarr/database/
 │       ├── recyclarr/config/
+│       ├── tracearr/config/
+│       ├── tracearr/image-cache/
 │       ├── kometa/config/
 │       ├── titlecardmaker/config/
 │       ├── posterizarr/config/ + assets/
@@ -74,6 +76,9 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │   │   └── redis/                    # Session store
 │   ├── forgejo/
 │   │   └── postgres/                 # Forgejo-dedicated DB
+│   ├── tracearr/
+│   │   ├── timescaledb/              # TimescaleDB data
+│   │   └── redis/                    # Redis AOF
 │   └── postgres/
 │       └── data/                     # Shared app databases
 └── data/                             # Media library
@@ -98,6 +103,9 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 | Maintainerr | `/mnt/apps01/appdata/media/maintainerr/config` | SQLite DB | Yes |
 | Seerr | `/mnt/apps01/appdata/media/seerr/config` | Config files (DB in PostgreSQL) | No |
 | Wizarr | `/mnt/apps01/appdata/media/wizarr/database` | SQLite DB | Yes |
+| Tracearr | `/mnt/apps01/appdata/media/tracearr/config` | Config files (DB in TimescaleDB) | No |
+| Tracearr TimescaleDB | `/mnt/data01/appdata/tracearr/timescaledb` | Time-series analytics DB | Yes |
+| Tracearr Redis | `/mnt/data01/appdata/tracearr/redis` | Session cache (AOF) | No |
 | Prometheus | `/mnt/data01/appdata/monitoring/prometheus` | TSDB (15-day retention) | Yes |
 | Loki | `/mnt/data01/appdata/monitoring/loki` | Log chunks | Yes |
 | Grafana | `/mnt/data01/appdata/monitoring/grafana` | Dashboards, plugins | No (PostgreSQL backend) |
@@ -116,6 +124,8 @@ A `pg-backup` sidecar runs daily `pg_dumpall` with 7-day retention:
 - **Destination:** `/mnt/apps01/appdata/postgres/backups/`
 - **Schedule:** Nightly
 - **Databases:** grafana, sonarr-main, sonarr-log, radarr-main, radarr-log, prowlarr-main, prowlarr-log, seerr (shared PostgreSQL); forgejo (dedicated PostgreSQL)
+
+> **Note:** Tracearr's TimescaleDB is a dedicated instance (not the shared PostgreSQL) and is NOT covered by the `pg-backup` sidecar. Back up separately if needed.
 
 ### Application Config (future)
 
@@ -140,6 +150,7 @@ Services running on non-barbary nodes use these NFS mounts transparently. Servic
 | opuser | 999 | 999 | 1Password Connect init jobs (secrets dirs must be 999:999 mode 750) |
 | cloudflared | 65532 | 65532 | cloudflared (nonroot default) |
 | postgres | 70 | 70 | PostgreSQL (alpine image) |
+| tracearr | 1001 | 1001 | Tracearr |
 | mongodb | 568 | 568 | Komodo MongoDB |
 
 All media services run as `PUID=1701 PGID=1702` to ensure consistent file ownership across the shared `/mnt/data01/data` mount.
