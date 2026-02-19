@@ -429,7 +429,7 @@ services:
        export REDIS_URL=\"redis://tracearr-redis:6379\" &&
        export JWT_SECRET=\"$${TRACEARR_JWT_SECRET}\" &&
        export COOKIE_SECRET=\"$${TRACEARR_COOKIE_SECRET}\" &&
-       exec node server.js"
+       exec docker-entrypoint.sh node apps/server/dist/index.js"
 
 # ── Networks ─────────────────────────────────────────────────
 networks:
