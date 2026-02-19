@@ -13,7 +13,6 @@
 set -eu
 
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
-DATA_PATH="${DATA_PATH:-/mnt/data01/appdata}"
 
 log() {
     echo "[monitoring-validation] $*"
@@ -89,11 +88,10 @@ ensure_dir_with_ownership "${APPDATA_PATH}/monitoring" "root:root" "755"
 # Owned by UID 999:999 (op container writes here); Grafana gets access via group_add 999
 ensure_dir_with_ownership "${APPDATA_PATH}/monitoring/secrets" "999:999" "750"
 
-ensure_dir_with_ownership "${DATA_PATH}/monitoring" "root:root" "755"
-ensure_dir_with_ownership "${DATA_PATH}/monitoring/prometheus" "65534:65534" "755"
-ensure_dir_with_ownership "${DATA_PATH}/monitoring/grafana" "472:472" "755"
-ensure_dir_with_ownership "${DATA_PATH}/monitoring/loki" "10001:10001" "755"
-ensure_dir_with_ownership "${DATA_PATH}/monitoring/alloy-data" "0:0" "755"
+ensure_dir_with_ownership "${APPDATA_PATH}/monitoring/prometheus" "65534:65534" "755"
+ensure_dir_with_ownership "${APPDATA_PATH}/monitoring/grafana" "472:472" "755"
+ensure_dir_with_ownership "${APPDATA_PATH}/monitoring/loki" "10001:10001" "755"
+ensure_dir_with_ownership "${APPDATA_PATH}/monitoring/alloy-data" "0:0" "755"
 
 if ! docker run --rm --network op-connect_op-connect \
     -e OP_CONNECT_HOST=http://op-connect-api:8080 \

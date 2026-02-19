@@ -30,8 +30,7 @@ case "$task" in
       --tag "$RESTIC_TAGS" \
       --exclude-file "$RESTIC_EXCLUDE_FILE" \
       /src/apps01/appdata \
-      /src/apps01/secrets \
-      /src/data01/appdata
+      /src/apps01/secrets
 
     echo "==> forget/prune (light) — keep repo tidy"
     restic forget --prune \

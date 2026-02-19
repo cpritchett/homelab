@@ -74,11 +74,11 @@ fi
 
 # Forgejo
 chown_recursive 1000:1000 /mnt/apps01/appdata/forgejo
-chown_recursive 999:999 /mnt/data01/appdata/forgejo/postgres
+chown_recursive 999:999 /mnt/apps01/appdata/forgejo/postgres
 
 # Authentik
-chown_recursive 999:999 /mnt/data01/appdata/authentik/postgres
-chown_recursive 999:1000 /mnt/data01/appdata/authentik/redis
+chown_recursive 999:999 /mnt/apps01/appdata/authentik/postgres
+chown_recursive 999:1000 /mnt/apps01/appdata/authentik/redis
 chown_recursive 1000:1000 /mnt/apps01/appdata/authentik/media
 chown_recursive 1000:1000 /mnt/apps01/appdata/authentik/custom-templates
 
@@ -93,7 +93,7 @@ chown_recursive 0:0 /mnt/apps01/appdata/restic/cache
 
 # Optional: tighten directory permissions for app data
 chmod_recursive 755 /mnt/apps01/appdata/forgejo
-chmod_recursive 755 /mnt/data01/appdata/forgejo
+chmod_recursive 755 /mnt/apps01/appdata/forgejo
 chmod_recursive 755 /mnt/apps01/appdata/woodpecker
 
 log "Done."

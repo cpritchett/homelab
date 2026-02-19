@@ -21,6 +21,8 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │   │   ├── media/                    # Custom assets
 │   │   ├── custom-templates/         # OIDC/SAML templates
 │   │   ├── blueprints/              # Auto-generated
+│   │   ├── postgres/                 # Authentik DB
+│   │   ├── redis/                    # Session store
 │   │   └── secrets/                  # Injected env
 │   ├── homepage/
 │   │   ├── config/                   # Dashboard YAML
@@ -28,14 +30,19 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │   │   ├── images/                   # Custom images
 │   │   └── secrets/                  # Injected env
 │   ├── monitoring/
-│   │   ├── secrets/                  # Grafana env
-│   │   └── promtail-positions/       # Log cursor state
+│   │   ├── prometheus/               # TSDB (15-day retention)
+│   │   ├── loki/                     # Log chunks
+│   │   ├── grafana/                  # Dashboards, config
+│   │   ├── alloy-data/              # Alloy WAL
+│   │   └── secrets/                  # Grafana env
 │   ├── postgres/
+│   │   ├── data/                     # Shared app databases
 │   │   ├── backups/                  # Daily pg_dumpall
 │   │   └── secrets/                  # Injected env
 │   ├── uptime-kuma/                  # SQLite DB
 │   ├── forgejo/
 │   │   ├── gitea/                    # Repos, LFS, config (app.ini)
+│   │   ├── postgres/                 # Forgejo-dedicated DB
 │   │   └── secrets/                  # Injected env
 │   ├── woodpecker/
 │   │   ├── woodpecker.db             # SQLite DB
@@ -55,6 +62,8 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │       ├── recyclarr/config/
 │       ├── tracearr/config/
 │       ├── tracearr/image-cache/
+│       ├── tracearr/timescaledb/     # TimescaleDB data
+│       ├── tracearr/redis/           # Redis AOF
 │       ├── kometa/config/
 │       ├── titlecardmaker/config/
 │       ├── posterizarr/config/ + assets/
@@ -65,28 +74,13 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │   └── homelab/                      # Git repo (main branch)
 └── secrets/                          # Bootstrap credentials (not in git)
 
-/mnt/data01/                          # Databases, media files
-├── appdata/
-│   ├── monitoring/
-│   │   ├── prometheus/               # TSDB (15-day retention)
-│   │   ├── loki/                     # Log chunks
-│   │   └── grafana/                  # Dashboards, config
-│   ├── authentik/
-│   │   ├── postgres/                 # Authentik DB
-│   │   └── redis/                    # Session store
-│   ├── forgejo/
-│   │   └── postgres/                 # Forgejo-dedicated DB
-│   ├── tracearr/
-│   │   ├── timescaledb/              # TimescaleDB data
-│   │   └── redis/                    # Redis AOF
-│   └── postgres/
-│       └── data/                     # Shared app databases
+/mnt/data01/                          # Bulk/static assets (spinning rust)
 └── data/                             # Media library
     ├── media/                        # Movies, TV, Music
     └── usenet/                       # Download staging
 ```
 
-**Design rationale:** `/mnt/apps01` holds configuration and small state (fast SSD pool). `/mnt/data01` holds large datasets — database files and media (capacity-optimized pool).
+**Design rationale:** `/mnt/apps01` holds all application data — config, secrets, and databases — on fast SSD storage. `/mnt/data01` is reserved for bulk/static assets that tolerate spinning rust (media library, download staging).
 
 ## Per-Service Storage Map
 
@@ -104,12 +98,12 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 | Seerr | `/mnt/apps01/appdata/media/seerr/config` | Config files (DB in PostgreSQL) | No |
 | Wizarr | `/mnt/apps01/appdata/media/wizarr/database` | SQLite DB | Yes |
 | Tracearr | `/mnt/apps01/appdata/media/tracearr/config` | Config files (DB in TimescaleDB) | No |
-| Tracearr TimescaleDB | `/mnt/data01/appdata/tracearr/timescaledb` | Time-series analytics DB | Yes |
-| Tracearr Redis | `/mnt/data01/appdata/tracearr/redis` | Session cache (AOF) | No |
-| Prometheus | `/mnt/data01/appdata/monitoring/prometheus` | TSDB (15-day retention) | Yes |
-| Loki | `/mnt/data01/appdata/monitoring/loki` | Log chunks | Yes |
-| Grafana | `/mnt/data01/appdata/monitoring/grafana` | Dashboards, plugins | No (PostgreSQL backend) |
-| PostgreSQL | `/mnt/data01/appdata/postgres/data` | All shared app databases | Yes |
+| Tracearr TimescaleDB | `/mnt/apps01/appdata/media/tracearr/timescaledb` | Time-series analytics DB | Yes |
+| Tracearr Redis | `/mnt/apps01/appdata/media/tracearr/redis` | Session cache (AOF) | No |
+| Prometheus | `/mnt/apps01/appdata/monitoring/prometheus` | TSDB (15-day retention) | Yes |
+| Loki | `/mnt/apps01/appdata/monitoring/loki` | Log chunks | Yes |
+| Grafana | `/mnt/apps01/appdata/monitoring/grafana` | Dashboards, plugins | No (PostgreSQL backend) |
+| PostgreSQL | `/mnt/apps01/appdata/postgres/data` | All shared app databases | Yes |
 | Uptime Kuma | `/mnt/apps01/appdata/uptime-kuma` | SQLite DB | Yes |
 | MongoDB | `/mnt/apps01/appdata/komodo/mongodb` | Komodo state | Yes |
 | Forgejo | `/mnt/apps01/appdata/forgejo` | Git repos, LFS, config (DB in dedicated PostgreSQL) | Yes |

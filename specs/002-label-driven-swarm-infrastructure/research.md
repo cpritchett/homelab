@@ -111,9 +111,9 @@ This research addresses the remaining tasks and technology decisions for the lab
 **Directory Permissions** (from validation script):
 - `/mnt/apps01/appdata/monitoring/` — root:root, 755
 - `/mnt/apps01/appdata/monitoring/secrets/` — 472:472 (Grafana UID), 750
-- `/mnt/data01/appdata/monitoring/prometheus/` — 65534:65534 (nobody), 755
-- `/mnt/data01/appdata/monitoring/grafana/` — 472:472 (Grafana UID), 755
-- `/mnt/data01/appdata/monitoring/loki/` — 10001:10001 (Loki UID), 755
+- `/mnt/apps01/appdata/monitoring/prometheus/` — 65534:65534 (nobody), 755
+- `/mnt/apps01/appdata/monitoring/grafana/` — 472:472 (Grafana UID), 755
+- `/mnt/apps01/appdata/monitoring/loki/` — 10001:10001 (Loki UID), 755
 
 ---
 

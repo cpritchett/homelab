@@ -11,7 +11,7 @@ Migrate from Kubernetes-style infrastructure to Docker Swarm with a label-driven
 
 **Language/Version**: POSIX shell (`#!/bin/sh`) for scripts; YAML for Docker Compose and configuration files
 **Primary Dependencies**: Docker Swarm (orchestration), Caddy + caddy-docker-proxy (ingress), Homepage (dashboard), AutoKuma 2.0.0 (monitoring bridge), Uptime Kuma (monitoring), Komodo (stack deployment), 1Password Connect (secrets)
-**Storage**: TrueNAS host paths — `/mnt/apps01/appdata/` (application state), `/mnt/data01/appdata/` (persistent data); Docker overlay networks for service communication
+**Storage**: TrueNAS host paths — `/mnt/apps01/appdata/` (all application data — config, secrets, databases), `/mnt/data01/data/` (bulk media); Docker overlay networks for service communication
 **Testing**: Pre-deployment validation scripts (`scripts/validate-*.sh`), idempotent, POSIX-compatible, < 10s execution
 **Target Platform**: Docker Swarm on TrueNAS (Linux/amd64)
 **Project Type**: Infrastructure-as-Code (Docker Compose stacks + shell scripts)

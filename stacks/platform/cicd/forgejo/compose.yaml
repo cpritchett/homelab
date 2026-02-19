@@ -46,7 +46,7 @@ services:
           cpus: '0.5'
           memory: 256M
     volumes:
-      - /mnt/data01/appdata/forgejo/postgres:/var/lib/postgresql
+      - /mnt/apps01/appdata/forgejo/postgres:/var/lib/postgresql
       - /mnt/apps01/appdata/forgejo/secrets:/secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U forgejo"]

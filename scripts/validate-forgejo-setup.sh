@@ -12,7 +12,6 @@
 set -eu
 
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
-DATA_PATH="${DATA_PATH:-/mnt/data01/appdata}"
 
 log() {
     echo "[forgejo-validation] $*"
@@ -104,7 +103,7 @@ done
 ensure_dir_with_ownership "${APPDATA_PATH}/forgejo/secrets" "999:999" "750"
 
 # PostgreSQL data directory
-ensure_dir_with_ownership "${DATA_PATH}/forgejo/postgres" "999:999" "700"
+ensure_dir_with_ownership "${APPDATA_PATH}/forgejo/postgres" "999:999" "700"
 
 log "Pre-deployment validation complete"
 exit 0

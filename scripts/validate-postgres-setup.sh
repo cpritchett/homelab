@@ -12,7 +12,6 @@
 set -eu
 
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
-DATA_PATH="${DATA_PATH:-/mnt/data01/appdata}"
 
 log() {
     echo "[postgres-validation] $*"
@@ -94,7 +93,7 @@ ensure_dir_with_ownership "${APPDATA_PATH}/postgres/secrets" "999:999" "750"
 ensure_dir_with_ownership "${APPDATA_PATH}/postgres/backups" "root:root" "755"
 
 # PostgreSQL data directory (postgres runs as UID 70 in alpine image)
-ensure_dir_with_ownership "${DATA_PATH}/postgres/data" "70:70" "700"
+ensure_dir_with_ownership "${APPDATA_PATH}/postgres/data" "70:70" "700"
 
 log "Pre-deployment validation complete"
 exit 0

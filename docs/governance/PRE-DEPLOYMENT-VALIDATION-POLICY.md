@@ -134,7 +134,6 @@ set -eu
 
 # Configuration
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
-DATA_PATH="${DATA_PATH:-/mnt/data01/appdata}"
 
 # Logging
 log() { echo "[<stack>-validation] $*"; }

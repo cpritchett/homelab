@@ -311,13 +311,13 @@ docker service logs authentik_secrets-init
 
 **Check:**
 ```bash
-ls -la /mnt/data01/appdata/authentik/postgres
+ls -la /mnt/apps01/appdata/authentik/postgres
 ```
 
 **Fix:**
 ```bash
-sudo chown -R 999:999 /mnt/data01/appdata/authentik/postgres
-sudo chmod 700 /mnt/data01/appdata/authentik/postgres
+sudo chown -R 999:999 /mnt/apps01/appdata/authentik/postgres
+sudo chmod 700 /mnt/apps01/appdata/authentik/postgres
 ```
 
 ### Authentik Server Crash Loop
@@ -414,7 +414,7 @@ docker exec $(docker ps -q -f name=authentik_postgresql) \
   pg_dump -U authentik authentik > /mnt/apps01/backups/authentik-$(date +%Y%m%d).sql
 
 # Or use ZFS snapshots
-zfs snapshot data01/appdata/authentik@$(date +%Y%m%d)
+zfs snapshot apps01/appdata/authentik@$(date +%Y%m%d)
 ```
 
 ### View Logs
@@ -446,7 +446,7 @@ watch docker service ls
 docker volume rm authentik_authentik-data
 
 # Remove directories (careful - deletes data!)
-sudo rm -rf /mnt/data01/appdata/authentik
+sudo rm -rf /mnt/apps01/appdata/authentik
 sudo rm -rf /mnt/apps01/appdata/authentik
 ```
 

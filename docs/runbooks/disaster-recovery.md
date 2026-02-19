@@ -33,11 +33,11 @@ If you are restoring onto empty datasets:
 - Create mountpoints:
   - /mnt/apps01/appdata
   - /mnt/apps01/secrets
-  - /mnt/data01/appdata
+  - /mnt/data01/data
 
 Restore order:
-- Restore /mnt/apps01 first (Komodo stacks rely on these paths)
-- Restore /mnt/data01 next (stateful services rely on spinning rust storage)
+- Restore /mnt/apps01 first (all appdata — config, secrets, databases)
+- Restore /mnt/data01/data next (media library, download staging)
 
 ### 3) Bring up Caddy (ingress)
 - Deploy Caddy attached to `proxy_network`

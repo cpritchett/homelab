@@ -22,7 +22,6 @@ set -eu
 
 # Configuration
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
-DATA_PATH="${DATA_PATH:-/mnt/data01/appdata}"
 
 # Logging functions (quiet mode - only errors and critical info)
 log() {
@@ -107,11 +106,10 @@ ensure_dir_with_ownership() {
 
 # Create directory structure with correct ownership
 # PostgreSQL runs as UID 999:999
-ensure_dir_with_ownership "${DATA_PATH}/authentik" "root:root" "755"
-ensure_dir_with_ownership "${DATA_PATH}/authentik/postgres" "999:999" "700"
+ensure_dir_with_ownership "${APPDATA_PATH}/authentik/postgres" "999:999" "700"
 
 # Redis runs as UID 999:1000
-ensure_dir_with_ownership "${DATA_PATH}/authentik/redis" "999:1000" "700"
+ensure_dir_with_ownership "${APPDATA_PATH}/authentik/redis" "999:1000" "700"
 
 # Authentik server/worker runs as UID 1000:1000
 ensure_dir_with_ownership "${APPDATA_PATH}/authentik" "root:root" "755"

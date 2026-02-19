@@ -89,7 +89,7 @@ Version-controlling dashboard JSON ensures dashboards survive Grafana data loss 
 
 - Docker socket mounted read-only into cAdvisor and Promtail (required for container discovery)
 - cAdvisor adds ~512MB memory overhead per node
-- Promtail positions file requires persistent storage (`/mnt/data01/appdata/monitoring/promtail-positions`)
+- Promtail positions file requires persistent storage (`/mnt/apps01/appdata/monitoring/promtail-positions`)
 
 ### Prometheus Scrape Targets (After)
 

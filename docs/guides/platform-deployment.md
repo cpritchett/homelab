@@ -47,7 +47,7 @@ If a stack uses template files in-repo (e.g., Authentik), treat them as stack-ow
 
 ```bash
 mkdir -p /mnt/apps01/appdata/authentik/{media,custom-templates}
-mkdir -p /mnt/data01/appdata/authentik/{postgres,redis}
+mkdir -p /mnt/apps01/appdata/authentik/{postgres,redis}
 ```
 
 **1Password items required:** `authentik-stack` in homelab vault with fields:

@@ -117,11 +117,11 @@ for stack in core torrent support enrichment; do
 done
 
 # ---------------------------------------------------------------------------
-# Tracearr infrastructure (data01 — databases)
+# Tracearr infrastructure (databases)
 # ---------------------------------------------------------------------------
 
-ensure_dir_with_ownership "/mnt/data01/appdata/tracearr/timescaledb" "70:70" "700"
-ensure_dir_with_ownership "/mnt/data01/appdata/tracearr/redis" "999:999" "755"
+ensure_dir_with_ownership "${APPDATA_PATH}/media/tracearr/timescaledb" "70:70" "700"
+ensure_dir_with_ownership "${APPDATA_PATH}/media/tracearr/redis" "999:999" "755"
 
 # ---------------------------------------------------------------------------
 # Media data directories (data01 — bulk tier)

@@ -50,7 +50,7 @@ services:
           cpus: '1'
           memory: 1024M
     volumes:
-      - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql
+      - /mnt/apps01/appdata/authentik/postgres:/var/lib/postgresql
       - /mnt/apps01/appdata/authentik/secrets:/secrets:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-authentik}"]
@@ -81,7 +81,7 @@ services:
           memory: 256M
     command: ["redis-server", "--save", "60", "1"]
     volumes:
-      - /mnt/data01/appdata/authentik/redis:/data
+      - /mnt/apps01/appdata/authentik/redis:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s

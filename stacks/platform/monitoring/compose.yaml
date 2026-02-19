@@ -80,7 +80,7 @@ services:
       - --web.enable-lifecycle
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - /mnt/data01/appdata/monitoring/prometheus:/prometheus
+      - /mnt/apps01/appdata/monitoring/prometheus:/prometheus
     networks:
       - monitoring
       - proxy_network
@@ -120,7 +120,7 @@ services:
     command: -config.file=/etc/loki/loki-config.yaml
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
-      - /mnt/data01/appdata/monitoring/loki:/loki
+      - /mnt/apps01/appdata/monitoring/loki:/loki
     networks:
       - monitoring
       - proxy_network
@@ -175,7 +175,7 @@ services:
       GF_DATABASE_NAME: grafana
       GF_DATABASE_SSL_MODE: disable
     volumes:
-      - /mnt/data01/appdata/monitoring/grafana:/var/lib/grafana
+      - /mnt/apps01/appdata/monitoring/grafana:/var/lib/grafana
       - /mnt/apps01/appdata/monitoring/secrets:/run/monitoring-secrets:ro
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
@@ -246,7 +246,7 @@ services:
       - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /mnt/.ix-apps/docker/containers:/var/lib/docker/containers:ro
-      - /mnt/data01/appdata/monitoring/alloy-data:/var/lib/alloy/data
+      - /mnt/apps01/appdata/monitoring/alloy-data:/var/lib/alloy/data
     networks:
       - monitoring
 

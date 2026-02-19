@@ -15,13 +15,13 @@ Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks m
 
 2. **Host directories + ownership**:
    ```bash
-   mkdir -p /mnt/data01/appdata/authentik/postgres
-   mkdir -p /mnt/data01/appdata/authentik/redis
+   mkdir -p /mnt/apps01/appdata/authentik/postgres
+   mkdir -p /mnt/apps01/appdata/authentik/redis
    mkdir -p /mnt/apps01/appdata/authentik/media
    mkdir -p /mnt/apps01/appdata/authentik/custom-templates
 
-   chown -R 999:999 /mnt/data01/appdata/authentik/postgres
-   chown -R 999:1000 /mnt/data01/appdata/authentik/redis
+   chown -R 999:999 /mnt/apps01/appdata/authentik/postgres
+   chown -R 999:1000 /mnt/apps01/appdata/authentik/redis
    chown -R 1000:1000 /mnt/apps01/appdata/authentik/media
    chown -R 1000:1000 /mnt/apps01/appdata/authentik/custom-templates
    ```

@@ -67,11 +67,11 @@ Update volume mount in compose file:
 ```yaml
 # Before (PostgreSQL 17 and earlier)
 volumes:
-  - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql/data
+  - /mnt/apps01/appdata/authentik/postgres:/var/lib/postgresql/data
 
 # After (PostgreSQL 18+)
 volumes:
-  - /mnt/data01/appdata/authentik/postgres:/var/lib/postgresql
+  - /mnt/apps01/appdata/authentik/postgres:/var/lib/postgresql
 ```
 
 ### Affected Stacks

@@ -20,11 +20,11 @@ Per [ADR-0022](../../../../docs/adr/ADR-0022-truenas-komodo-stacks.md), stacks m
 2. **Host directories**:
    ```bash
    mkdir -p /mnt/apps01/appdata/forgejo
-   mkdir -p /mnt/data01/appdata/forgejo/postgres
+   mkdir -p /mnt/apps01/appdata/forgejo/postgres
    chown -R 1000:1000 /mnt/apps01/appdata/forgejo
-   chown -R 999:999 /mnt/data01/appdata/forgejo/postgres
+   chown -R 999:999 /mnt/apps01/appdata/forgejo/postgres
    chmod 755 /mnt/apps01/appdata/forgejo
-   chmod 755 /mnt/data01/appdata/forgejo
+   chmod 755 /mnt/apps01/appdata/forgejo
    ```
 
    Optional helper (run on TrueNAS): `stacks/scripts/set-host-permissions.sh`
