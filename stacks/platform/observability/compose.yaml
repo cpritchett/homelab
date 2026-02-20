@@ -218,6 +218,7 @@ services:
   # Config pre-seeded by op-secrets job; add channels by updating 1Password item
   apprise:
     image: caronc/apprise:v1.3.1
+    user: "1000:999"
     deploy:
       replicas: 1
       resources:
