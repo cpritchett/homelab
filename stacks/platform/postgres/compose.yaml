@@ -61,11 +61,11 @@ services:
           memory: 512M
       labels:
         # AutoKuma monitoring
-        kuma.postgres-shared.tcp.name: "PostgreSQL (Shared)"
-        kuma.postgres-shared.tcp.hostname: "postgresql"
-        kuma.postgres-shared.tcp.port: "5432"
-        kuma.postgres-shared.tcp.interval: "60"
-        kuma.postgres-shared.tcp.maxretries: "3"
+        kuma.postgres-shared.port.name: "PostgreSQL (Shared)"
+        kuma.postgres-shared.port.hostname: "postgresql"
+        kuma.postgres-shared.port.port: "5432"
+        kuma.postgres-shared.port.interval: "60"
+        kuma.postgres-shared.port.maxretries: "3"
     volumes:
       - /mnt/apps01/appdata/postgres/data:/var/lib/postgresql/data
       - /mnt/apps01/appdata/postgres/secrets:/secrets:ro
