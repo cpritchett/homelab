@@ -302,7 +302,7 @@ kuma.apprise-alerts.notification.config: '{"type":"apprise","appriseURL":"appris
 
 Monitors are wired automatically via:
 ```yaml
-AUTOKUMA__DEFAULT_SETTINGS: '*.notification_name_list=["apprise-alerts"]'
+AUTOKUMA__DEFAULT_SETTINGS: '*.notification_name_list: ["apprise-alerts"]'
 ```
 
 To add new notification channels (Slack, email, ntfy, etc.), update `apprise/homelab-alerts.cfg.template` and the `uptime-kuma-notifications` 1Password item with additional [Apprise URLs](https://github.com/caronc/apprise/wiki).

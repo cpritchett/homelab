@@ -204,7 +204,7 @@ services:
       AUTOKUMA__TAG_NAME: Source
       AUTOKUMA__TAG_COLOR: "#42C0FB"
       # Default notification for all auto-created monitors (references AutoKuma label ID)
-      AUTOKUMA__DEFAULT_SETTINGS: '*.notification_name_list=["apprise-alerts"]'
+      AUTOKUMA__DEFAULT_SETTINGS: '*.notification_name_list: ["apprise-alerts"]'
     secrets:
       - uptime_kuma_username
       - uptime_kuma_password
