@@ -173,9 +173,9 @@ sudo docker service logs platform_observability_autokuma --tail 20
 - Authentik SSO (once deployed)
 - Any other services with AutoKuma labels
 
-### 2. Configure Notifications (Telegram + Discord)
+### 2. Configure Notifications (Telegram)
 
-Alerts are fully automated via **Apprise** (fan-out hub) + **AutoKuma** (declarative notification labels). No manual Uptime Kuma UI configuration needed.
+Alerts are fully automated via **Apprise** (notification hub) + **AutoKuma** (declarative notification labels). No manual Uptime Kuma UI configuration needed.
 
 **Architecture:**
 ```
@@ -185,21 +185,19 @@ AutoKuma labels → Uptime Kuma notification (Apprise type)
                        ↓
               Apprise API (apprise:8000)
                        ↓
-              Telegram + Discord (from pre-seeded config)
+              Telegram (from pre-seeded config)
 ```
 
-**Step 1: Create Telegram bot + Discord webhook**
-1. Telegram: Message [@BotFather](https://t.me/BotFather) → `/newbot` → copy bot token
-2. Telegram: Get your chat ID via [@RawDataBot](https://t.me/RawDataBot)
-3. Discord: Server Settings → Integrations → Webhooks → create in desired channel → copy URL
+**Step 1: Create Telegram bot**
+1. Message [@BotFather](https://t.me/BotFather) → `/newbot` → copy bot token
+2. Get your chat ID via [@RawDataBot](https://t.me/RawDataBot)
 
 **Step 2: Create 1Password item**
 ```bash
 op item create --vault homelab --category login \
   --title "uptime-kuma-notifications" \
   "telegram_bot_token=<BOT_TOKEN>" \
-  "telegram_chat_id=<CHAT_ID>" \
-  "discord_webhook_url=https://discord.com/api/webhooks/<ID>/<TOKEN>"
+  "telegram_chat_id=<CHAT_ID>"
 ```
 
 **Step 3: Deploy**
@@ -219,12 +217,12 @@ sudo docker service logs platform_observability_apprise --tail 10
 ```bash
 # Scale down a non-critical service
 sudo docker service scale application_media_support_wizarr=0
-# Wait ~120s, confirm Telegram + Discord alerts arrive
+# Wait ~120s, confirm Telegram alert arrives
 sudo docker service scale application_media_support_wizarr=1
 # Confirm recovery notification arrives
 ```
 
-**Adding new channels:** Update the 1Password item `uptime-kuma-notifications` and the template at `apprise/homelab-alerts.cfg.template` with new [Apprise URLs](https://github.com/caronc/apprise/wiki). Redeploy to re-run `op-secrets`.
+**Adding new channels:** Add [Apprise URLs](https://github.com/caronc/apprise/wiki) to the template at `apprise/homelab-alerts.cfg.template` and corresponding secrets to the 1Password item `uptime-kuma-notifications`. Redeploy to re-run `op-secrets`.
 
 ### 3. Configure Homepage (Optional)
 
