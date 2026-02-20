@@ -35,7 +35,7 @@ services:
 
   # Pinned to barbary — TSDB requires local storage
   prometheus:
-    image: prom/prometheus:v3.5.1
+    image: prom/prometheus:v3.9.1@sha256:1f0f50f06acaceb0f5670d2c8a658a599affe7b0d8e78b898c1035653849a702
     deploy:
       replicas: 1
       placement:
@@ -87,7 +87,7 @@ services:
 
   # Pinned to barbary — chunk storage requires local disk
   loki:
-    image: grafana/loki:3.6.5
+    image: grafana/loki:3.6.6@sha256:434c7effbd66dbf69c2665fe4b2125549ecf7b45039ac28595d4034031cf47ce
     deploy:
       replicas: 1
       placement:
@@ -127,7 +127,7 @@ services:
 
   # Floats freely — state in PostgreSQL
   grafana:
-    image: grafana/grafana:12.3.3
+    image: grafana/grafana:12.3.3@sha256:9e1e77ade304069aee3196e9a4f210830e96e80ce9a2640891eccc324b152faf
     user: "472:999"
     deploy:
       replicas: 1
@@ -212,7 +212,7 @@ services:
       - monitoring
 
   cadvisor:
-    image: ghcr.io/google/cadvisor:0.56.2
+    image: ghcr.io/google/cadvisor:0.56.2@sha256:5534ae91cbf3428998d60428d107cfdd97272d80658534ac6e54d8ce3b0c4d72
     deploy:
       mode: global
       resources:
@@ -231,7 +231,7 @@ services:
       - monitoring
 
   alloy:
-    image: grafana/alloy:v1.13.1
+    image: grafana/alloy:v1.13.1@sha256:03529aec781901a72a354809650028435043406e707c6fb8953dc6e48f97727d
     deploy:
       mode: global
       resources:
