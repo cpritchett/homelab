@@ -16,7 +16,9 @@ services:
       - op_connect_token
     volumes:
       - ./homepage/homepage.env.template:/templates/homepage.env.template:ro
+      - ./apprise/homelab-alerts.cfg.template:/templates/homelab-alerts.cfg.template:ro
       - /mnt/apps01/appdata/homepage/secrets:/secrets
+      - /mnt/apps01/appdata/apprise/config:/apprise-config
     networks:
       - op-connect
     command: >
@@ -29,6 +31,17 @@ services:
         echo 'Homepage secret injection failed; using existing /secrets/homepage.env';
       else
         echo 'Homepage secret injection failed and no existing /secrets/homepage.env present' >&2;
+        exit 1;
+      fi &&
+      if op inject -i /templates/homelab-alerts.cfg.template -o /tmp/apprise-raw.cfg -f; then
+        sed 's|https://discord.com/api/webhooks/\(.*\)|discord://\1/|' /tmp/apprise-raw.cfg > /apprise-config/homelab-alerts.cfg &&
+        chmod 600 /apprise-config/homelab-alerts.cfg &&
+        rm /tmp/apprise-raw.cfg &&
+        echo 'Apprise notification config injected successfully';
+      elif [ -s /apprise-config/homelab-alerts.cfg ]; then
+        echo 'Apprise config injection failed; using existing config';
+      else
+        echo 'Apprise config injection failed and no existing config present' >&2;
         exit 1;
       fi
       "
@@ -165,6 +178,12 @@ services:
         limits:
           cpus: '0.5'
           memory: 256M
+      labels:
+        # AutoKuma notification provider — Apprise fan-out to Telegram + Discord
+        # Config is pre-seeded in Apprise via op-secrets; no secrets in labels
+        kuma.apprise-alerts.notification.name: "Apprise Alerts"
+        kuma.apprise-alerts.notification.active: "true"
+        kuma.apprise-alerts.notification.config: '{"type":"apprise","appriseURL":"apprise://apprise:8000/homelab-alerts"}'
     configs:
       - source: autokuma_wrapper
         target: /autokuma-wrapper.sh
@@ -184,6 +203,8 @@ services:
       AUTOKUMA__TAG: autokuma
       AUTOKUMA__TAG_NAME: Source
       AUTOKUMA__TAG_COLOR: "#42C0FB"
+      # Default notification for all auto-created monitors (references AutoKuma label ID)
+      AUTOKUMA__DEFAULT_SETTINGS: '*.notification_name_list=["apprise-alerts"]'
     secrets:
       - uptime_kuma_username
       - uptime_kuma_password
@@ -192,6 +213,29 @@ services:
     depends_on:
       - uptime-kuma
       - docker-socket-proxy
+
+  # Apprise API - Notification fan-out hub for Telegram, Discord, etc.
+  # Config pre-seeded by op-secrets job; add channels by updating 1Password item
+  apprise:
+    image: caronc/apprise:v1.3.1
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      APPRISE_STATEFUL_MODE: simple
+      APPRISE_WORKER_COUNT: "1"
+    volumes:
+      - /mnt/apps01/appdata/apprise/config:/config
+    networks:
+      - observability_internal
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 networks:
   proxy_network:

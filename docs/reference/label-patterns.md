@@ -277,7 +277,35 @@ kuma.<id>.keyword.interval: "60"
 4. **Internal URLs for monitoring** — faster, more reliable than going through ingress
 5. **Appropriate intervals** — critical: 60s, non-critical: 300s, external APIs: 300-600s
 6. **Configure retries** — prevent false positives with `maxretries: "3"` and `retryInterval: "60"`
-7. **Notifications** — reference by ID: `kuma.<id>.http.notificationIDList: "1,2,3"`
+7. **Notifications** — configured globally via `AUTOKUMA__DEFAULT_SETTINGS` on the AutoKuma service. The `apprise-alerts` notification provider is defined as a label on the AutoKuma service and fans out via Apprise API to Telegram + Discord. Per-monitor override: `kuma.<id>.http.notification_name_list: '["apprise-alerts"]'`
+
+## Notification Provider Labels
+
+AutoKuma 2.0.0 supports declarative notification providers via Docker labels:
+
+```yaml
+# Define a notification provider (on the autokuma service)
+kuma.<provider-id>.notification.name: "<display name>"
+kuma.<provider-id>.notification.active: "true"
+kuma.<provider-id>.notification.config: '<JSON config>'
+```
+
+### Apprise Fan-Out (Current Setup)
+
+The `apprise-alerts` provider on the AutoKuma service sends all alerts through the Apprise API, which fans out to Telegram + Discord (configured in 1Password):
+
+```yaml
+kuma.apprise-alerts.notification.name: "Apprise Alerts"
+kuma.apprise-alerts.notification.active: "true"
+kuma.apprise-alerts.notification.config: '{"type":"apprise","appriseURL":"apprise://apprise:8000/homelab-alerts"}'
+```
+
+Monitors are wired automatically via:
+```yaml
+AUTOKUMA__DEFAULT_SETTINGS: '*.notification_name_list=["apprise-alerts"]'
+```
+
+To add new notification channels (Slack, email, ntfy, etc.), update `apprise/homelab-alerts.cfg.template` and the `uptime-kuma-notifications` 1Password item with additional [Apprise URLs](https://github.com/caronc/apprise/wiki).
 
 ## References
 

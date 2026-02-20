@@ -173,7 +173,60 @@ sudo docker service logs platform_observability_autokuma --tail 20
 - Authentik SSO (once deployed)
 - Any other services with AutoKuma labels
 
-### 2. Configure Homepage (Optional)
+### 2. Configure Notifications (Telegram + Discord)
+
+Alerts are fully automated via **Apprise** (fan-out hub) + **AutoKuma** (declarative notification labels). No manual Uptime Kuma UI configuration needed.
+
+**Architecture:**
+```
+AutoKuma labels → Uptime Kuma notification (Apprise type)
+                       ↓
+              Uptime Kuma apprise CLI
+                       ↓
+              Apprise API (apprise:8000)
+                       ↓
+              Telegram + Discord (from pre-seeded config)
+```
+
+**Step 1: Create Telegram bot + Discord webhook**
+1. Telegram: Message [@BotFather](https://t.me/BotFather) → `/newbot` → copy bot token
+2. Telegram: Get your chat ID via [@RawDataBot](https://t.me/RawDataBot)
+3. Discord: Server Settings → Integrations → Webhooks → create in desired channel → copy URL
+
+**Step 2: Create 1Password item**
+```bash
+op item create --vault homelab --category login \
+  --title "uptime-kuma-notifications" \
+  "telegram_bot_token=<BOT_TOKEN>" \
+  "telegram_chat_id=<CHAT_ID>" \
+  "discord_webhook_url=https://discord.com/api/webhooks/<ID>/<TOKEN>"
+```
+
+**Step 3: Deploy**
+
+The `op-secrets` job injects credentials from 1Password into Apprise's config directory. AutoKuma creates the "Apprise Alerts" notification in Uptime Kuma via labels on the `autokuma` service, and `AUTOKUMA__DEFAULT_SETTINGS` wires it to all monitors.
+
+```bash
+# Deploy (Komodo pulls automatically, or manually):
+PATH="$HOME/bin:$PATH" km --profile barbary stack deploy platform_observability
+
+# Wait 60s for AutoKuma sync, then verify
+sudo docker service logs platform_observability_autokuma --tail 20
+sudo docker service logs platform_observability_apprise --tail 10
+```
+
+**Step 4: Verify alerting**
+```bash
+# Scale down a non-critical service
+sudo docker service scale application_media_support_wizarr=0
+# Wait ~120s, confirm Telegram + Discord alerts arrive
+sudo docker service scale application_media_support_wizarr=1
+# Confirm recovery notification arrives
+```
+
+**Adding new channels:** Update the 1Password item `uptime-kuma-notifications` and the template at `apprise/homelab-alerts.cfg.template` with new [Apprise URLs](https://github.com/caronc/apprise/wiki). Redeploy to re-run `op-secrets`.
+
+### 3. Configure Homepage (Optional)
 
 Homepage auto-discovers services from Docker labels. Manual configuration is optional.
 
@@ -274,9 +327,11 @@ kuma.container.docker.docker_host: "1"  # Use AutoKuma's Docker connection
 - `interval` - Check interval in seconds (default: 60)
 - `retryInterval` - Retry interval in seconds (default: 60)
 - `maxretries` - Max retry attempts (default: 3)
-- `notificationIDList` - Comma-separated notification IDs
+- `notification_name_list` - JSON array of AutoKuma notification IDs (e.g., `'["apprise-alerts"]'`)
 
 AutoKuma scans for labels every 60 seconds and auto-creates/updates monitors.
+
+> **Note:** Notifications are configured globally via `AUTOKUMA__DEFAULT_SETTINGS` in the AutoKuma service environment (see compose.yaml). The `apprise-alerts` notification is defined as a label on the AutoKuma service and points at the Apprise API fan-out hub. Per-monitor `notification_name_list` labels are only needed to override or disable the default.
 
 ## Monitoring
 

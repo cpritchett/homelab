@@ -1,0 +1,4 @@
+# Homelab notification channels (injected from 1Password by op-secrets)
+# Apprise text config format: https://github.com/caronc/apprise/wiki/config_text
+tgram://{{ op://homelab/uptime-kuma-notifications/telegram_bot_token }}/{{ op://homelab/uptime-kuma-notifications/telegram_chat_id }}/
+{{ op://homelab/uptime-kuma-notifications/discord_webhook_url }}

@@ -92,6 +92,14 @@
       matchPackageNames: ["/caddy/"],
       semanticCommitScope: "ingress",
       group: { commitMessageTopic: "{{{groupName}}} group" }
+    },
+    {
+      description: "Observability Stack Group",
+      groupName: "Observability Stack",
+      matchDatasources: ["docker"],
+      matchPackageNames: ["/uptime-kuma/", "/autokuma/", "/apprise/"],
+      semanticCommitScope: "observability",
+      group: { commitMessageTopic: "{{{groupName}}} group" }
     }
   ]
 }
