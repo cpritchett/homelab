@@ -35,7 +35,7 @@ services:
       fi &&
       if op inject -i /templates/homelab-alerts.cfg.template -o /tmp/apprise-raw.cfg -f; then
         sed 's|https://discord.com/api/webhooks/\(.*\)|discord://\1/|' /tmp/apprise-raw.cfg > /apprise-config/homelab-alerts.cfg &&
-        chmod 600 /apprise-config/homelab-alerts.cfg &&
+        chmod 660 /apprise-config/homelab-alerts.cfg &&
         rm /tmp/apprise-raw.cfg &&
         echo 'Apprise notification config injected successfully';
       elif [ -s /apprise-config/homelab-alerts.cfg ]; then

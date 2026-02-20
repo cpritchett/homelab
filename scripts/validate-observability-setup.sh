@@ -102,8 +102,8 @@ ensure_dir_with_ownership "${APPDATA_PATH}/homepage/images" "0:0" "755"
 # Uptime Kuma data directory (runs as node UID 1000)
 ensure_dir_with_ownership "${APPDATA_PATH}/uptime-kuma" "1000:1000" "755"
 
-# Apprise config (written by 1password/op:2 as opuser 999:999, read by Apprise)
-ensure_dir_with_ownership "${APPDATA_PATH}/apprise/config" "999:999" "750"
+# Apprise config (written by op:2 as 999, read/written by Apprise as 1000:999)
+ensure_dir_with_ownership "${APPDATA_PATH}/apprise/config" "999:999" "770"
 
 log "Pre-deployment validation complete"
 exit 0
