@@ -40,7 +40,7 @@ services:
   # ── Recyclarr ────────────────────────────────────────────────
   # Syncs TRaSH Guides quality profiles to Sonarr/Radarr (one-shot per deploy)
   recyclarr:
-    image: ghcr.io/recyclarr/recyclarr:latest
+    image: ghcr.io/recyclarr/recyclarr:latest@sha256:30e13877e8ef2242b053b986e69e64801797b39ae4f74b744d8f4dc3f98757ab
     deploy:
       mode: replicated-job
       restart_policy:
@@ -59,7 +59,7 @@ services:
   # ── Bazarr ───────────────────────────────────────────────────
   # Pinned to barbary — SQLite DB, no postgres support
   bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:latest@sha256:1cf40186b1bc35bec87f4e4892d5d8c06086da331010be03e3459a86869c5e74
     deploy:
       replicas: 1
       placement:
@@ -273,7 +273,7 @@ services:
   # Pinned to barbary — SQLite DB
   # User invitation & onboarding for Plex/Jellyfin
   wizarr:
-    image: ghcr.io/wizarrrr/wizarr:latest
+    image: ghcr.io/wizarrrr/wizarr:latest@sha256:83fc0b50985d196226b7c28a27062a1c4e63124a5d6d2448710aee222637b79e
     deploy:
       replicas: 1
       placement:
@@ -320,7 +320,7 @@ services:
   # ── Tracearr TimescaleDB ─────────────────────────────────────
   # Pinned to barbary — ZFS-backed database
   tracearr-timescaledb:
-    image: timescale/timescaledb:latest-pg17
+    image: timescale/timescaledb:latest-pg17@sha256:f5f9f09d57799d237f481e5b9ad517eae5088fed3dbb487e2138419e6196fc78
     deploy:
       replicas: 1
       placement:
@@ -378,7 +378,7 @@ services:
   # Unified monitoring for Plex, Jellyfin, Emby
   # Floats freely — state in TimescaleDB + Redis
   tracearr:
-    image: ghcr.io/connorgallopo/tracearr:latest
+    image: ghcr.io/connorgallopo/tracearr:latest@sha256:d5067a395364296abea5478be4ca61f7e99f483af91b49bb0536671796a70125
     user: "1001:999"
     deploy:
       replicas: 1
