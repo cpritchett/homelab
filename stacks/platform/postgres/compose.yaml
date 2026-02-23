@@ -100,7 +100,7 @@ services:
           memory: 256M
     volumes:
       - /mnt/apps01/appdata/postgres/secrets:/secrets:ro
-      - /mnt/apps01/appdata/postgres/backups:/backups
+      - /mnt/data01/app_backups/postgres:/backups
     networks:
       - postgres
     entrypoint: ["/bin/sh", "-c"]
