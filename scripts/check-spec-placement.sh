@@ -18,6 +18,7 @@ readarray -t spec_files < <(find . -name "spec.md" -type f \
   ! -path "./.git/*" \
   ! -path "./.specify/*" \
   ! -path "./node_modules/*" \
+  ! -path "./specs/archive/*" \
   | sort)
 
 allowlist=(
