@@ -165,7 +165,7 @@ services:
 
   # AutoKuma - Auto-create monitors from Docker labels
   autokuma:
-    image: ghcr.io/bigboot/autokuma:2.0.0
+    image: ghcr.io/bigboot/autokuma:2.0.0@sha256:8acbd3ad3ec8cb6c066aa0ee541154921283ec78159015937128541921c47974
     deploy:
       replicas: 1
       restart_policy:
@@ -215,7 +215,7 @@ services:
   # Apprise API - Notification fan-out hub for Telegram, Discord, etc.
   # Config pre-seeded by op-secrets job; add channels by updating 1Password item
   apprise:
-    image: caronc/apprise:v1.3.1
+    image: caronc/apprise:v1.3.1@sha256:6b112f8f174244f4a73b8e1254c9bde1fa562a6a428010aeaff1c18bc98d2713
     user: "1000:999"
     deploy:
       replicas: 1
