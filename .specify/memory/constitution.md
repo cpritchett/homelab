@@ -125,4 +125,4 @@ amended first.
 **Compliance:** All PRs and agent actions MUST verify compliance with
 contracts and invariants. CI gates block violations automatically.
 
-**Version**: 1.0.0 | **Ratified**: 2025-12-14 | **Last Amended**: 2026-02-23
+**Version**: 1.0.0 | **Effective**: 2025-12-14 | **Synced**: 2026-02-23
