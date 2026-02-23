@@ -1,7 +1,7 @@
 ###############################################################################
 # Media Stack — Supporting Services
 #
-# Services: Bazarr, Tautulli, Maintainerr, Recyclarr, Seerr, Wizarr, Tracearr
+# Services: Bazarr, Tautulli, Maintainerr, Recyclarr, Seerr, Wizarr, Tracearr, Doplarr
 # Tier: Application (depends on Infrastructure + Platform + Media Core)
 # Spec: specs/007-media-stack-migration
 # ADR: ADR-0033 Phase 3, ADR-0034 (labels), ADR-0035 (secrets)
@@ -268,6 +268,40 @@ services:
     command: >
       "set -a && [ -f /secrets/support.env ] && . /secrets/support.env && set +a &&
        exec npm start"
+
+  # ── Doplarr ─────────────────────────────────────────────────
+  # Discord bot for media requests via slash commands (/movie, /tv)
+  # Stateless — backed by Seerr's Overseerr-compatible API
+  doplarr:
+    image: ghcr.io/kiranshila/doplarr:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+      labels:
+        homepage.group: "Media"
+        homepage.name: "Doplarr"
+        homepage.icon: "doplarr.png"
+        homepage.description: "Discord media requests"
+    volumes:
+      - /mnt/apps01/appdata/media/support/secrets:/secrets:ro
+    networks:
+      - media_support
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/support.env ] && . /secrets/support.env && set +a &&
+       export DISCORD__TOKEN=\"$${DOPLARR_DISCORD_TOKEN}\" &&
+       export OVERSEERR__URL=http://seerr:5055 &&
+       export OVERSEERR__API=\"$${DOPLARR_OVERSEERR_API}\" &&
+       exec java -Xmx128m -jar /app/doplarr.jar"
 
   # ── Wizarr ──────────────────────────────────────────────────
   # Pinned to barbary — SQLite DB
