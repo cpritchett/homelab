@@ -1,6 +1,6 @@
 services:
   op-secrets:
-    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    image: 1password/op:2@sha256:4ac3658f1e91a27ec9503f2134d4b2b77769b36d35b2e370ac89b5976573a17b
     deploy:
       mode: replicated-job
       restart_policy:
