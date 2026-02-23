@@ -106,6 +106,7 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/postgres.env ] && . /secrets/postgres.env && set +a &&
+       export PGPASSWORD=\"$${POSTGRES_PASSWORD}\" &&
        while true; do
          echo \"[pg-backup] Starting backup at $$(date -Iseconds)\";
          pg_dumpall -h postgresql -U $${POSTGRES_USER:-homelab} | gzip > /backups/all-databases-$$(date +%Y%m%d-%H%M%S).sql.gz;
