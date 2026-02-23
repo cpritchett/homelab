@@ -163,6 +163,7 @@ webhook_enabled = true
 
 [[stack]]
 name = "platform_monitoring"
+after = ["platform_postgres"]
 
 [stack.config]
 swarm = "homelab-swarm"
@@ -263,6 +264,7 @@ command = "sh validate-postgres-setup.sh"
 
 [[stack]]
 name = "application_media_core"
+after = ["platform_postgres"]
 
 [stack.config]
 swarm = "homelab-swarm"
@@ -282,6 +284,7 @@ command = "sh validate-media-setup.sh"
 
 [[stack]]
 name = "application_media_support"
+after = ["platform_postgres", "application_media_core"]
 
 [stack.config]
 swarm = "homelab-swarm"

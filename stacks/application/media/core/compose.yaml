@@ -181,7 +181,6 @@ services:
       restart_policy:
         condition: any
         delay: 5s
-        max_attempts: 3
       resources:
         limits:
           cpus: '2'
@@ -228,6 +227,12 @@ services:
       - media
       - proxy_network
       - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8989/ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
@@ -242,7 +247,6 @@ services:
       restart_policy:
         condition: any
         delay: 5s
-        max_attempts: 3
       resources:
         limits:
           cpus: '2'
@@ -289,6 +293,12 @@ services:
       - media
       - proxy_network
       - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7878/ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
@@ -303,7 +313,6 @@ services:
       restart_policy:
         condition: any
         delay: 5s
-        max_attempts: 3
       resources:
         limits:
           cpus: '1'
@@ -349,6 +358,12 @@ services:
       - media
       - proxy_network
       - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9696/ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
