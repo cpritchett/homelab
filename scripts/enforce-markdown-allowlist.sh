@@ -60,6 +60,9 @@ declare -a ALLOWLIST=(
   "^\.\/requirements\/[^/]*\/checks\.md$"
   "^\.\/requirements\/README\.md$"
   
+  # specs/archive/ - archived specs (retain history)
+  "^\.\/specs\/archive\/.*\.md$"
+
   # specs/NNN-*/ - speckit-approved files only
   "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/spec\.md$"
   "^\.\/specs\/[0-9][0-9][0-9]-[^/]+\/plan\.md$"
