@@ -102,6 +102,9 @@ ensure_dir_with_ownership "${APPDATA_PATH}/homepage/images" "0:0" "755"
 # Uptime Kuma data directory (runs as node UID 1000)
 ensure_dir_with_ownership "${APPDATA_PATH}/uptime-kuma" "1000:1000" "755"
 
+# AutoKuma state DB (runs as root, stores autokuma.db for monitor tracking)
+ensure_dir_with_ownership "${APPDATA_PATH}/autokuma" "0:0" "750"
+
 # Apprise config (written by op:2 as 999, read/written by Apprise as 1000:999)
 ensure_dir_with_ownership "${APPDATA_PATH}/apprise/config" "999:999" "770"
 
