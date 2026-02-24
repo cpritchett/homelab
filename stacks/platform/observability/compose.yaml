@@ -155,8 +155,12 @@ services:
         kuma.uptime-kuma.http.interval: "60"
         kuma.uptime-kuma.http.maxretries: "3"
         kuma.uptime-kuma.http.accepted_statuscodes: '["200-299"]'
+    environment:
+      # Trust internal Smallstep CA for HTTPS monitors
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/homelab-ca.crt
     volumes:
       - /mnt/apps01/appdata/uptime-kuma:/app/data
+      - /mnt/apps01/appdata/step-ca/certs/root_ca.crt:/etc/ssl/certs/homelab-ca.crt:ro
     networks:
       proxy_network:
         aliases:
