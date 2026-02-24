@@ -162,6 +162,7 @@ services:
         aliases:
           - uptime-kuma
       observability_internal:
+      postgres:
 
   # AutoKuma - Auto-create monitors from Docker labels
   autokuma:
@@ -245,6 +246,9 @@ networks:
     driver: overlay
   op-connect:
     name: op-connect_op-connect
+    external: true
+  postgres:
+    name: platform_postgres_postgres
     external: true
 
 configs:

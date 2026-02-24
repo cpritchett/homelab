@@ -456,7 +456,7 @@ services:
 
         # AutoKuma: Uptime monitoring
         kuma.tracearr.http.name: "Tracearr"
-        kuma.tracearr.http.url: "https://tracearr.in.hypyr.space/health"
+        kuma.tracearr.http.url: "http://tracearr:3000/health"
         kuma.tracearr.http.interval: "60"
         kuma.tracearr.http.maxretries: "3"
     volumes:

@@ -14,6 +14,7 @@ services:
         kuma.step-ca.http.name: "Smallstep CA"
         kuma.step-ca.http.url: "https://step-ca:9000/health"
         kuma.step-ca.http.accepted_statuscodes: '["200"]'
+        kuma.step-ca.http.ignoreTls: "true"
         kuma.step-ca.http.interval: "60"
         kuma.step-ca.http.maxretries: "3"
     entrypoint: ["/bin/sh", "-c"]
