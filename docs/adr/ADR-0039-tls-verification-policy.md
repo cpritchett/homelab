@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-02-24
-**Relates to:** ADR-0038 (Internal PKI with Smallstep CA), ADR-0034 (Label-Driven Infrastructure)
+**Relates to:** ADR-0038 (Internal PKI with Smallstep CA)
 
 ## Context
 

@@ -32,6 +32,11 @@ Architectural Decision Records explain *why* decisions were made.
 - [ADR-0032](ADR-0032-onepassword-connect-swarm.md): 1Password Connect for Docker Swarm secrets ✓
 - [ADR-0033](ADR-0033-truenas-swarm-migration.md): TrueNAS Scale migration with hybrid Kubernetes/Swarm architecture ✓
 - [ADR-0034](ADR-0034-label-driven-infrastructure.md): **Label-Driven Infrastructure Pattern (Caddy + AutoKuma)** ✓
+- [ADR-0035](ADR-0035-swarm-oneshot-secret-hydration-jobs.md): Swarm one-shot secret hydration uses job mode ✓
+- [ADR-0036](ADR-0036-observability-data-collection.md): Observability data collection ✓
+- [ADR-0037](ADR-0037-documentation-consolidation.md): Documentation consolidation ✓
+- [ADR-0038](ADR-0038-internal-pki-smallstep.md): Internal PKI with Smallstep CA ✓
+- [ADR-0039](ADR-0039-tls-verification-policy.md): TLS verification policy ✓
 
 ## Status values
 - Proposed

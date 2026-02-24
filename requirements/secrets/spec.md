@@ -93,10 +93,11 @@ Prohibiting plaintext secrets in repositories prevents accidental exposure and c
 
 Docker Swarm stacks use 1Password Connect Server instead of pre-materialized env files for dynamic secret access, better security (secrets in memory only), and simplified management (one shared token).
 
-See: 
+See:
 - [ADR-0004](../../docs/adr/ADR-0004-secrets-management.md) — Foundation
 - [ADR-0032](../../docs/adr/ADR-0032-onepassword-connect-swarm.md) — Docker Swarm implementation
 - [ADR-0035](../../docs/adr/ADR-0035-swarm-oneshot-secret-hydration-jobs.md) — One-shot job-mode hydration semantics
+- [ADR-0039](../../docs/adr/ADR-0039-tls-verification-policy.md) — TLS verification policy (no bypass without ADR)
 
 ## Agent Governance
 
