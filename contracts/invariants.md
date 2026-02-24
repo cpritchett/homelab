@@ -119,6 +119,22 @@ NFS mounts on swarm nodes:
    - No `stacks/registry.toml` or host-side deploy scripts are required or permitted
    - Each stack directory must be self-contained (compose file + `.env.example`)
 
+## TLS/PKI Invariants
+
+1. **All TLS connections MUST verify certificates**
+   - No `ignoreTls`, `insecure_tls`, `--insecure`, `NODE_TLS_REJECT_UNAUTHORIZED=0`, or equivalent bypass flags
+   - Exception only with ADR documenting the limitation and mitigation
+
+2. **Internal services MUST trust the Smallstep CA root certificate**
+   - Root CA distributed via read-only volume mount from `/mnt/apps01/appdata/step-ca/certs/root_ca.crt`
+   - Each runtime uses its native trust mechanism (`NODE_EXTRA_CA_CERTS`, `SSL_CERT_FILE`, system trust store, etc.)
+
+3. **TLS bypass scope MUST be minimized**
+   - If an exception is granted, bypass MUST be scoped to the specific connection
+   - Global TLS disables (e.g., process-wide `NODE_TLS_REJECT_UNAUTHORIZED=0`) are prohibited
+
+See: [ADR-0039](../docs/adr/ADR-0039-tls-verification-policy.md), [ADR-0038](../docs/adr/ADR-0038-internal-pki-smallstep.md)
+
 ## Secrets Management Invariants
 
 1. **1Password is the single source of truth**
