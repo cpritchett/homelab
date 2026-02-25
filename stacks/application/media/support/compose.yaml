@@ -463,6 +463,7 @@ services:
     networks:
       - media_support
       - proxy_network
+      - notifications
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/support.env ] && . /secrets/support.env && set +a &&
@@ -483,6 +484,9 @@ networks:
     external: true
   op-connect:
     name: op-connect_op-connect
+    external: true
+  notifications:
+    name: platform_observability_notifications
     external: true
 
 # ── Secrets ──────────────────────────────────────────────────

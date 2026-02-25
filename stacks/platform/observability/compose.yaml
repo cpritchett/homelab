@@ -237,6 +237,7 @@ services:
       - /mnt/apps01/appdata/apprise/config:/config
     networks:
       - observability_internal
+      - notifications
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/status"]
       interval: 30s
@@ -248,6 +249,9 @@ networks:
     external: true
   observability_internal:
     driver: overlay
+  notifications:
+    driver: overlay
+    attachable: true
   op-connect:
     name: op-connect_op-connect
     external: true
