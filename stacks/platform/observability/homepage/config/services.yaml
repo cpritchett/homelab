@@ -154,6 +154,11 @@
         href: https://posterizarr.in.hypyr.space
         description: Automated poster generation
 
+    - Tracearr:
+        icon: mdi-chart-timeline-variant
+        href: https://tracearr.in.hypyr.space
+        description: Media tracking & analytics
+
     - Wizarr:
         icon: wizarr.png
         href: https://invite.in.hypyr.space
