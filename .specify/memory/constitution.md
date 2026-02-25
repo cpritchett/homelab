@@ -1,15 +1,10 @@
 <!--
 Sync Impact Report
-- Version change: 0.0.0 → 1.0.0
-- Reason: Initial population of speckit constitution from canonical sources
-- Modified principles: None (first fill from existing canonical constitution)
-- Added sections: Core Principles (5), Contracts & Constraints, Development Workflow, Governance
-- Removed sections: Pointer stub replaced with full content
-- Templates requiring updates:
-  - `.specify/templates/plan-template.md` — ✅ Constitution Check section already present (line 30-34), references generic gates. No update needed.
-  - `.specify/templates/spec-template.md` — ✅ No constitutional references. No update needed.
-  - `.specify/templates/tasks-template.md` — ✅ No constitutional references. No update needed.
-  - `.specify/templates/agent-file-template.md` — ⚠ Not inspected (low risk, template only)
+- Version change: 1.0.0 → 1.1.0
+- Reason: Added TLS/PKI invariants and hard-stop per ADR-0039
+- Modified principles: None
+- Added: TLS/PKI to invariant categories list, TLS verification to hard-stops list
+- Templates requiring updates: None
 - Follow-up TODOs: None
 -->
 
@@ -75,13 +70,13 @@ Three types of operational contracts derive from these principles:
 
 1. **Invariants** (`contracts/invariants.md`) — Conditions that MUST
    always be true. Categories: Network Identity, WAN, Storage, Hardware,
-   Access, DNS, Repository Structure, Secrets Management, GitOps.
+   Access, DNS, Repository Structure, Secrets Management, TLS/PKI, GitOps.
 
 2. **Hard-Stops** (`contracts/hard-stops.md`) — Actions requiring human
    approval: exposing services to WAN, publishing internal zones
    publicly, allowing non-console Management access, installing overlay
    agents on Management devices, split-horizon to bypass Cloudflare
-   Access.
+   Access, disabling TLS certificate verification.
 
 3. **Agent Rules** (`contracts/agents.md`) — Agents MAY propose patches,
    add ADRs/docs/checklists. Agents MUST use PR/issue templates, fill
@@ -125,4 +120,4 @@ amended first.
 **Compliance:** All PRs and agent actions MUST verify compliance with
 contracts and invariants. CI gates block violations automatically.
 
-**Version**: 1.0.0 | **Effective**: 2025-12-14 | **Synced**: 2026-02-23
+**Version**: 1.1.0 | **Effective**: 2025-12-14 | **Synced**: 2026-02-24
