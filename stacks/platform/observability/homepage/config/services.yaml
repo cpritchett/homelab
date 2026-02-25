@@ -38,6 +38,17 @@
           url: http://uptime-kuma:3001
           slug: homelab
 
+- CI/CD:
+    - Forgejo:
+        icon: forgejo.png
+        href: https://git.in.hypyr.space
+        description: Git hosting
+
+    - Woodpecker CI:
+        icon: woodpecker-ci.png
+        href: https://ci.in.hypyr.space
+        description: Continuous integration
+
 - Monitoring:
     - Prometheus:
         icon: prometheus.png
@@ -46,6 +57,11 @@
         widget:
           type: prometheus
           url: http://prometheus:9090
+
+    - Loki:
+        icon: loki.png
+        href: https://loki.in.hypyr.space
+        description: Log aggregation
 
     - Grafana:
         icon: grafana.png
