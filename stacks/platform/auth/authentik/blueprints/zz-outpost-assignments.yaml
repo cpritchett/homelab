@@ -43,7 +43,6 @@ entries:
         - !Find [authentik_providers_proxy.proxyprovider, [name, bazarr-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, tautulli-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, maintainerr-forward-auth]]
-        - !Find [authentik_providers_proxy.proxyprovider, [name, tracearr-forward-auth]]
         # Media — torrent stack
         - !Find [authentik_providers_proxy.proxyprovider, [name, qbittorrent-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, cross-seed-forward-auth]]
