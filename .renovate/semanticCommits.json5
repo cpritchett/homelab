@@ -5,18 +5,12 @@
   semanticCommitType: "chore",
   semanticCommitScope: "deps",
   // Enrich PR body with detailed information
-  prBodyTemplate: "{{{header}}}\n\n{{{table}}}\n\n{{{warnings}}}\n\n{{{notes}}}\n\n---\n\n### Release Notes\n\n{{{changelogs}}}\n\n---\n\n{{{controls}}}\n\n{{{footer}}}",
+  prBodyTemplate: "{{{header}}}\n\n{{{table}}}\n\n{{{warnings}}}\n\n{{{notes}}}\n\n---\n\n{{{changelogs}}}\n\n---\n\n{{{controls}}}\n\n{{{footer}}}",
   prBodyColumns: [
     "Package",
     "Type",
     "Update",
     "Change",
     "Pending"
-  ],
-  prBodyNotes: [
-    "{{#if hasReleaseNotes}}:scroll: [Release notes]({{releases}}){{/if}}",
-    "{{#if hasPackageUrl}}:package: [Package]({{packageUrl}}){{/if}}",
-    "{{#if sourceUrl}}:octocat: [Source]({{sourceUrl}}){{/if}}",
-    "{{#if homepage}}:house: [Homepage]({{homepage}}){{/if}}"
   ]
 }
