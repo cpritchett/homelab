@@ -31,6 +31,6 @@
   prConcurrentLimit: 10,
   prHourlyLimit: 0,
   fetchChangeLogs: "pr",
-  ignorePaths: ["**/resources/**"],
+  ignorePaths: ["**/resources/**", "bootstrap/**"],
   commitBody: "Signed-off-by: Renovate Bot <bot@renovateapp.com>"
 }
