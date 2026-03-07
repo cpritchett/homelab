@@ -142,7 +142,7 @@ Agents MUST consult these documents in order:
 ### Agent Instruction Governance
 
 Agent instructions MUST:
-- Live in **canonical governance documents only** (constitution, contracts, requirements, docs)
+- Live in **canonical governance documents or approved skill locations only** (constitution, contracts, requirements, docs, `.codex/skills/`)
 - Reference this hierarchy when describing governance rules
 - NOT create new instruction files (`.md` files that duplicate governance)
 - Update automatically when canonical sources change (without requiring code edits)
@@ -155,11 +155,14 @@ Agent instruction files that are **prohibited**:
 **Approved agent instruction locations:**
 - `.github/copilot-instructions.md` — Copilot-specific tool guidance (if needed); MUST link to canonical sources
 - `.github/agents/*.agent.md` — Speckit agent files; MUST include "## Governance Authority" section
+- `.codex/skills/<skill-name>/SKILL.md` — Repo-local Codex skill definitions for tool-specific workflows; MUST reference canonical governance instead of duplicating it
+- `.codex/skills/<skill-name>/references/*.md` — Optional Codex skill reference docs; MUST remain skill-scoped and non-canonical
 
 ### Adding Agent Instructions
 
 **When to add agent instructions:**
 - Only if copilot/tooling-specific guidance is needed (e.g., VS Code API details)
+- Repo-local Codex skills are allowed when a repeatable Codex workflow needs checked-in instructions and optional references
 - Must link to canonical governance sources
 - Must be in approved locations only
 
@@ -220,6 +223,7 @@ See: [ADR-0023: Scripts and Stacks Directory Classification](../../docs/adr/ADR-
 See: [ADR-0024: Speckit Workflow for Non-Canonical Implementation](../../docs/adr/ADR-0024-speckit-workflow-non-canonical.md)
 See: [ADR-0026: Spec Placement Governance](../../docs/adr/ADR-0026-spec-placement-governance.md)
 See: [ADR-0025: Strict Markdown Governance](../../docs/adr/ADR-0025-strict-markdown-governance.md)
+See: [ADR-0040: Repo-Local Codex Skills](../../docs/adr/ADR-0040-repo-local-codex-skills.md)
 See: [ADR-0027: Agent PR/Issue Template Enforcement](../../docs/adr/ADR-0027-agent-template-enforcement.md)
 See: [ADR-0028: Constitutional Authority for Governance Procedures](../../docs/adr/ADR-0028-constitutional-governance-authority.md)
 See: [ADR-0029: Contract Lifecycle Procedures](../../docs/adr/ADR-0029-contract-lifecycle-procedures.md)

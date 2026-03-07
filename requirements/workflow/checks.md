@@ -32,3 +32,8 @@ Validation checklist for git workflow compliance.
 - [ ] commitlint validates commit messages
 - [ ] PR title linter validates PR titles
 - [ ] Label validation in CI
+
+### Agent instruction location compliance
+- [ ] Repo-local Codex skills, if present, live only under `.codex/skills/<skill-name>/SKILL.md`
+- [ ] Optional skill reference docs, if present, live only under `.codex/skills/<skill-name>/references/*.md`
+- [ ] Repo-local Codex skills reference canonical governance instead of duplicating it

@@ -9,6 +9,8 @@
 # - contracts/agents.md (Agent Operating Rules)
 # - .github/copilot-instructions.md (copilot-specific tool guidance)
 # - .github/agents/*.agent.md (speckit agent files)
+# - .codex/skills/<skill-name>/SKILL.md (repo-local Codex skills)
+# - .codex/skills/<skill-name>/references/*.md (repo-local Codex skill references)
 #
 # Prohibited agent instruction files:
 # - CLAUDE.md - Use canonical governance sources instead
@@ -23,6 +25,8 @@ APPROVED_AGENT_FILES=(
     ".github/agents/*.agent.md"
     "requirements/workflow/spec.md"
     "contracts/agents.md"
+    ".codex/skills/*/SKILL.md"
+    ".codex/skills/*/references/*.md"
 )
 
 # Prohibited agent instruction file patterns
@@ -57,11 +61,12 @@ for prohibited_pattern in "${PROHIBITED_PATTERNS[@]}"; do
     if echo "$git_files" | grep -q "^${prohibited_pattern}$" || \
        echo "$git_files" | grep -q "${prohibited_pattern}$"; then
         echo "✗ Prohibited agent instruction file detected: $prohibited_pattern" >&2
-        echo "  Agent instructions must live in canonical governance sources:" >&2
+        echo "  Agent instructions must live in canonical governance sources or approved skill locations:" >&2
         echo "  - requirements/workflow/spec.md (Agent Governance Steering section)" >&2
         echo "  - contracts/agents.md (Agent Operating Rules)" >&2
         echo "  - .github/copilot-instructions.md (copilot-specific guidance)" >&2
         echo "  - .github/agents/*.agent.md (speckit agent files)" >&2
+        echo "  - .codex/skills/<skill-name>/SKILL.md (repo-local Codex skills)" >&2
         echo "" >&2
         echo "  See: requirements/workflow/spec.md § Agent Instruction Governance" >&2
         found_violations=$((found_violations + 1))
