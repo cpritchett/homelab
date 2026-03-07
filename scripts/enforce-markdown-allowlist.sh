@@ -153,5 +153,6 @@ else
   echo "  - specs/NNN-*/{contracts,checklists,tasks}/"
   echo "  - ansible/README.md, opentofu/README.md"
   echo "  - infra/README.md, infra/*/README.md"
+  echo "  - .codex/skills/<skill-name>/SKILL.md, .codex/skills/<skill-name>/references/*.md"
   exit 1
 fi

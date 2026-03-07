@@ -142,7 +142,7 @@ Agents MUST consult these documents in order:
 ### Agent Instruction Governance
 
 Agent instructions MUST:
-- Live in **canonical governance documents only** (constitution, contracts, requirements, docs)
+- Live in **canonical governance documents or approved skill locations only** (constitution, contracts, requirements, docs, `.codex/skills/`)
 - Reference this hierarchy when describing governance rules
 - NOT create new instruction files (`.md` files that duplicate governance)
 - Update automatically when canonical sources change (without requiring code edits)
