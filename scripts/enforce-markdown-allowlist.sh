@@ -95,6 +95,10 @@ declare -a ALLOWLIST=(
   # .claude/commands/ - Claude Code skill commands
   "^\.\/\.claude\/commands\/[^/]*\.md$"
 
+  # .codex/skills/ - repo-local Codex skills
+  "^\.\/\.codex\/skills\/[^/]*\/SKILL\.md$"
+  "^\.\/\.codex\/skills\/[^/]*\/references\/[^/]*\.md$"
+
   # stacks/ - docs and stack-level READMEs (brownfield)
   "^\.\/stacks\/docs\/[^/]*\.md$"
   "^\.\/stacks\/platform\/[^/]*\/README\.md$"

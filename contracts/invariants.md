@@ -90,6 +90,8 @@ NFS mounts on swarm nodes:
      - `specs/NNN-*/spec.md`, `specs/NNN-*/plan.md`, `specs/NNN-*/research.md`, `specs/NNN-*/data-model.md`, `specs/NNN-*/quickstart.md`, `specs/NNN-*/contracts/`, `specs/NNN-*/checklists/`, `specs/NNN-*/tasks.md`
      - `infra/README.md`, `infra/<domain>/README.md`
      - `ansible/README.md`, `opentofu/README.md`
+     - `.codex/skills/<skill-name>/SKILL.md`, `.codex/skills/<skill-name>/references/*.md`
+   - Repo-local Codex skills are governed by [ADR-0040](../docs/adr/ADR-0040-repo-local-codex-skills.md)
 
 3. **Specification placement is constrained** (see ADR-0026)
    - Canonical specs **only** under `requirements/<domain>/spec.md`
