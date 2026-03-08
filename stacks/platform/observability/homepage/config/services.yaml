@@ -179,3 +179,34 @@
         icon: wizarr.png
         href: https://invite.in.hypyr.space
         description: User invitations
+
+- Reading:
+    - Kavita:
+        icon: kavita.png
+        href: https://kavita.in.hypyr.space
+        description: Book & comic reader
+
+    - Komga:
+        icon: komga.png
+        href: https://komga.in.hypyr.space
+        description: Comic & manga server
+
+    - Mylar3:
+        icon: mylar.png
+        href: https://mylar3.in.hypyr.space
+        description: Comic book management
+
+    - Bookshelf:
+        icon: readarr.png
+        href: https://bookshelf.in.hypyr.space
+        description: Book management
+
+    - Audiobookshelf:
+        icon: audiobookshelf.png
+        href: https://audiobooks.in.hypyr.space
+        description: Audiobook server
+
+    - ReadMeABook:
+        icon: readmeabook.png
+        href: https://readmeabook.in.hypyr.space
+        description: Audiobook acquisition
