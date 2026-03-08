@@ -70,14 +70,25 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │       ├── core/secrets/             # Injected media.env
 │       ├── support/secrets/          # Injected support.env
 │       └── torrent/secrets/          # Injected torrent.env
+│   └── reading/
+│       ├── kavita/config/
+│       ├── komga/config/
+│       ├── mylar3/config/
+│       ├── bookshelf/config/
+│       ├── audiobookshelf/config/
+│       ├── audiobookshelf/metadata/
+│       ├── readmeabook/config/
+│       ├── readmeabook/redis/        # Redis AOF
+│       └── secrets/                  # Injected reading.env
 ├── repos/
 │   └── homelab/                      # Git repo (main branch)
 └── secrets/                          # Bootstrap credentials (not in git)
 
 /mnt/data01/                          # Bulk/static assets (spinning rust)
 └── data/                             # Media library
-    ├── media/                        # Movies, TV, Music
-    └── usenet/                       # Download staging
+    ├── media/                        # Movies, TV, Music, Books, Comics, Audiobooks
+    ├── downloads/                    # Download staging
+    └── usenet/                       # Usenet download staging
 ```
 
 **Design rationale:** `/mnt/apps01` holds all application data — config, secrets, and databases — on fast SSD storage. `/mnt/data01` is reserved for bulk/static assets that tolerate spinning rust (media library, download staging).
@@ -108,6 +119,13 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 | MongoDB | `/mnt/apps01/appdata/komodo/mongodb` | Komodo state | Yes |
 | Forgejo | `/mnt/apps01/appdata/forgejo` | Git repos, LFS, config (DB in dedicated PostgreSQL) | Yes |
 | Woodpecker | `/mnt/apps01/appdata/woodpecker` | SQLite DB | Yes |
+| Kavita | `/mnt/apps01/appdata/reading/kavita/config` | SQLite DB, config | Yes |
+| Komga | `/mnt/apps01/appdata/reading/komga/config` | SQLite DB, config | Yes |
+| Mylar3 | `/mnt/apps01/appdata/reading/mylar3/config` | SQLite DB, config | Yes |
+| Bookshelf | `/mnt/apps01/appdata/reading/bookshelf/config` | Config files (DB in PostgreSQL) | No |
+| Audiobookshelf | `/mnt/apps01/appdata/reading/audiobookshelf/config` | SQLite DB, config | Yes |
+| ReadMeABook | `/mnt/apps01/appdata/reading/readmeabook/config` | Config files (DB in PostgreSQL) | No |
+| ReadMeABook Redis | `/mnt/apps01/appdata/reading/readmeabook/redis` | Session cache (AOF) | No |
 
 ## Backup Strategy
 
@@ -117,7 +135,7 @@ A `pg-backup` sidecar runs daily `pg_dumpall` with 7-day retention:
 
 - **Destination:** `/mnt/apps01/appdata/postgres/backups/`
 - **Schedule:** Nightly
-- **Databases:** grafana, sonarr-main, sonarr-log, radarr-main, radarr-log, prowlarr-main, prowlarr-log, seerr (shared PostgreSQL); forgejo (dedicated PostgreSQL)
+- **Databases:** grafana, sonarr-main, sonarr-log, radarr-main, radarr-log, prowlarr-main, prowlarr-log, seerr, bookshelf-main, bookshelf-log, readmeabook (shared PostgreSQL); forgejo (dedicated PostgreSQL)
 
 > **Note:** Tracearr's TimescaleDB is a dedicated instance (not the shared PostgreSQL) and is NOT covered by the `pg-backup` sidecar. Back up separately if needed.
 
@@ -138,8 +156,8 @@ Services running on non-barbary nodes use these NFS mounts transparently. Servic
 
 | User/Group | UID | GID | Services |
 |-----------|-----|-----|----------|
-| media | 1701 | 1702 | Plex, Jellyfin, Sonarr, Radarr, Prowlarr, SABnzbd, Bazarr, Recyclarr, Kometa, TitleCardMaker, Posterizarr |
-| node | 1000 | 1000 | Seerr, Forgejo |
+| media | 1701 | 1702 | Plex, Jellyfin, Sonarr, Radarr, Prowlarr, SABnzbd, Bazarr, Recyclarr, Kometa, TitleCardMaker, Posterizarr, Kavita, Mylar3, Bookshelf, ReadMeABook |
+| node | 1000 | 1000 | Seerr, Forgejo, Komga |
 | caddy | 1701 | 1702 | Caddy (shares media group for socket access) |
 | opuser | 999 | 999 | 1Password Connect init jobs (secrets dirs must be 999:999 mode 750) |
 | cloudflared | 65532 | 65532 | cloudflared (nonroot default) |
