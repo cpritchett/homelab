@@ -19,6 +19,7 @@ services:
       - ./postgres.template:/templates/postgres.template:ro
       - ./blueprints/homepage-token.yaml.template:/templates/homepage-token.yaml.template:ro
       - ./blueprints/oauth2-forgejo.yaml.template:/templates/oauth2-forgejo.yaml.template:ro
+      - ./blueprints/oauth2-readmeabook.yaml.template:/templates/oauth2-readmeabook.yaml.template:ro
       - /mnt/apps01/appdata/authentik/secrets:/secrets
       - /mnt/apps01/appdata/authentik/blueprints:/blueprints-out
     networks:
@@ -30,6 +31,7 @@ services:
       op inject -i /templates/postgres.template -o /secrets/postgres.env -f &&
       op inject -i /templates/homepage-token.yaml.template -o /blueprints-out/homepage-token.yaml -f &&
       op inject -i /templates/oauth2-forgejo.yaml.template -o /blueprints-out/oauth2-forgejo.yaml -f &&
+      op inject -i /templates/oauth2-readmeabook.yaml.template -o /blueprints-out/oauth2-readmeabook.yaml -f &&
       chmod 644 /secrets/*.env /blueprints-out/*.yaml &&
       echo 'Secrets injected successfully'
       "
