@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://goauthentik.io/blueprints/schema.json
+# Custom OAuth2 scope mapping: groups
+#
+# Authentik doesn't ship a built-in "groups" scope. This mapping returns
+# the user's group names under the "groups" claim, which downstream apps
+# (ReadMeABook, etc.) use for role mapping.
+version: 1
+
+metadata:
+  name: "Custom Scope - Groups"
+  labels:
+    blueprints.goauthentik.io/instantiate: "true"
+
+entries:
+  - model: authentik_providers_oauth2.scopemapping
+    state: present
+    identifiers:
+      scope_name: "groups"
+    attrs:
+      name: "Custom OAuth Mapping: OpenID 'groups'"
+      scope_name: "groups"
+      description: "Returns the user's group memberships"
+      expression: |
+        return {
+            "groups": [group.name for group in request.user.ak_groups.all()],
+        }
