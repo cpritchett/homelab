@@ -429,6 +429,35 @@ services:
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
        exec /init"
 
+  # ── Download Reaper (cron) ────────────────────────────────
+  # Deletes _FAILED_* dirs older than 3 days from SABnzbd's
+  # completed download folder. Runs daily at 04:00 UTC.
+  download-reaper:
+    image: alpine:3
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: any
+        delay: 60s
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 32M
+    volumes:
+      - /mnt/data01/data/usenet/complete:/complete
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "while true; do
+         echo \"[reaper] Scanning for _FAILED_* dirs older than 3 days...\";
+         find /complete -maxdepth 1 -type d -name '_FAILED_*' -mtime +3 -exec rm -rf {} + ;
+         count=$$(find /complete -maxdepth 1 -type d -name '_FAILED_*' | wc -l);
+         echo \"[reaper] Done. $$count _FAILED_ dirs remaining (< 3 days old)\";
+         sleep 86400;
+       done"
+
 # ── Networks ─────────────────────────────────────────────────
 networks:
   media:
