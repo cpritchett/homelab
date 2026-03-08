@@ -330,7 +330,7 @@ services:
     volumes:
       - /mnt/apps01/appdata/reading/audiobookshelf/config:/config
       - /mnt/apps01/appdata/reading/audiobookshelf/metadata:/metadata
-      - /mnt/data01/data/media/audiobooks:/audiobooks
+      - /mnt/data01/data:/data
     networks:
       - reading
       - proxy_network
@@ -392,8 +392,7 @@ services:
       REDIS_URL: "redis://readmeabook-redis:6379"
     volumes:
       - /mnt/apps01/appdata/reading/readmeabook/config:/app/config
-      - /mnt/data01/data/media/audiobooks:/data/audiobooks
-      - /mnt/data01/data/downloads:/data/downloads
+      - /mnt/data01/data:/data
       - /mnt/apps01/appdata/reading/secrets:/secrets:ro
     networks:
       - reading
