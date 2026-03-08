@@ -61,6 +61,11 @@ if ! docker secret inspect op_connect_token >/dev/null 2>&1; then
     exit 1
 fi
 
+if ! docker network inspect platform_postgres_postgres >/dev/null 2>&1; then
+    log_error "postgres network not found. Deploy platform_postgres first."
+    exit 1
+fi
+
 # ---------------------------------------------------------------------------
 # Directory setup helper (same pattern as validate-media-setup.sh)
 # ---------------------------------------------------------------------------
@@ -124,6 +129,7 @@ ensure_dir_with_ownership "${APPDATA_PATH}/reading/secrets" "999:999" "750"
 ensure_dir_with_ownership "${DATA_PATH}/media/books" "${MEDIA_OWNER}" "755"
 ensure_dir_with_ownership "${DATA_PATH}/media/comics" "${MEDIA_OWNER}" "755"
 ensure_dir_with_ownership "${DATA_PATH}/media/audiobooks" "${MEDIA_OWNER}" "755"
+ensure_dir_with_ownership "${DATA_PATH}/downloads" "${MEDIA_OWNER}" "755"
 
 # ---------------------------------------------------------------------------
 # 1Password Connect reachability

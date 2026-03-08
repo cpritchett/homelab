@@ -260,10 +260,11 @@ services:
       PUID: "1701"
       PGID: "1702"
       TZ: "America/Chicago"
-      BOOKSHELF__POSTGRES__HOST: postgresql
-      BOOKSHELF__POSTGRES__PORT: "5432"
-      BOOKSHELF__POSTGRES__MAINDB: bookshelf-main
-      BOOKSHELF__POSTGRES__LOGDB: bookshelf-log
+      READARR__POSTGRES__HOST: postgresql
+      READARR__POSTGRES__PORT: "5432"
+      READARR__POSTGRES__MAINDB: bookshelf-main
+      READARR__POSTGRES__LOGDB: bookshelf-log
+      READARR__POSTGRES__CACHEDB: bookshelf-cache
     volumes:
       - /mnt/apps01/appdata/reading/bookshelf/config:/config
       - /mnt/data01/data:/data

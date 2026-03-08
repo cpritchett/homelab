@@ -135,7 +135,7 @@ A `pg-backup` sidecar runs daily `pg_dumpall` with 7-day retention:
 
 - **Destination:** `/mnt/apps01/appdata/postgres/backups/`
 - **Schedule:** Nightly
-- **Databases:** grafana, sonarr-main, sonarr-log, radarr-main, radarr-log, prowlarr-main, prowlarr-log, seerr, bookshelf-main, bookshelf-log, readmeabook (shared PostgreSQL); forgejo (dedicated PostgreSQL)
+- **Databases:** grafana, sonarr-main, sonarr-log, radarr-main, radarr-log, prowlarr-main, prowlarr-log, seerr, bookshelf-main, bookshelf-log, bookshelf-cache, readmeabook (shared PostgreSQL); forgejo (dedicated PostgreSQL)
 
 > **Note:** Tracearr's TimescaleDB is a dedicated instance (not the shared PostgreSQL) and is NOT covered by the `pg-backup` sidecar. Back up separately if needed.
 
