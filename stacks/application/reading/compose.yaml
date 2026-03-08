@@ -335,50 +335,34 @@ services:
       - reading
       - proxy_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:13378/healthcheck || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:13378/healthcheck || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 30s
 
-  # ── ReadMeABook Redis ───────────────────────────────────────
-  readmeabook-redis:
-    image: redis:8-alpine
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: any
-        delay: 5s
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
-    volumes:
-      - /mnt/apps01/appdata/reading/readmeabook/redis:/data
-    networks:
-      - reading
-    command: redis-server --appendonly yes
-
   # ── ReadMeABook ─────────────────────────────────────────────
   # Audiobook acquisition & management (Audiobookshelf integration)
-  # Floats freely — state in PostgreSQL + Redis
+  # Unified image bundles internal Postgres+Redis; auto-skips them
+  # when DATABASE_URL/REDIS_URL point to external hosts.
+  # Pinned to barbary — internal state needs local filesystem
   readmeabook:
     image: ghcr.io/kikootwo/readmeabook:latest
     deploy:
       replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
       restart_policy:
         condition: any
         delay: 5s
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '2'
+          memory: 1024M
         reservations:
-          cpus: '0.25'
-          memory: 256M
+          cpus: '0.5'
+          memory: 512M
       labels:
         # Homepage: Reading dashboard
         homepage.group: "Reading"
@@ -404,8 +388,10 @@ services:
       PUID: "1701"
       PGID: "1702"
       TZ: "America/Chicago"
+      DATABASE_URL: "postgresql://readmeabook:placeholder@postgresql:5432/readmeabook"
+      REDIS_URL: "redis://readmeabook-redis:6379"
     volumes:
-      - /mnt/apps01/appdata/reading/readmeabook/config:/config
+      - /mnt/apps01/appdata/reading/readmeabook/config:/app/config
       - /mnt/data01/data/media/audiobooks:/data/audiobooks
       - /mnt/data01/data/downloads:/data/downloads
       - /mnt/apps01/appdata/reading/secrets:/secrets:ro
@@ -424,7 +410,30 @@ services:
       "set -a && [ -f /secrets/reading.env ] && . /secrets/reading.env && set +a &&
        export DATABASE_URL=\"postgresql://$${READMEABOOK_DB_USER}:$${READMEABOOK_DB_PASS}@postgresql:5432/readmeabook\" &&
        export REDIS_URL=\"redis://readmeabook-redis:6379\" &&
-       exec node /app/dist/index.js"
+       exec /entrypoint.sh /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"
+
+  # ── ReadMeABook Redis ───────────────────────────────────────
+  # External Redis for ReadMeABook (image auto-skips internal Redis
+  # when REDIS_URL points to non-localhost)
+  readmeabook-redis:
+    image: redis:8-alpine
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    volumes:
+      - /mnt/apps01/appdata/reading/readmeabook/redis:/data
+    networks:
+      - reading
+    command: redis-server --appendonly yes
 
 # ── Networks ─────────────────────────────────────────────────
 networks:
