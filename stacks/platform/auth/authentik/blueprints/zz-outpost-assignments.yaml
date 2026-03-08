@@ -50,3 +50,8 @@ entries:
         # Media — enrichment stack
         - !Find [authentik_providers_proxy.proxyprovider, [name, titlecards-forward-auth]]
         - !Find [authentik_providers_proxy.proxyprovider, [name, posterizarr-forward-auth]]
+        # Reading stack
+        - !Find [authentik_providers_proxy.proxyprovider, [name, bookshelf-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, komga-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, mylar3-forward-auth]]
+        - !Find [authentik_providers_proxy.proxyprovider, [name, readmeabook-forward-auth]]

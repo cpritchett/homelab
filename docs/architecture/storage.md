@@ -47,29 +47,29 @@ TrueNAS provides two primary ZFS pools with distinct purposes:
 │   ├── woodpecker/
 │   │   ├── woodpecker.db             # SQLite DB
 │   │   └── secrets/                  # Injected env
-│   └── media/
-│       ├── plex/config/
-│       ├── jellyfin/config/
-│       ├── sonarr/config/
-│       ├── radarr/config/
-│       ├── prowlarr/config/
-│       ├── sabnzbd/config/
-│       ├── bazarr/config/
-│       ├── tautulli/config/
-│       ├── maintainerr/config/
-│       ├── seerr/config/
-│       ├── wizarr/database/
-│       ├── recyclarr/config/
-│       ├── tracearr/config/
-│       ├── tracearr/image-cache/
-│       ├── tracearr/timescaledb/     # TimescaleDB data
-│       ├── tracearr/redis/           # Redis AOF
-│       ├── kometa/config/
-│       ├── titlecardmaker/config/
-│       ├── posterizarr/config/ + assets/
-│       ├── core/secrets/             # Injected media.env
-│       ├── support/secrets/          # Injected support.env
-│       └── torrent/secrets/          # Injected torrent.env
+│   ├── media/
+│   │   ├── plex/config/
+│   │   ├── jellyfin/config/
+│   │   ├── sonarr/config/
+│   │   ├── radarr/config/
+│   │   ├── prowlarr/config/
+│   │   ├── sabnzbd/config/
+│   │   ├── bazarr/config/
+│   │   ├── tautulli/config/
+│   │   ├── maintainerr/config/
+│   │   ├── seerr/config/
+│   │   ├── wizarr/database/
+│   │   ├── recyclarr/config/
+│   │   ├── tracearr/config/
+│   │   ├── tracearr/image-cache/
+│   │   ├── tracearr/timescaledb/     # TimescaleDB data
+│   │   ├── tracearr/redis/           # Redis AOF
+│   │   ├── kometa/config/
+│   │   ├── titlecardmaker/config/
+│   │   ├── posterizarr/config/ + assets/
+│   │   ├── core/secrets/             # Injected media.env
+│   │   ├── support/secrets/          # Injected support.env
+│   │   └── torrent/secrets/          # Injected torrent.env
 │   └── reading/
 │       ├── kavita/config/
 │       ├── komga/config/
