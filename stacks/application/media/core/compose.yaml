@@ -430,8 +430,9 @@ services:
        exec /init"
 
   # ── Download Reaper (cron) ────────────────────────────────
-  # Deletes _FAILED_* dirs older than 3 days from SABnzbd's
-  # completed download folder. Runs daily at 04:00 UTC.
+  # Daily cleanup of SABnzbd download directories:
+  #   - complete/_FAILED_* dirs older than 3 days
+  #   - incomplete dirs older than 7 days (orphaned downloads)
   download-reaper:
     image: alpine:3
     deploy:
@@ -448,13 +449,18 @@ services:
           memory: 32M
     volumes:
       - /mnt/data01/data/usenet/complete:/complete
+      - /mnt/data01/data/usenet/incomplete:/incomplete
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "while true; do
-         echo \"[reaper] Scanning for _FAILED_* dirs older than 3 days...\";
+         echo \"[reaper] $$(date -Iseconds) Starting cleanup...\";
+         failed=$$(find /complete -maxdepth 1 -type d -name '_FAILED_*' -mtime +3 | wc -l);
          find /complete -maxdepth 1 -type d -name '_FAILED_*' -mtime +3 -exec rm -rf {} + ;
-         count=$$(find /complete -maxdepth 1 -type d -name '_FAILED_*' | wc -l);
-         echo \"[reaper] Done. $$count _FAILED_ dirs remaining (< 3 days old)\";
+         echo \"[reaper] Removed $$failed failed download(s) older than 3 days\";
+         orphan=$$(find /incomplete -mindepth 1 -maxdepth 1 -mtime +7 | wc -l);
+         find /incomplete -mindepth 1 -maxdepth 1 -mtime +7 -exec rm -rf {} + ;
+         echo \"[reaper] Removed $$orphan orphaned incomplete(s) older than 7 days\";
+         echo \"[reaper] Next run in 24h\";
          sleep 86400;
        done"
 
