@@ -449,15 +449,11 @@ services:
           memory: 64M
     volumes:
       - ./decluttarr/config.yaml.template:/config.yaml.template:ro
+      - ./decluttarr/entrypoint.sh:/entrypoint.sh:ro
       - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
     networks:
       - media
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
-       mkdir -p /app/config &&
-       sed -e \"s|\$${SONARR_API_KEY}|$$SONARR_API_KEY|g\" -e \"s|\$${RADARR_API_KEY}|$$RADARR_API_KEY|g\" -e \"s|\$${SABNZBD_API_KEY}|$$SABNZBD_API_KEY|g\" /config.yaml.template > /app/config/config.yaml &&
-       exec python main.py"
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
 
   # ── Download Reaper (cron) ────────────────────────────────
   # Disk cleanup safety net — catches junk Decluttarr can't reach
