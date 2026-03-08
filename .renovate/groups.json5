@@ -78,6 +78,13 @@
       group: { commitMessageTopic: "{{{groupName}}} group" }
     },
     {
+      description: "Reading Stack Group",
+      groupName: "Reading Stack",
+      matchFileNames: ["stacks/application/reading/**"],
+      semanticCommitScope: "reading",
+      group: { commitMessageTopic: "{{{groupName}}}" }
+    },
+    {
       description: "Authentik Group",
       groupName: "Authentik",
       matchDatasources: ["docker"],
