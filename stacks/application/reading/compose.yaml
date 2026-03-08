@@ -82,8 +82,7 @@ services:
       TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/reading/kavita/config:/config
-      - /mnt/data01/data/media/books:/data/books:ro
-      - /mnt/data01/data/media/comics:/data/comics:ro
+      - /mnt/data01/data:/data
     networks:
       - reading
       - proxy_network
@@ -143,8 +142,7 @@ services:
       KOMGA_CONFIGDIR: "/config"
     volumes:
       - /mnt/apps01/appdata/reading/komga/config:/config
-      - /mnt/data01/data/media/comics:/data/comics:ro
-      - /mnt/data01/data/media/books:/data/books:ro
+      - /mnt/data01/data:/data
     networks:
       - reading
       - proxy_network
@@ -205,8 +203,7 @@ services:
       TZ: "America/Chicago"
     volumes:
       - /mnt/apps01/appdata/reading/mylar3/config:/config
-      - /mnt/data01/data/media/comics:/data/comics
-      - /mnt/data01/data/downloads:/data/downloads
+      - /mnt/data01/data:/data
       - /mnt/apps01/appdata/reading/secrets:/secrets:ro
     networks:
       - reading
