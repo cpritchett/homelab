@@ -44,7 +44,7 @@ services:
   # TODO: Add VPN sidecar container (e.g., gluetun) before deployment.
   #       qBittorrent traffic must route through VPN for privacy.
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:latest@sha256:6a7ffbfff04dd109bff37c474bfee00aa08dea5edb78c670439be3ed242b70fa
     deploy:
       replicas: 1
       restart_policy:
