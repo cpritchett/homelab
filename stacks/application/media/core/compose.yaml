@@ -429,10 +429,46 @@ services:
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
        exec /init"
 
+  # ── Decluttarr ───────────────────────────────────────────
+  # Smart queue cleanup — monitors Sonarr/Radarr queues via API,
+  # removes stalled/failed/slow downloads, blocklists and re-searches.
+  # Logs to stdout → Alloy → Loki
+  decluttarr:
+    image: ghcr.io/manimatter/decluttarr:v2.0.0
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 30s
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+    volumes:
+      - ./decluttarr/config.yaml.template:/config.yaml.template:ro
+      - /mnt/apps01/appdata/media/core/secrets:/secrets:ro
+    networks:
+      - media
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
+       mkdir -p /app/config &&
+       sed -e \"s|\$${SONARR_API_KEY}|$$SONARR_API_KEY|g\"
+           -e \"s|\$${RADARR_API_KEY}|$$RADARR_API_KEY|g\"
+           -e \"s|\$${SABNZBD_API_KEY}|$$SABNZBD_API_KEY|g\"
+           /config.yaml.template > /app/config/config.yaml &&
+       exec python main.py"
+
   # ── Download Reaper (cron) ────────────────────────────────
-  # Daily cleanup of SABnzbd download directories:
-  #   - complete/_FAILED_* dirs older than 3 days
-  #   - incomplete dirs older than 7 days (orphaned downloads)
+  # Disk cleanup safety net — catches junk Decluttarr can't reach
+  # (files left on disk after *arr queue removal). Longer windows
+  # to let Decluttarr handle things first.
+  #   - complete/_FAILED_* dirs older than 7 days
+  #   - incomplete dirs older than 14 days (orphaned downloads)
+  # Logs to stdout → Alloy → Loki
   download-reaper:
     image: alpine:3
     deploy:
@@ -453,14 +489,13 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "while true; do
-         echo \"[reaper] $$(date -Iseconds) Starting cleanup...\";
-         failed=$$(find /complete -maxdepth 1 -type d -name '_FAILED_*' -mtime +3 | wc -l);
-         find /complete -maxdepth 1 -type d -name '_FAILED_*' -mtime +3 -exec rm -rf {} + ;
-         echo \"[reaper] Removed $$failed failed download(s) older than 3 days\";
-         orphan=$$(find /incomplete -mindepth 1 -maxdepth 1 -mtime +7 | wc -l);
-         find /incomplete -mindepth 1 -maxdepth 1 -mtime +7 -exec rm -rf {} + ;
-         echo \"[reaper] Removed $$orphan orphaned incomplete(s) older than 7 days\";
-         echo \"[reaper] Next run in 24h\";
+         ts=$$(date -Iseconds);
+         echo \"{\\\"ts\\\":\\\"$$ts\\\",\\\"level\\\":\\\"info\\\",\\\"msg\\\":\\\"Starting disk cleanup\\\"}\";
+         failed=$$(find /complete -maxdepth 1 -type d -name '_FAILED_*' -mtime +7 | wc -l);
+         find /complete -maxdepth 1 -type d -name '_FAILED_*' -mtime +7 -exec rm -rf {} + ;
+         orphan=$$(find /incomplete -mindepth 1 -maxdepth 1 -mtime +14 | wc -l);
+         find /incomplete -mindepth 1 -maxdepth 1 -mtime +14 -exec rm -rf {} + ;
+         echo \"{\\\"ts\\\":\\\"$$ts\\\",\\\"level\\\":\\\"info\\\",\\\"msg\\\":\\\"Cleanup complete\\\",\\\"failed_removed\\\":$$failed,\\\"orphan_removed\\\":$$orphan}\";
          sleep 86400;
        done"
 
