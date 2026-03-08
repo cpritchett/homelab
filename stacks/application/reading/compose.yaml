@@ -382,6 +382,7 @@ services:
       PUID: "1701"
       PGID: "1702"
       TZ: "America/Chicago"
+      PUBLIC_URL: "https://readmeabook.in.hypyr.space"
       DATABASE_URL: "postgresql://readmeabook:placeholder@postgresql:5432/readmeabook"
       REDIS_URL: "redis://readmeabook-redis:6379"
     volumes:
