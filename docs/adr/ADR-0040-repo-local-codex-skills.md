@@ -56,9 +56,11 @@ Repo-local Codex skills are allowed only for tool-specific procedural guidance a
 Update:
 
 1. `scripts/enforce-markdown-allowlist.sh`
-2. `contracts/invariants.md`
-3. `requirements/workflow/spec.md`
-4. `requirements/workflow/checks.md`
+2. `scripts/check-no-agent-grab-bag.sh`
+3. `contracts/invariants.md`
+4. `requirements/workflow/spec.md`
+5. `requirements/workflow/checks.md`
+6. `.codex/skills/*/SKILL.md` (initial skill content)
 
 ---
 

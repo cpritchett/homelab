@@ -67,6 +67,7 @@ for prohibited_pattern in "${PROHIBITED_PATTERNS[@]}"; do
         echo "  - .github/copilot-instructions.md (copilot-specific guidance)" >&2
         echo "  - .github/agents/*.agent.md (speckit agent files)" >&2
         echo "  - .codex/skills/<skill-name>/SKILL.md (repo-local Codex skills)" >&2
+        echo "  - .codex/skills/<skill-name>/references/*.md (repo-local Codex skill references)" >&2
         echo "" >&2
         echo "  See: requirements/workflow/spec.md § Agent Instruction Governance" >&2
         found_violations=$((found_violations + 1))

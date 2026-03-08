@@ -64,7 +64,7 @@ Infer tier from the stack name and config:
 
 When a stack is `unhealthy`, `down`, or stuck `deploying`:
 
-1. Run `km list stacks --all`.
+1. Run `/Users/cpritchett/bin/km --profile barbary list stacks --all`.
 2. Read the stack entry in `komodo/resources.toml`.
 3. Read the compose file from `run_directory` and `file_paths`.
 4. Read any referenced validation script from `pre_deploy.command`.
