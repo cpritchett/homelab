@@ -100,8 +100,8 @@ ensure_dir_with_ownership() {
 # Automation secrets (written by 1password/op:2 as opuser 999:999)
 ensure_dir_with_ownership "${APPDATA_PATH}/automation/secrets" "999:999" "750"
 
-# n8n data dir (n8n runs as node UID 1000)
-ensure_dir_with_ownership "${APPDATA_PATH}/automation/n8n" "1000:1000" "755"
+# n8n data dir (n8n runs as node UID 1000, GID 999 docker group — same as op-secrets dirs)
+ensure_dir_with_ownership "${APPDATA_PATH}/automation/n8n" "1000:999" "755"
 
 log "Pre-deployment validation complete"
 exit 0
