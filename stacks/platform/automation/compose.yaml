@@ -87,7 +87,7 @@ services:
       # Security
       N8N_SECURE_COOKIE: "true"
       # Execution settings
-      EXECUTIONS_PROCESS: main
+      N8N_RUNNERS_ENABLED: "true"
       N8N_LOG_LEVEL: info
       # 1Password Connect — for any op commands triggered by workflows
       OP_CONNECT_HOST: http://op-connect-api:8080
