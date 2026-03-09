@@ -137,10 +137,17 @@ services:
           cpus: '0.5'
           memory: 256M
       labels:
-        # Caddy ingress
+        # Caddy ingress — internal (full dashboard, SSO-protected)
         caddy: status.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 3001}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        # Caddy ingress — public (badge API only, no auth)
+        caddy_1: status.hypyr.space
+        caddy_1.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy_1.@badges.path: "/api/badge/*"
+        caddy_1.handle_0: "@badges"
+        caddy_1.handle_0.reverse_proxy: "{{upstreams 3001}}"
+        caddy_1.handle_1.respond: "Forbidden 403"
         # Homepage registration
         homepage.group: "Observability"
         homepage.name: "Uptime Kuma"
