@@ -23,7 +23,7 @@ services:
       sh -ec "
       export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
       if op inject -i /templates/n8n.env.template -o /secrets/n8n.env -f; then
-        chmod 600 /secrets/n8n.env &&
+        chmod 640 /secrets/n8n.env &&
         echo 'Automation secrets injected successfully';
       elif [ -s /secrets/n8n.env ]; then
         echo 'Automation secret injection failed; using existing /secrets/n8n.env';
