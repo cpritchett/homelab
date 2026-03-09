@@ -3,6 +3,7 @@
 **Status**: Accepted
 **Date**: 2026-03-08
 **Authority**: Constitution Principle V (Prefer Structural Safety Over Convention)
+**ADR**: [ADR-0041](../../docs/adr/ADR-0041-critical-service-safety.md)
 **Spec**: `specs/008-media-server-safety/spec.md`
 
 ---
