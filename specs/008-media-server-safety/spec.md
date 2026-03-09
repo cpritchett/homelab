@@ -2,7 +2,7 @@
 
 **Feature Branch**: `008-media-server-safety`
 **Created**: 2026-03-08
-**Status**: Draft
+**Status**: Implemented
 **Input**: User description: "Add production safety constraint for critical services (Plex, Jellyfin). Never restart critical services or their dependencies when active sessions exist. Support annotating services as critical vs non-critical."
 
 ## User Scenarios & Testing *(mandatory)*

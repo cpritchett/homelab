@@ -62,8 +62,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T010 [US3] Ensure komodo-deploy skill accepts operator confirmation ("yes", "proceed", "override") to bypass the session check block — this should already work from T008's confirmation prompt; verify the flow logs the override decision
-- [ ] T011 [US3] Add override logging to komodo-deploy skill — when operator overrides, include in the deploy output: "Session check overridden by operator. N active sessions on ServiceName at time of deploy."
+- [x] T010 [US3] Ensure komodo-deploy skill accepts operator confirmation ("yes", "proceed", "override") to bypass the session check block — this should already work from T008's confirmation prompt; verify the flow logs the override decision
+- [x] T011 [US3] Add override logging to komodo-deploy skill — when operator overrides, include in the deploy output: "Session check overridden by operator. N active sessions on ServiceName at time of deploy."
 
 **Checkpoint**: Operator can override session check with explicit confirmation
 
@@ -77,8 +77,8 @@
 
 ### Implementation for User Story 4
 
-- [ ] T012 [US4] Verify komodo-deploy skill only triggers session checks when target stack matches a critical service's `stack` or `cross_stack_deps` in config/critical-services.yaml — non-matching stacks should skip the check entirely with no user-visible prompt
-- [ ] T013 [US4] Add brief log line to komodo-deploy skill when session check is skipped: "No critical services in stack {name}, proceeding" (visible only in verbose/debug mode, not as a prompt to the operator)
+- [x] T012 [US4] Verify komodo-deploy skill only triggers session checks when target stack matches a critical service's `stack` or `cross_stack_deps` in config/critical-services.yaml — non-matching stacks should skip the check entirely with no user-visible prompt
+- [x] T013 [US4] Add brief log line to komodo-deploy skill when session check is skipped: "No critical services in stack {name}, proceeding" (visible only in verbose/debug mode, not as a prompt to the operator)
 
 **Checkpoint**: Non-critical stack deploys proceed without interruption
 
@@ -88,7 +88,7 @@
 
 **Purpose**: Documentation, cleanup, and end-to-end verification
 
-- [ ] T015 [P] Update specs/008-media-server-safety/spec.md status from Draft to Implemented
+- [x] T015 [P] Update specs/008-media-server-safety/spec.md status from Draft to Implemented
 - [ ] T016 Run quickstart.md end-to-end verification: play media on Plex, attempt deploy, verify block; confirm override; stop playback, verify clean deploy; deploy non-critical stack, verify no check
 
 ---
