@@ -70,16 +70,128 @@ Follow these steps in order:
    ```sh
    /Users/cpritchett/bin/km --profile barbary execute -y run-sync homelab-resources
    ```
-4. **Deploy the stack**:
+4. **Critical service session check** (BEFORE deploying — see section 3a):
+   - Read `config/critical-services.yaml`
+   - If the target stack contains critical services, check for active sessions
+   - Block deploy if active sessions detected (operator can override)
+   - Skip this step if no critical services in the target stack
+5. **Deploy the stack**:
    ```sh
    /Users/cpritchett/bin/km --profile barbary execute -y deploy-stack <STACK_NAME>
    ```
-5. **Verify**:
+6. **Verify**:
    ```sh
    /Users/cpritchett/bin/km --profile barbary list stacks
    ```
 
 If deploying multiple stacks, respect dependency order (section 4).
+
+---
+
+## 3a. Critical Service Session Check (MANDATORY)
+
+**Authority:** `contracts/agents.md` § Required: Critical Service Safety
+
+Before executing `km deploy-stack`, you MUST check whether the target stack contains
+critical services that have active streaming sessions. This prevents disrupting users
+who are actively watching media.
+
+### Step 1: Read the critical service registry
+
+```
+Read config/critical-services.yaml
+```
+
+Parse `critical_services` entries. Each entry has:
+- `name`: service name
+- `stack`: the Komodo stack this service belongs to
+- `display_name`: human-readable name for messages
+- `session_check`: how to query for active sessions
+- `cross_stack_deps`: additional stacks that should also be blocked
+
+### Step 2: Determine if the target stack is affected
+
+Check if the target stack name matches any critical service's `stack` field or appears
+in any critical service's `cross_stack_deps` list.
+
+- **No match** → Skip session check, proceed to deploy. Log: "No critical services in
+  stack {name}, proceeding."
+- **Match found** → Continue to Step 3 for each matching critical service.
+
+### Step 3: Query session APIs
+
+For each critical service in the affected stack, resolve the API token and query for
+active sessions.
+
+**Resolve the API token:**
+```sh
+op read "{auth_secret}"
+```
+Where `{auth_secret}` is the `session_check.auth_secret` value from the YAML
+(e.g., `op://homelab/plex/X_PLEX_TOKEN`).
+
+**Plex session check** (`method: plex`):
+```sh
+curl -s -H "Accept: application/json" "{url}?{auth_param}={token}"
+```
+Parse the JSON response:
+- `MediaContainer.size` = number of active sessions
+- If `size > 0`, iterate `MediaContainer.Metadata[]`:
+  - `User.title` = username
+  - `title` = media title
+  - `Player.state` = "playing" or "paused"
+- Active session = `Player.state` is "playing" OR "paused"
+
+**Jellyfin session check** (`method: jellyfin`):
+```sh
+curl -s "{url}?{auth_param}={token}"
+```
+Parse the JSON response (array):
+- Filter entries where `NowPlayingItem` is present (non-null)
+- For each active session:
+  - `UserName` = username
+  - `NowPlayingItem.Name` = media title
+  - `PlayState.IsPaused` = true (paused) or false (playing)
+
+### Step 4: Act on results
+
+**No active sessions on any critical service:**
+Proceed to deploy. No operator prompt needed.
+
+**Active sessions detected:**
+Report to the operator and BLOCK the deploy:
+
+```
+⚠ Active sessions detected — deploy will restart affected services:
+
+  Plex: 2 active streams
+    - user1: Movie Title [playing]
+    - user2: TV Show S01E05 [paused]
+
+  Deploy of application_media_core will restart Plex.
+  Proceed anyway? (This will interrupt active streams)
+```
+
+Wait for explicit operator confirmation before proceeding. If the operator confirms:
+- Log: "Session check overridden by operator. N active sessions on ServiceName at time of deploy."
+- Proceed with deploy.
+
+If the operator declines, abort the deploy.
+
+**Session API unreachable or error:**
+If `curl` returns a non-200 status, connection timeout, or any error:
+
+```
+⚠ Cannot verify session status for Plex:
+  Error: HTTP 401 — API token may be invalid
+
+  Plex may have active sessions. Proceed with deploy anyway?
+```
+
+Treat as "potentially active" and ask the operator. Display the specific error:
+- HTTP 401/403 → "API token may be invalid"
+- Connection timeout → "Service may be down or unreachable"
+- HTTP 5xx → "Service returned server error"
 
 ---
 

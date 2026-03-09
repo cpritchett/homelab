@@ -229,3 +229,4 @@ See: [ADR-0028: Constitutional Authority for Governance Procedures](../../docs/a
 See: [ADR-0029: Contract Lifecycle Procedures](../../docs/adr/ADR-0029-contract-lifecycle-procedures.md)
 See: [ADR-0030: Agent Governance Steering Pattern](../../docs/adr/ADR-0030-agent-governance-steering.md)
 See: [ADR-0031: Automated Release Process](../../docs/adr/ADR-0031-automated-release-process.md)
+See: [ADR-0041: Critical Service Production Safety](../../docs/adr/ADR-0041-critical-service-safety.md)
