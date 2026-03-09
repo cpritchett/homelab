@@ -1,0 +1,133 @@
+services:
+  op-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./n8n.env.template:/templates/n8n.env.template:ro
+      - /mnt/apps01/appdata/automation/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      if op inject -i /templates/n8n.env.template -o /secrets/n8n.env -f; then
+        chmod 600 /secrets/n8n.env &&
+        echo 'Automation secrets injected successfully';
+      elif [ -s /secrets/n8n.env ]; then
+        echo 'Automation secret injection failed; using existing /secrets/n8n.env';
+      else
+        echo 'Automation secret injection failed and no existing /secrets/n8n.env present' >&2;
+        exit 1;
+      fi
+      "
+
+  n8n:
+    image: n8nio/n8n:1.99.1
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        homepage.group: "Platform"
+        homepage.name: "n8n"
+        homepage.icon: "n8n.png"
+        homepage.href: "https://automation.in.hypyr.space"
+        homepage.description: "Workflow automation"
+
+        caddy: automation.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 5678}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        kuma.n8n.http.name: "n8n Automation"
+        kuma.n8n.http.url: "http://n8n:5678/healthz"
+        kuma.n8n.http.interval: "60"
+        kuma.n8n.http.maxretries: "3"
+        kuma.n8n.http.accepted_statuscodes: '["200-299"]'
+    environment:
+      TZ: America/Chicago
+      # Database
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgresql
+      DB_POSTGRESDB_PORT: "5432"
+      DB_POSTGRESDB_DATABASE: n8n
+      DB_POSTGRESDB_SCHEMA: public
+      # n8n general config
+      N8N_HOST: automation.in.hypyr.space
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: https
+      WEBHOOK_URL: https://automation.in.hypyr.space/
+      N8N_EDITOR_BASE_URL: https://automation.in.hypyr.space/
+      # Security
+      N8N_SECURE_COOKIE: "true"
+      # Execution settings
+      EXECUTIONS_PROCESS: main
+      N8N_LOG_LEVEL: info
+      # 1Password Connect — for any op commands triggered by workflows
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - /mnt/apps01/appdata/automation/n8n:/home/node/.n8n
+      - /mnt/apps01/appdata/automation/secrets:/run/automation-secrets:ro
+    networks:
+      - automation_internal
+      - proxy_network
+      - postgres
+      - op-connect
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a;
+       if [ -f /run/automation-secrets/n8n.env ]; then
+         . /run/automation-secrets/n8n.env;
+       fi;
+       set +a;
+       exec n8n start"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  automation_internal:
+    driver: overlay
+  proxy_network:
+    external: true
+  postgres:
+    name: platform_postgres_postgres
+    external: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+secrets:
+  op_connect_token:
+    external: true

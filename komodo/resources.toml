@@ -162,6 +162,26 @@ webhook_enabled = true
 # ── Stacks (Swarm mode) ────────────────────────────────
 
 [[stack]]
+name = "platform_automation"
+after = ["platform_postgres"]
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/automation"
+ignore_services = ["op-secrets"]
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-automation-setup.sh"
+
+# ---
+
+[[stack]]
 name = "platform_monitoring"
 after = ["platform_postgres"]
 
