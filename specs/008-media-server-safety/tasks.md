@@ -29,9 +29,9 @@
 
 **CRITICAL**: No deploy skill changes can take effect until governance docs are updated
 
-- [ ] T004 Add critical service safety rule to contracts/agents.md — add a "Required: Critical Service Safety" section under Required Workflows stating agents MUST check config/critical-services.yaml before deploying stacks containing critical services
-- [ ] T005 [P] Update agent memory at /Users/cpritchett/.claude/projects/-Users-cpritchett-src-personal-homelab/memory/MEMORY.md — verify critical service constraint is documented (already partially done; ensure it references config/critical-services.yaml)
-- [ ] T014 [P] Update constitution/amendments/ — create AMENDMENT-NNNN-critical-service-safety.md documenting the new agent operating rule (reference ADR format)
+- [x] T004 Add critical service safety rule to contracts/agents.md — add a "Required: Critical Service Safety" section under Required Workflows stating agents MUST check config/critical-services.yaml before deploying stacks containing critical services
+- [x] T005 [P] Update agent memory at /Users/cpritchett/.claude/projects/-Users-cpritchett-src-personal-homelab/memory/MEMORY.md — verify critical service constraint is documented (already partially done; ensure it references config/critical-services.yaml)
+- [x] T014 [P] Update constitution/amendments/ — create AMENDMENT-NNNN-critical-service-safety.md documenting the new agent operating rule (reference ADR format)
 
 **Checkpoint**: Governance documents updated — agent sessions will read these on startup
 

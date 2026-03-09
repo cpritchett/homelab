@@ -25,6 +25,14 @@ Agents MUST:
 - Fill all required checklist items in templates (do not skip or leave incomplete)
 - Provide evidence of CI gate passage in PR descriptions
 
+### Required: Critical Service Safety
+Before deploying any stack via `km deploy-stack`, agents MUST:
+1. Read `config/critical-services.yaml` to identify critical services in the target stack
+2. If the target stack (or its `cross_stack_deps`) contains critical services, query each service's session API to check for active sessions
+3. If active sessions are detected (playing or paused), report the session count, usernames, and media titles to the operator and **block the deploy** until the operator explicitly confirms
+4. If a session API is unreachable or returns an error, treat the service as "potentially active" and ask the operator before proceeding
+5. If no critical services are affected by the deploy, proceed without session checks
+
 ## Prohibited actions
 Agents MUST NOT:
 - Make changes that violate `requirements/` or `contracts/invariants.md`
