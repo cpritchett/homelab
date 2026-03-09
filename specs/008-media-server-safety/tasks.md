@@ -17,9 +17,9 @@
 
 **Purpose**: Create the critical service registry and obtain API tokens
 
-- [ ] T001 Create critical service registry file at config/critical-services.yaml with Plex and Jellyfin entries per data-model.md schema
-- [ ] T002 [P] Create 1Password item `plex` in homelab vault with field `X_PLEX_TOKEN` (obtain token from Plex server at /mnt/apps01/appdata/media/plex/config/Library/Application Support/Plex Media Server/Preferences.xml)
-- [ ] T003 [P] Create 1Password item `jellyfin` in homelab vault with field `API_KEY` (generate API key in Jellyfin admin dashboard at https://jellyfin.in.hypyr.space)
+- [x] T001 Create critical service registry file at config/critical-services.yaml with Plex and Jellyfin entries per data-model.md schema
+- [x] T002 [P] Create 1Password item `plex` in homelab vault with field `X_PLEX_TOKEN` (obtain token from Plex server at /mnt/apps01/appdata/media/plex/config/Library/Application Support/Plex Media Server/Preferences.xml)
+- [x] T003 [P] Create 1Password item `jellyfin` in homelab vault with field `API_KEY` (generate API key in Jellyfin admin dashboard at https://jellyfin.in.hypyr.space)
 
 ---
 
