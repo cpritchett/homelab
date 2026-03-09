@@ -45,10 +45,10 @@
 
 ### Implementation for User Stories 1 + 2
 
-- [ ] T006 [US1] [US2] Update komodo-deploy skill (Claude Code project setting, not a repo file) to add pre-deploy session check logic — before executing `km deploy-stack`, read config/critical-services.yaml, identify if the target stack contains critical services, and if so query each service's session API
-- [ ] T007 [US1] [US2] Add session-check curl commands to the komodo-deploy skill — for Plex: GET /status/sessions?X-Plex-Token={token} (query parameter), parse MediaContainer.size and Player.state; for Jellyfin: GET /Sessions?ApiKey={key} (query parameter), filter entries where NowPlayingItem is present. Report active session count, usernames, and media titles per contracts/session-check-api.md
-- [ ] T008 [US1] [US2] Add blocking logic to komodo-deploy skill — when active sessions detected, present session details to operator and ask for confirmation before proceeding. Format: "N active streams on ServiceName (user1: Title [playing], user2: Title [paused]). Deploy will restart ServiceName. Proceed anyway?"
-- [ ] T009 [US1] [US2] Add unreachable/error handling to komodo-deploy skill — if session API returns non-200, connection timeout, or is unreachable, treat as "may be active" and ask operator per FR-005. Display the specific error (401 = bad token, timeout = service down, etc.)
+- [x] T006 [US1] [US2] Update komodo-deploy skill (Claude Code project setting, not a repo file) to add pre-deploy session check logic — before executing `km deploy-stack`, read config/critical-services.yaml, identify if the target stack contains critical services, and if so query each service's session API
+- [x] T007 [US1] [US2] Add session-check curl commands to the komodo-deploy skill — for Plex: GET /status/sessions?X-Plex-Token={token} (query parameter), parse MediaContainer.size and Player.state; for Jellyfin: GET /Sessions?ApiKey={key} (query parameter), filter entries where NowPlayingItem is present. Report active session count, usernames, and media titles per contracts/session-check-api.md
+- [x] T008 [US1] [US2] Add blocking logic to komodo-deploy skill — when active sessions detected, present session details to operator and ask for confirmation before proceeding. Format: "N active streams on ServiceName (user1: Title [playing], user2: Title [paused]). Deploy will restart ServiceName. Proceed anyway?"
+- [x] T009 [US1] [US2] Add unreachable/error handling to komodo-deploy skill — if session API returns non-200, connection timeout, or is unreachable, treat as "may be active" and ask operator per FR-005. Display the specific error (401 = bad token, timeout = service down, etc.)
 
 **Checkpoint**: Agent blocks media core deploys when streams are active and reads critical services from config file
 
