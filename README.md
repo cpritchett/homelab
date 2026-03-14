@@ -6,13 +6,6 @@
 
 [![Renovate](https://img.shields.io/badge/renovate-enabled-brightgreen?style=flat-square&logo=renovatebot)](https://github.com/renovatebot/renovate)
 
-![Plex](https://status.hypyr.space/api/badge/143/status?label=Plex&style=flat-square)
-![Jellyfin](https://status.hypyr.space/api/badge/163/status?label=Jellyfin&style=flat-square)
-![Caddy](https://status.hypyr.space/api/badge/165/status?label=Caddy&style=flat-square)
-![Authentik](https://status.hypyr.space/api/badge/155/status?label=Authentik&style=flat-square)
-![Grafana](https://status.hypyr.space/api/badge/146/status?label=Grafana&style=flat-square)
-![Uptime](https://status.hypyr.space/api/badge/143/uptime/720?label=Uptime&style=flat-square)
-
 *Push to main. Komodo pulls. Services update. No clicking around in UIs.*
 
 </div>
@@ -138,10 +131,10 @@ Infrastructure bootstraps itself with `docker stack deploy`. Everything above it
 ```
 Internet → Cloudflare Edge → cloudflared tunnel → Caddy → Authentik (forward auth) → Service
                                                     ↑
-Internal clients → UniFi DNS (*.in.hypyr.space) ────┘
+Internal clients → local DNS and private routing ───┘
 ```
 
-All inter-service communication uses Docker overlay networks. Services discover each other via DNS. The Docker socket is never exposed directly — every stack that needs it runs a [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy) sidecar.
+All inter-service communication uses Docker overlay networks. Services discover each other via DNS. The Docker socket is never exposed directly — every stack that needs it runs a [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy) sidecar. For canonical routing and DNS details, see [`contracts/invariants.md`](contracts/invariants.md) and [`docs/architecture/networking.md`](docs/architecture/networking.md).
 
 ### Storage
 
