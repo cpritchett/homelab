@@ -145,6 +145,7 @@ services:
       proxy_network:
         aliases:
           - authentik-server
+      smtp_relay:
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/authentik.env ] && . /secrets/authentik.env && set +a &&
@@ -191,6 +192,9 @@ networks:
     external: true
   op-connect:
     name: op-connect_op-connect
+    external: true
+  smtp_relay:
+    name: platform_smtp_relay
     external: true
 
 secrets:

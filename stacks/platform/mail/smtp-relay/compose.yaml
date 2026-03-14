@@ -1,0 +1,81 @@
+services:
+  op-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./env.template:/templates/msmtpd.env.template:ro
+      - /mnt/apps01/appdata/smtp-relay/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      if op inject -i /templates/msmtpd.env.template -o /secrets/msmtpd.env -f; then
+        chmod 640 /secrets/msmtpd.env &&
+        echo 'SMTP relay secrets injected successfully';
+      elif [ -s /secrets/msmtpd.env ]; then
+        echo 'SMTP relay secret injection failed; using existing /secrets/msmtpd.env';
+      else
+        echo 'SMTP relay secret injection failed and no existing /secrets/msmtpd.env present' >&2;
+        exit 1;
+      fi
+      "
+
+  smtp-relay:
+    image: crazymax/msmtpd:latest@sha256:76d834eef113cdc330c08c0c3fc8389de6239771c73ef40e7d614116b3356e40
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    environment:
+      TZ: America/Chicago
+      PUID: "1500"
+      PGID: "1500"
+    volumes:
+      - /mnt/apps01/appdata/smtp-relay/secrets:/run/smtp-relay-secrets:ro
+    networks:
+      smtp_relay:
+        aliases:
+          - smtp-relay
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a;
+       if [ -f /run/smtp-relay-secrets/msmtpd.env ]; then
+         . /run/smtp-relay-secrets/msmtpd.env;
+       fi;
+       set +a;
+       exec /init"
+
+networks:
+  smtp_relay:
+    name: platform_smtp_relay
+    driver: overlay
+    attachable: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+secrets:
+  op_connect_token:
+    external: true

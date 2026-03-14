@@ -227,6 +227,7 @@ services:
       - media
       - proxy_network
       - postgres
+      - smtp_relay
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:8989/ping || exit 1"]
       interval: 30s
@@ -293,6 +294,7 @@ services:
       - media
       - proxy_network
       - postgres
+      - smtp_relay
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:7878/ping || exit 1"]
       interval: 30s
@@ -358,6 +360,7 @@ services:
       - media
       - proxy_network
       - postgres
+      - smtp_relay
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:9696/ping || exit 1"]
       interval: 30s
@@ -424,6 +427,7 @@ services:
     networks:
       - media
       - proxy_network
+      - smtp_relay
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/media.env ] && . /secrets/media.env && set +a &&
@@ -503,6 +507,9 @@ networks:
     external: true
   op-connect:
     name: op-connect_op-connect
+    external: true
+  smtp_relay:
+    name: platform_smtp_relay
     external: true
 
 # ── Secrets ──────────────────────────────────────────────────

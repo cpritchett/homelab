@@ -109,6 +109,7 @@ services:
     networks:
       - media_support
       - proxy_network
+      - smtp_relay
 
   # ── Tautulli ─────────────────────────────────────────────────
   # Pinned to barbary — SQLite DB, Plex-adjacent
@@ -162,6 +163,7 @@ services:
     networks:
       - media_support
       - proxy_network
+      - smtp_relay
 
   # ── Maintainerr ──────────────────────────────────────────────
   # Pinned to barbary — SQLite DB
@@ -264,6 +266,7 @@ services:
       - media_support
       - proxy_network
       - postgres
+      - smtp_relay
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:5055/api/v1/status || exit 1"]
       interval: 30s
@@ -356,6 +359,7 @@ services:
     networks:
       - media_support
       - proxy_network
+      - smtp_relay
 
   # ── Tracearr TimescaleDB ─────────────────────────────────────
   # Pinned to barbary — ZFS-backed database
@@ -488,9 +492,11 @@ networks:
   notifications:
     name: platform_observability_notifications
     external: true
+  smtp_relay:
+    name: platform_smtp_relay
+    external: true
 
 # ── Secrets ──────────────────────────────────────────────────
 secrets:
   op_connect_token:
     external: true
-

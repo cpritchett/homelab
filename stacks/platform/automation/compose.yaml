@@ -102,6 +102,7 @@ services:
       - proxy_network
       - postgres
       - op-connect
+      - smtp_relay
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a;
@@ -127,6 +128,9 @@ networks:
     external: true
   op-connect:
     name: op-connect_op-connect
+    external: true
+  smtp_relay:
+    name: platform_smtp_relay
     external: true
 
 secrets:
