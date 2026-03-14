@@ -446,17 +446,14 @@ services:
         homepage.href: "https://tracearr.in.hypyr.space"
         homepage.description: "Stream monitoring & analytics"
 
-        # Caddy: Reverse proxy + Authentik forward auth
+        # Caddy: Reverse proxy (NO forward auth — Tracearr has own auth via Plex)
         caddy: tracearr.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 3000}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
-        caddy.forward_auth: "http://authentik-server:9000"
-        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
-        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
 
         # AutoKuma: Uptime monitoring
         kuma.tracearr.http.name: "Tracearr"
-        kuma.tracearr.http.url: "https://tracearr.in.hypyr.space/health"
+        kuma.tracearr.http.url: "http://tracearr:3000/health"
         kuma.tracearr.http.interval: "60"
         kuma.tracearr.http.maxretries: "3"
     volumes:
@@ -466,6 +463,7 @@ services:
     networks:
       - media_support
       - proxy_network
+      - notifications
     entrypoint: ["/bin/sh", "-c"]
     command: >
       "set -a && [ -f /secrets/support.env ] && . /secrets/support.env && set +a &&
@@ -486,6 +484,9 @@ networks:
     external: true
   op-connect:
     name: op-connect_op-connect
+    external: true
+  notifications:
+    name: platform_observability_notifications
     external: true
 
 # ── Secrets ──────────────────────────────────────────────────

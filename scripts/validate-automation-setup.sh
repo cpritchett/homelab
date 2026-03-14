@@ -1,10 +1,10 @@
 #!/bin/sh
 ###############################################################################
-# Observability Stack - Pre-Deployment Validation & Setup
+# Automation Stack - Pre-Deployment Validation & Setup
 #
-# Purpose: Validate prerequisites and prepare host paths for Homepage,
-#          Uptime Kuma, and AutoKuma.
-# Tier: Platform (depends on Infrastructure tier)
+# Purpose: Validate prerequisites and prepare host paths for n8n workflow
+#          automation engine.
+# Tier: Platform (depends on Infrastructure + Postgres tiers)
 #
 # Per ADR-0022: This script is run by Komodo as a pre-deployment hook.
 # It is IDEMPOTENT and safe to run before every deployment.
@@ -15,11 +15,11 @@ set -eu
 APPDATA_PATH="${APPDATA_PATH:-/mnt/apps01/appdata}"
 
 log() {
-    echo "[observability-validation] $*"
+    echo "[automation-validation] $*"
 }
 
 log_error() {
-    echo "[observability-validation] ERROR: $*" >&2
+    echo "[automation-validation] ERROR: $*" >&2
 }
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -54,6 +54,11 @@ fi
 
 if ! docker secret inspect op_connect_token >/dev/null 2>&1; then
     log_error "op_connect_token secret not found. Deploy infrastructure tier first."
+    exit 1
+fi
+
+if ! docker network inspect platform_postgres_postgres >/dev/null 2>&1; then
+    log_error "platform_postgres_postgres network not found. Deploy postgres stack first."
     exit 1
 fi
 
@@ -92,21 +97,11 @@ ensure_dir_with_ownership() {
 # Directories
 # ---------------------------------------------------------------------------
 
-# Homepage secrets (written by 1password/op:2 as opuser 999:999)
-ensure_dir_with_ownership "${APPDATA_PATH}/homepage/secrets" "999:999" "750"
+# Automation secrets (written by 1password/op:2 as opuser 999:999)
+ensure_dir_with_ownership "${APPDATA_PATH}/automation/secrets" "999:999" "750"
 
-# Homepage custom icons and images (writable by root, readable by homepage)
-ensure_dir_with_ownership "${APPDATA_PATH}/homepage/icons" "0:0" "755"
-ensure_dir_with_ownership "${APPDATA_PATH}/homepage/images" "0:0" "755"
-
-# Uptime Kuma data directory (runs as node UID 1000)
-ensure_dir_with_ownership "${APPDATA_PATH}/uptime-kuma" "1000:1000" "755"
-
-# AutoKuma state DB (runs as root, stores autokuma.db for monitor tracking)
-ensure_dir_with_ownership "${APPDATA_PATH}/autokuma" "0:0" "750"
-
-# Apprise config (written by op:2 as 999, read/written by Apprise as 1000:999)
-ensure_dir_with_ownership "${APPDATA_PATH}/apprise/config" "999:999" "770"
+# n8n data dir (n8n runs as node UID 1000, GID 999 docker group — same as op-secrets dirs)
+ensure_dir_with_ownership "${APPDATA_PATH}/automation/n8n" "1000:999" "755"
 
 log "Pre-deployment validation complete"
 exit 0

@@ -24,9 +24,11 @@ services:
         homepage.widget.mappings.1.field: "version"
         homepage.widget.mappings.1.label: "Version"
 
-        # Caddy reverse proxy (optional - usually internal only)
+        # Caddy reverse proxy — Host header must be rewritten so Connect
+        # API validates JWT against the internal hostname it was configured with.
         caddy: op-connect.in.hypyr.space
         caddy.reverse_proxy: "op-connect-api:8080"
+        caddy.reverse_proxy.header_up: "Host op-connect-api:8080"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
 
         # AutoKuma monitoring (internal health check)

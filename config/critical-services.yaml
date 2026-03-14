@@ -1,0 +1,33 @@
+# Critical Service Registry
+#
+# Services listed here require active-session checks before any deploy
+# that would restart them. The deployment agent reads this file before
+# executing km deploy-stack.
+#
+# To add a new critical service, add an entry below with:
+#   - name: compose service name
+#   - stack: Komodo stack name
+#   - display_name: human-readable name for operator messages
+#   - session_check: how to query for active sessions
+#   - cross_stack_deps: additional stacks blocked when sessions are active
+
+critical_services:
+  - name: plex
+    stack: application_media_core
+    display_name: Plex
+    session_check:
+      url: "https://plex.in.hypyr.space/status/sessions"
+      auth_param: "X-Plex-Token"
+      auth_secret: "op://homelab/plex/X_PLEX_TOKEN"
+      method: plex
+    cross_stack_deps: []
+
+  - name: jellyfin
+    stack: application_media_core
+    display_name: Jellyfin
+    session_check:
+      url: "https://jellyfin.in.hypyr.space/Sessions"
+      auth_param: "ApiKey"
+      auth_secret: "op://homelab/jellyfin/API_KEY"
+      method: jellyfin
+    cross_stack_deps: []

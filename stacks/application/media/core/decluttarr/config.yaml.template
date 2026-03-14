@@ -1,0 +1,46 @@
+# Decluttarr v2 config — processed by op-secrets entrypoint
+# API keys are injected at runtime from media.env
+general:
+  log_level: INFO
+  test_run: false
+  timer: 10  # minutes between queue scans
+
+job_defaults:
+  max_strikes: 3
+  min_days_between_searches: 7
+  max_concurrent_searches: 3
+
+jobs:
+  remove_failed_downloads:
+  remove_failed_imports:
+    message_patterns:
+      - "Not a Custom Format upgrade for existing*"
+      - "Not an upgrade for existing*"
+      - "*Found potentially dangerous file with extension*"
+      - "Invalid video file*"
+      - "No files found are eligible for import*"
+      - "One or more episodes expected in this release were not imported or missing from the release"
+  remove_metadata_missing:
+  remove_missing_files:
+  remove_orphans:
+  remove_slow:
+    min_speed: 100  # KB/s
+  remove_stalled:
+  remove_unmonitored:
+
+instances:
+  sonarr:
+    - base_url: "http://sonarr:8989"
+      api_key: "${SONARR_API_KEY}"
+  radarr:
+    - base_url: "http://radarr:7878"
+      api_key: "${RADARR_API_KEY}"
+  # readarr (Bookshelf) — add once API key is generated
+  # readarr:
+  #   - base_url: "http://bookshelf:8787"
+  #     api_key: "${BOOKSHELF_API_KEY}"
+
+download_clients:
+  sabnzbd:
+    - base_url: "http://sabnzbd:8080"
+      api_key: "${SABNZBD_API_KEY}"

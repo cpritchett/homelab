@@ -38,6 +38,17 @@
           url: http://uptime-kuma:3001
           slug: homelab
 
+- CI/CD:
+    - Forgejo:
+        icon: forgejo.png
+        href: https://git.in.hypyr.space
+        description: Git hosting
+
+    - Woodpecker CI:
+        icon: woodpecker-ci.png
+        href: https://ci.in.hypyr.space
+        description: Continuous integration
+
 - Monitoring:
     - Prometheus:
         icon: prometheus.png
@@ -46,6 +57,11 @@
         widget:
           type: prometheus
           url: http://prometheus:9090
+
+    - Loki:
+        icon: loki.png
+        href: https://loki.in.hypyr.space
+        description: Log aggregation
 
     - Grafana:
         icon: grafana.png
@@ -154,7 +170,43 @@
         href: https://posterizarr.in.hypyr.space
         description: Automated poster generation
 
+    - Tracearr:
+        icon: mdi-chart-timeline-variant
+        href: https://tracearr.in.hypyr.space
+        description: Media tracking & analytics
+
     - Wizarr:
         icon: wizarr.png
         href: https://invite.in.hypyr.space
         description: User invitations
+
+- Reading:
+    - Kavita:
+        icon: kavita.png
+        href: https://kavita.in.hypyr.space
+        description: Book & comic reader
+
+    - Komga:
+        icon: komga.png
+        href: https://komga.in.hypyr.space
+        description: Comic & manga server
+
+    - Mylar3:
+        icon: mylar.png
+        href: https://mylar3.in.hypyr.space
+        description: Comic book management
+
+    - Bookshelf:
+        icon: readarr.png
+        href: https://bookshelf.in.hypyr.space
+        description: Book management
+
+    - Audiobookshelf:
+        icon: audiobookshelf.png
+        href: https://audiobooks.in.hypyr.space
+        description: Audiobook server
+
+    - ReadMeABook:
+        icon: readmeabook.png
+        href: https://readmeabook.in.hypyr.space
+        description: Audiobook acquisition

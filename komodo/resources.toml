@@ -162,6 +162,26 @@ webhook_enabled = true
 # ── Stacks (Swarm mode) ────────────────────────────────
 
 [[stack]]
+name = "platform_automation"
+after = ["platform_postgres"]
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/automation"
+ignore_services = ["op-secrets"]
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-automation-setup.sh"
+
+# ---
+
+[[stack]]
 name = "platform_monitoring"
 after = ["platform_postgres"]
 
@@ -270,7 +290,7 @@ after = ["platform_postgres"]
 swarm = "homelab-swarm"
 linked_repo = "homelab-repo"
 run_directory = "stacks/application/media/core"
-ignore_services = ["op-secrets"]
+ignore_services = ["op-secrets", "download-reaper", "decluttarr"]
 auto_pull = true
 poll_for_updates = true
 webhook_enabled = true
@@ -318,6 +338,26 @@ send_alerts = true
 [stack.config.pre_deploy]
 path = "/mnt/apps01/repos/homelab/scripts/"
 command = "sh validate-media-setup.sh"
+
+# ── Stacks (Application tier — Reading) ────────────────────
+
+[[stack]]
+name = "application_reading"
+after = ["platform_postgres"]
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/application/reading"
+ignore_services = ["op-secrets"]
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-reading-setup.sh"
 
 # ── Stacks (Platform tier — CI/CD) ────────────────────────
 

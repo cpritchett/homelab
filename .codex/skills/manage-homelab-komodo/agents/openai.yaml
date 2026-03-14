@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manage Homelab Komodo"
+  short_description: "Operate and troubleshoot homelab stacks"
+  default_prompt: "Use $manage-homelab-komodo to diagnose or deploy homelab stacks via Komodo."

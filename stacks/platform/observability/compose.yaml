@@ -137,10 +137,17 @@ services:
           cpus: '0.5'
           memory: 256M
       labels:
-        # Caddy ingress
+        # Caddy ingress — internal (full dashboard, SSO-protected)
         caddy: status.in.hypyr.space
         caddy.reverse_proxy: "{{upstreams 3001}}"
         caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        # Caddy ingress — public (badge API only, no auth)
+        caddy_1: status.hypyr.space
+        caddy_1.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy_1.@badges.path: "/api/badge/*"
+        caddy_1.handle_0: "@badges"
+        caddy_1.handle_0.reverse_proxy: "{{upstreams 3001}}"
+        caddy_1.handle_1.respond: "Forbidden 403"
         # Homepage registration
         homepage.group: "Observability"
         homepage.name: "Uptime Kuma"
@@ -155,13 +162,18 @@ services:
         kuma.uptime-kuma.http.interval: "60"
         kuma.uptime-kuma.http.maxretries: "3"
         kuma.uptime-kuma.http.accepted_statuscodes: '["200-299"]'
+    environment:
+      # Trust internal Smallstep CA for HTTPS monitors
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/homelab-ca.crt
     volumes:
       - /mnt/apps01/appdata/uptime-kuma:/app/data
+      - /mnt/apps01/appdata/step-ca/certs/root_ca.crt:/etc/ssl/certs/homelab-ca.crt:ro
     networks:
       proxy_network:
         aliases:
           - uptime-kuma
       observability_internal:
+      postgres:
 
   # AutoKuma - Auto-create monitors from Docker labels
   autokuma:
@@ -203,6 +215,8 @@ services:
       AUTOKUMA__TAG_COLOR: "#42C0FB"
       # Default notification for all auto-created monitors (references AutoKuma label ID)
       AUTOKUMA__DEFAULT_SETTINGS: '*.notification_name_list: ["apprise-alerts"]'
+    volumes:
+      - /mnt/apps01/appdata/autokuma:/data
     secrets:
       - uptime_kuma_username
       - uptime_kuma_password
@@ -230,6 +244,7 @@ services:
       - /mnt/apps01/appdata/apprise/config:/config
     networks:
       - observability_internal
+      - notifications
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/status"]
       interval: 30s
@@ -241,8 +256,14 @@ networks:
     external: true
   observability_internal:
     driver: overlay
+  notifications:
+    driver: overlay
+    attachable: true
   op-connect:
     name: op-connect_op-connect
+    external: true
+  postgres:
+    name: platform_postgres_postgres
     external: true
 
 configs:

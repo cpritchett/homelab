@@ -1,0 +1,448 @@
+###############################################################################
+# Reading Stack — Books, Comics, Manga, Audiobooks
+#
+# Services: Kavita, Komga, Mylar3, Bookshelf, Audiobookshelf,
+#           ReadMeABook, readmeabook-redis
+# Tier: Application (depends on Infrastructure + Platform tiers)
+###############################################################################
+
+services:
+  # ── Secret Hydration (one-shot job) ──────────────────────────
+  op-secrets:
+    image: 1password/op:2@sha256:57d7d6a2bb2b74b2cf8111f6afb2973c74772198f82ea30359a53faae9fff5b1
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: none
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    environment:
+      OP_CONNECT_HOST: http://op-connect-api:8080
+      OP_CONNECT_TOKEN_FILE: /run/secrets/op_connect_token
+    secrets:
+      - op_connect_token
+    volumes:
+      - ./reading.env.template:/templates/reading.template:ro
+      - /mnt/apps01/appdata/reading/secrets:/secrets
+    networks:
+      - op-connect
+    command: >
+      sh -ec "
+      export OP_CONNECT_TOKEN=$$(cat /run/secrets/op_connect_token) &&
+      op inject -i /templates/reading.template -o /secrets/reading.env -f &&
+      chmod 600 /secrets/reading.env &&
+      echo 'Reading secrets injected successfully'
+      "
+
+  # ── Kavita ──────────────────────────────────────────────────
+  # Book/comic/manga reader — supports EPUB, PDF, CBZ, CBR
+  # Pinned to barbary — SQLite DB
+  kavita:
+    image: lscr.io/linuxserver/kavita:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Reading dashboard
+        homepage.group: "Reading"
+        homepage.name: "Kavita"
+        homepage.icon: "kavita.png"
+        homepage.href: "https://kavita.in.hypyr.space"
+        homepage.description: "Book & comic reader"
+        homepage.widget.type: "kavita"
+        homepage.widget.url: "http://kavita:5000"
+
+        # Caddy: Reverse proxy (NO forward auth — Kavita has own auth + OIDC)
+        caddy: kavita.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 5000}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma: Uptime monitoring
+        kuma.kavita.http.name: "Kavita"
+        kuma.kavita.http.url: "https://kavita.in.hypyr.space/api/health"
+        kuma.kavita.http.interval: "60"
+        kuma.kavita.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/apps01/appdata/reading/kavita/config:/config
+      - /mnt/data01/data:/data
+    networks:
+      - reading
+      - proxy_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ── Komga ───────────────────────────────────────────────────
+  # Comic/manga reader with OPDS support
+  # Pinned to barbary — SQLite DB
+  komga:
+    image: gotson/komga:latest
+    user: "1000:1702"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Reading dashboard
+        homepage.group: "Reading"
+        homepage.name: "Komga"
+        homepage.icon: "komga.png"
+        homepage.href: "https://komga.in.hypyr.space"
+        homepage.description: "Comic & manga server"
+        homepage.widget.type: "komga"
+        homepage.widget.url: "http://komga:25600"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: komga.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 25600}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.komga.http.name: "Komga"
+        kuma.komga.http.url: "https://komga.in.hypyr.space/actuator/health"
+        kuma.komga.http.interval: "60"
+        kuma.komga.http.maxretries: "3"
+    environment:
+      TZ: "America/Chicago"
+      KOMGA_CONFIGDIR: "/config"
+    volumes:
+      - /mnt/apps01/appdata/reading/komga/config:/config
+      - /mnt/data01/data:/data
+    networks:
+      - reading
+      - proxy_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:25600/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ── Mylar3 ──────────────────────────────────────────────────
+  # Comic book downloader/manager (requires ComicVine API key)
+  # Pinned to barbary — SQLite DB
+  mylar3:
+    image: lscr.io/linuxserver/mylar3:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+      labels:
+        # Homepage: Reading dashboard
+        homepage.group: "Reading"
+        homepage.name: "Mylar3"
+        homepage.icon: "mylar.png"
+        homepage.href: "https://mylar3.in.hypyr.space"
+        homepage.description: "Comic book management"
+        homepage.widget.type: "mylar"
+        homepage.widget.url: "http://mylar3:8090"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: mylar3.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8090}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.mylar3.http.name: "Mylar3"
+        kuma.mylar3.http.url: "https://mylar3.in.hypyr.space"
+        kuma.mylar3.http.interval: "60"
+        kuma.mylar3.http.maxretries: "3"
+        kuma.mylar3.http.accepted_statuscodes: '["200-299","301","302"]'
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/Chicago"
+    volumes:
+      - /mnt/apps01/appdata/reading/mylar3/config:/config
+      - /mnt/data01/data:/data
+      - /mnt/apps01/appdata/reading/secrets:/secrets:ro
+    networks:
+      - reading
+      - proxy_network
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/reading.env ] && . /secrets/reading.env && set +a &&
+       exec /init"
+
+  # ── Bookshelf ───────────────────────────────────────────────
+  # Book management (*arr fork of Readarr, Hardcover metadata)
+  # Floats freely — state in PostgreSQL
+  bookshelf:
+    image: ghcr.io/pennydreadful/bookshelf:hardcover
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Reading dashboard
+        homepage.group: "Reading"
+        homepage.name: "Bookshelf"
+        homepage.icon: "readarr.png"
+        homepage.href: "https://bookshelf.in.hypyr.space"
+        homepage.description: "Book management"
+        homepage.widget.type: "readarr"
+        homepage.widget.url: "http://bookshelf:8787"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: bookshelf.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 8787}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+        caddy.forward_auth: "http://authentik-server:9000"
+        caddy.forward_auth.uri: "/outpost.goauthentik.io/auth/caddy"
+        caddy.forward_auth.copy_headers: "X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid"
+
+        # AutoKuma: Uptime monitoring
+        kuma.bookshelf.http.name: "Bookshelf"
+        kuma.bookshelf.http.url: "https://bookshelf.in.hypyr.space/ping"
+        kuma.bookshelf.http.interval: "60"
+        kuma.bookshelf.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/Chicago"
+      READARR__POSTGRES__HOST: postgresql
+      READARR__POSTGRES__PORT: "5432"
+      READARR__POSTGRES__MAINDB: bookshelf-main
+      READARR__POSTGRES__LOGDB: bookshelf-log
+      READARR__POSTGRES__CACHEDB: bookshelf-cache
+    volumes:
+      - /mnt/apps01/appdata/reading/bookshelf/config:/config
+      - /mnt/data01/data:/data
+      - /mnt/apps01/appdata/reading/secrets:/secrets:ro
+    networks:
+      - reading
+      - proxy_network
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8787/ping || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/reading.env ] && . /secrets/reading.env && set +a &&
+       exec /init"
+
+  # ── Audiobookshelf ──────────────────────────────────────────
+  # Audiobook & podcast server with built-in player
+  # Pinned to barbary — SQLite DB
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Reading dashboard
+        homepage.group: "Reading"
+        homepage.name: "Audiobookshelf"
+        homepage.icon: "audiobookshelf.png"
+        homepage.href: "https://audiobooks.in.hypyr.space"
+        homepage.description: "Audiobook server"
+        homepage.widget.type: "audiobookshelf"
+        homepage.widget.url: "http://audiobookshelf:13378"
+
+        # Caddy: Reverse proxy (NO forward auth — Audiobookshelf has own auth + OIDC)
+        caddy: audiobooks.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 13378}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma: Uptime monitoring
+        kuma.audiobookshelf.http.name: "Audiobookshelf"
+        kuma.audiobookshelf.http.url: "http://audiobookshelf:13378/healthcheck"
+        kuma.audiobookshelf.http.interval: "60"
+        kuma.audiobookshelf.http.maxretries: "3"
+    environment:
+      TZ: "America/Chicago"
+      PORT: "13378"
+    volumes:
+      - /mnt/apps01/appdata/reading/audiobookshelf/config:/config
+      - /mnt/apps01/appdata/reading/audiobookshelf/metadata:/metadata
+      - /mnt/data01/data:/data
+    networks:
+      - reading
+      - proxy_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:13378/healthcheck || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # ── ReadMeABook ─────────────────────────────────────────────
+  # Audiobook acquisition & management (Audiobookshelf integration)
+  # Unified image bundles internal Postgres+Redis; auto-skips them
+  # when DATABASE_URL/REDIS_URL point to external hosts.
+  # Pinned to barbary — internal state needs local filesystem
+  readmeabook:
+    image: ghcr.io/kikootwo/readmeabook:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.hostname == barbary
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      labels:
+        # Homepage: Reading dashboard
+        homepage.group: "Reading"
+        homepage.name: "ReadMeABook"
+        homepage.icon: "readmeabook.png"
+        homepage.href: "https://readmeabook.in.hypyr.space"
+        homepage.description: "Audiobook acquisition"
+
+        # Caddy: Reverse proxy + Authentik forward auth
+        caddy: readmeabook.in.hypyr.space
+        caddy.reverse_proxy: "{{upstreams 3030}}"
+        caddy.tls.dns: "cloudflare {env.CLOUDFLARE_API_TOKEN}"
+
+        # AutoKuma: Uptime monitoring
+        kuma.readmeabook.http.name: "ReadMeABook"
+        kuma.readmeabook.http.url: "https://readmeabook.in.hypyr.space/api/health"
+        kuma.readmeabook.http.interval: "60"
+        kuma.readmeabook.http.maxretries: "3"
+    environment:
+      PUID: "1701"
+      PGID: "1702"
+      TZ: "America/Chicago"
+      PUBLIC_URL: "https://readmeabook.in.hypyr.space"
+      DATABASE_URL: "postgresql://readmeabook:placeholder@postgresql:5432/readmeabook"
+      REDIS_URL: "redis://readmeabook-redis:6379"
+    volumes:
+      - /mnt/apps01/appdata/reading/readmeabook/config:/app/config
+      - /mnt/data01/data:/data
+      - /mnt/apps01/appdata/reading/secrets:/secrets:ro
+    networks:
+      - reading
+      - proxy_network
+      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3030/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "set -a && [ -f /secrets/reading.env ] && . /secrets/reading.env && set +a &&
+       export DATABASE_URL=\"postgresql://$${READMEABOOK_DB_USER}:$${READMEABOOK_DB_PASS}@postgresql:5432/readmeabook\" &&
+       export REDIS_URL=\"redis://readmeabook-redis:6379\" &&
+       exec /entrypoint.sh /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"
+
+  # ── ReadMeABook Redis ───────────────────────────────────────
+  # External Redis for ReadMeABook (image auto-skips internal Redis
+  # when REDIS_URL points to non-localhost)
+  readmeabook-redis:
+    image: redis:8-alpine
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    volumes:
+      - /mnt/apps01/appdata/reading/readmeabook/redis:/data
+    networks:
+      - reading
+    command: redis-server --appendonly yes
+
+# ── Networks ─────────────────────────────────────────────────
+networks:
+  reading:
+    driver: overlay
+  proxy_network:
+    external: true
+  postgres:
+    name: platform_postgres_postgres
+    external: true
+  op-connect:
+    name: op-connect_op-connect
+    external: true
+
+# ── Secrets ──────────────────────────────────────────────────
+secrets:
+  op_connect_token:
+    external: true
