@@ -34,7 +34,7 @@ services:
       "
 
   smtp-relay:
-    image: crazymax/msmtpd@sha256:76d834eef113cdc330c08c0c3fc8389de6239771c73ef40e7d614116b3356e40
+    image: crazymax/msmtpd:latest@sha256:76d834eef113cdc330c08c0c3fc8389de6239771c73ef40e7d614116b3356e40
     deploy:
       replicas: 1
       restart_policy:

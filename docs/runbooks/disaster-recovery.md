@@ -9,6 +9,8 @@ This runbook assumes:
 - 1Password still holds secrets
 - Your homelab repo contains the platform stack definitions under `stacks/`
 
+For the broadside-specific recovery role and helper scripts, see [Broadside Recovery Runbook](broadside-recovery.md).
+
 ## Break-glass principles
 
 - Always keep at least one way to reach Komodo and Caddy without depending on Authentik.
@@ -78,6 +80,12 @@ Restore order:
 Verify:
 - `ssh truenas "docker service ls | grep op-connect"` shows healthy services
 - `ssh truenas "curl -s http://localhost:8080/health"` returns success
+
+### 5.5) Step-CA recovery stance
+
+- Normal operation keeps Step-CA authoritative on barbary.
+- Broadside is not a hot-standby issuer.
+- If barbary is unavailable and internal PKI is needed during recovery, restore Step-CA onto broadside from backup using the broadside recovery procedure rather than attempting dual-primary CA operation.
 
 ### 6) Bring up Authentik
 - Deploy Authentik stack

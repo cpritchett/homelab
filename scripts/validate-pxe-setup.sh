@@ -20,6 +20,8 @@ set -eu
 
 ASSETS_PATH="${ASSETS_PATH:-/mnt/apps01/appdata/pxe/assets}"
 DEBIAN_MIRROR="https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/debian-installer/amd64"
+BROADSIDE_ASSETS_PATH="${BROADSIDE_ASSETS_PATH:-${ASSETS_PATH}/broadside}"
+PXE_ENABLE_BROADSIDE="${PXE_ENABLE_BROADSIDE:-0}"
 
 log() {
     echo "[pxe-validation] $*"
@@ -83,5 +85,23 @@ docker run --rm \
         echo '[pxe-validation] Assets verified'
         chmod -R 755 /assets
     "
+
+if [ "${PXE_ENABLE_BROADSIDE}" = "1" ]; then
+    log "Validating Broadside NixOS netboot assets on host..."
+    docker run --rm \
+        -v "${BROADSIDE_ASSETS_PATH}:/assets" \
+        alpine:latest sh -c "
+            set -eu
+            for f in netboot.ipxe bzImage initrd homelab.tar.gz nixpkgs.tar.gz disko.tar.gz; do
+                if [ ! -s \"/assets/\$f\" ]; then
+                    echo \"[pxe-validation] ERROR: missing Broadside asset \$f\" >&2
+                    exit 1
+                fi
+            done
+            echo '[pxe-validation] Broadside assets verified'
+        "
+else
+    log "Skipping Broadside asset validation (set PXE_ENABLE_BROADSIDE=1 to require it)"
+fi
 
 log "PXE stack validation complete"
