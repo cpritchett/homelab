@@ -7,20 +7,23 @@ Use `stacks/platform/mail/smtp-relay/compose.yaml` to provide one internal SMTP 
 - Runs a lightweight `msmtpd` relay on the internal swarm network `platform_smtp_relay`
 - Stores upstream provider credentials once in 1Password
 - Lets services send mail to `smtp-relay:2500` instead of configuring external SMTP providers individually
-- Centralizes the sender address via `op://homelab/smtp-relay/from_address`
+- Reuses the existing SMTP vault item and derives the sender address from `op://homelab/smtp-relay/SMTP_RELAY_USERNAME`
 
 ## 1Password item
 
-Create item `homelab/smtp-relay` with these fields:
+This stack reuses the existing `homelab/smtp-relay` item fields:
 
-- `upstream_host`
-- `upstream_port`
-- `upstream_tls` (`on` or `off`)
-- `upstream_starttls` (`on` or `off`)
-- `upstream_auth` (`on` or `off`)
-- `upstream_user`
-- `upstream_password`
-- `from_address`
+- `SMTP_RELAY_SERVER`
+- `SMTP_PORT`
+- `SMTP_RELAY_USERNAME`
+- `SMTP_RELAY_PASSWORD`
+
+The remaining relay behavior is inferred in git:
+
+- `SMTP_TLS=off`
+- `SMTP_STARTTLS=on`
+- `SMTP_AUTH=on`
+- `SMTP_FROM=SMTP_RELAY_USERNAME`
 
 ## Runtime values
 
@@ -87,7 +90,7 @@ Use Authentik, Forgejo, and Grafana as the reference pattern:
 2. Add the app's SMTP env vars to its `*.env.template`
 3. Set the host to `smtp-relay`
 4. Set the port to `2500`
-5. Set the from address from `op://homelab/smtp-relay/from_address`
+5. Set the from address from `op://homelab/smtp-relay/SMTP_RELAY_USERNAME`
 6. Redeploy the stack
 7. Send a test email from the application
 
@@ -101,7 +104,7 @@ Use Authentik, Forgejo, and Grafana as the reference pattern:
    - port: `2500`
    - TLS/SSL: disabled unless that product specifically requires otherwise
    - authentication: off unless a product cannot submit anonymously
-   - from address: use the value stored at `op://homelab/smtp-relay/from_address`
+   - from address: use the value stored at `op://homelab/smtp-relay/SMTP_RELAY_USERNAME`
 5. Send a test email from the app UI
 
 If the app cannot join `platform_smtp_relay`, do not point it at the relay by name. The relay is not exposed publicly.
