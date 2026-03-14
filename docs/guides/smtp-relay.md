@@ -5,25 +5,42 @@ Use `stacks/platform/mail/smtp-relay/compose.yaml` to provide one internal SMTP 
 ## What it does
 
 - Runs a lightweight `msmtpd` relay on the internal swarm network `platform_smtp_relay`
-- Stores upstream provider credentials once in 1Password
+- Uses Resend SMTP as the upstream transactional provider
+- Stores only the runtime sending credential in 1Password
 - Lets services send mail to `smtp-relay:2500` instead of configuring external SMTP providers individually
-- Reuses the existing SMTP vault item and derives the sender address from `op://homelab/smtp-relay/SMTP_RELAY_USERNAME`
+- Keeps sender identities narrow under `tx.hypyr.space`
 
 ## 1Password item
 
-This stack reuses the existing `homelab/smtp-relay` item fields:
+This stack uses `homelab/smtp-relay` for runtime sending only:
 
-- `SMTP_RELAY_SERVER`
-- `SMTP_PORT`
-- `SMTP_RELAY_USERNAME`
-- `SMTP_RELAY_PASSWORD`
+- `RESEND_RUNTIME_API_KEY`
 
 The remaining relay behavior is inferred in git:
 
+- `SMTP_HOST=smtp.resend.com`
+- `SMTP_PORT=587`
 - `SMTP_TLS=off`
 - `SMTP_STARTTLS=on`
 - `SMTP_AUTH=on`
-- `SMTP_FROM=SMTP_RELAY_USERNAME`
+- `SMTP_USER=resend`
+- `SMTP_FROM=system@tx.hypyr.space`
+- `SMTP_ALLOW_FROM_OVERRIDE=on`
+- `SMTP_SET_FROM_HEADER=auto`
+
+This follows the bootstrap pattern:
+
+- infrastructure/provider automation should use a separate Resend account key
+- application and SMTP sending should use the runtime key only
+
+## Sender addresses
+
+Keep senders limited to:
+
+- `alerts@tx.hypyr.space`
+- `auth@tx.hypyr.space`
+- `system@tx.hypyr.space`
+- `noreply@tx.hypyr.space`
 
 ## Runtime values
 
@@ -40,9 +57,9 @@ These stacks are already configured in git to use the relay and already attach t
 
 | Service | URL | Stack path | Evidence |
 | --- | --- | --- | --- |
-| Authentik | `https://auth.in.hypyr.space` | `stacks/platform/auth/authentik` | `AUTHENTIK_EMAIL__*` in `env.template`; `smtp_relay` network in `compose.yaml` |
-| Forgejo | `https://git.in.hypyr.space` | `stacks/platform/cicd/forgejo` | `FORGEJO__mailer__*` in `env.template`; `smtp_relay` network in `compose.yaml` |
-| Grafana | `https://grafana.in.hypyr.space` | `stacks/platform/monitoring` | `GF_SMTP_*` in `grafana.env.template`; `smtp_relay` network in `compose.yaml` |
+| Authentik | `https://auth.in.hypyr.space` | `stacks/platform/auth/authentik` | sends as `auth@tx.hypyr.space`; `smtp_relay` network in `compose.yaml` |
+| Forgejo | `https://git.in.hypyr.space` | `stacks/platform/cicd/forgejo` | sends as `noreply@tx.hypyr.space`; `smtp_relay` network in `compose.yaml` |
+| Grafana | `https://grafana.in.hypyr.space` | `stacks/platform/monitoring` | sends as `alerts@tx.hypyr.space`; `smtp_relay` network in `compose.yaml` |
 
 These are the only consumers currently reachable from the relay by repo-managed configuration.
 
@@ -90,7 +107,7 @@ Use Authentik, Forgejo, and Grafana as the reference pattern:
 2. Add the app's SMTP env vars to its `*.env.template`
 3. Set the host to `smtp-relay`
 4. Set the port to `2500`
-5. Set the from address from `op://homelab/smtp-relay/SMTP_RELAY_USERNAME`
+5. Set a sender under `tx.hypyr.space` that matches the app's purpose
 6. Redeploy the stack
 7. Send a test email from the application
 
@@ -104,7 +121,7 @@ Use Authentik, Forgejo, and Grafana as the reference pattern:
    - port: `2500`
    - TLS/SSL: disabled unless that product specifically requires otherwise
    - authentication: off unless a product cannot submit anonymously
-   - from address: use the value stored at `op://homelab/smtp-relay/SMTP_RELAY_USERNAME`
+   - from address: choose one of `alerts@tx.hypyr.space`, `auth@tx.hypyr.space`, `system@tx.hypyr.space`, or `noreply@tx.hypyr.space`
 5. Send a test email from the app UI
 
 If the app cannot join `platform_smtp_relay`, do not point it at the relay by name. The relay is not exposed publicly.
@@ -136,3 +153,4 @@ Use this checklist when extending SMTP coverage:
 - Today, only Authentik, Forgejo, and Grafana are fully wired to send through the relay by git-managed configuration.
 - Several additional stacks are now attached to `platform_smtp_relay`, but they still require app-level SMTP configuration in their own UI before they will send mail.
 - The repo evidence for those candidates is their deployment and public URL; the actual SMTP capability is inferred from normal product behavior unless SMTP settings are explicitly present in git-managed config.
+- This implementation intentionally uses Resend SMTP. Direct Resend API senders or webhook receivers can be added later without changing the legacy SMTP relay pattern.
