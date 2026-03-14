@@ -214,6 +214,25 @@ requires = "Restart"
 # ---
 
 [[stack]]
+name = "platform_smtp_relay"
+
+[stack.config]
+swarm = "homelab-swarm"
+linked_repo = "homelab-repo"
+run_directory = "stacks/platform/mail/smtp-relay"
+ignore_services = ["op-secrets"]
+auto_pull = true
+poll_for_updates = true
+webhook_enabled = true
+send_alerts = true
+
+[stack.config.pre_deploy]
+path = "/mnt/apps01/repos/homelab/scripts/"
+command = "sh validate-smtp-relay-setup.sh"
+
+# ---
+
+[[stack]]
 name = "platform_observability"
 
 [stack.config]

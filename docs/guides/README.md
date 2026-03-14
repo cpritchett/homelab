@@ -16,3 +16,4 @@ Step-by-step guides for bootstrapping, deploying, and operating homelab services
 
 - [Secrets Migration](secrets-migration.md) — 1Password Connect migration from op-export
 - [Forward Auth](forward-auth.md) — Caddy + Authentik forward authentication labels
+- [SMTP Relay](smtp-relay.md) — Centralized lightweight SMTP relay for repo-managed services
