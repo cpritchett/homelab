@@ -59,15 +59,15 @@ ITEM_ID="$(op item list --vault homelab --format json | jq -r '.[] | select(.tit
 if [ -n "$ITEM_ID" ]; then
   op item edit "$ITEM_ID" \
     --vault homelab \
-    "text=pxe_mac[concealed]=$MAC" \
-    "text=reserved_ip[concealed]=$RESERVED_IP" >/dev/null
+    "pxe_mac[concealed]=$MAC" \
+    "reserved_ip[concealed]=$RESERVED_IP" >/dev/null
   echo "Updated op://homelab/broadside-pxe/*"
 else
   op item create \
     --vault homelab \
     --category "Secure Note" \
     --title broadside-pxe \
-    "text=pxe_mac[concealed]=$MAC" \
-    "text=reserved_ip[concealed]=$RESERVED_IP" >/dev/null
+    "pxe_mac[concealed]=$MAC" \
+    "reserved_ip[concealed]=$RESERVED_IP" >/dev/null
   echo "Created op://homelab/broadside-pxe/*"
 fi
