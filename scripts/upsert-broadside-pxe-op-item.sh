@@ -65,7 +65,7 @@ if [ -n "$ITEM_ID" ]; then
 else
   op item create \
     --vault homelab \
-    --category secure-note \
+    --category "Secure Note" \
     --title broadside-pxe \
     "text=pxe_mac[concealed]=$MAC" \
     "text=reserved_ip[concealed]=$RESERVED_IP" >/dev/null
