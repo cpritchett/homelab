@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-OUT_DIR="${1:-$PWD/.tmp/broadside-netboot}"
+OUT_DIR="${1:-$PWD/stacks/infrastructure/pxe/assets/broadside}"
 BASE_URL="${BROADSIDE_PXE_BASE_URL:-http://10.0.5.121:8480/assets/broadside}"
 FLAKE_REF="path:$PWD"
 NIX_DOCKER_PLATFORM="${NIX_DOCKER_PLATFORM:-linux/amd64}"
@@ -144,5 +144,5 @@ Broadside netboot assets ready in:
   $OUT_DIR
 
 Sync them to barbary:
-  rsync -av "$OUT_DIR"/ root@barbary:/mnt/apps01/appdata/pxe/assets/broadside/
+  rsync -av "$OUT_DIR"/ root@barbary:/mnt/apps01/repos/homelab/stacks/infrastructure/pxe/assets/broadside/
 EOF

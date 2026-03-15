@@ -3,13 +3,13 @@ set -euo pipefail
 
 SRC_DIR="${1:-$PWD/.tmp/broadside-netboot}"
 TARGET_HOST="${BROADSIDE_PXE_HOST:-root@barbary}"
-TARGET_DIR="${BROADSIDE_PXE_TARGET_DIR:-/mnt/apps01/appdata/pxe/assets/broadside}"
+TARGET_DIR="${BROADSIDE_PXE_TARGET_DIR:-/mnt/apps01/repos/homelab/stacks/infrastructure/pxe/assets/broadside}"
 
 usage() {
   cat <<EOF
 Usage: $0 [source-dir]
 
-Sync prebuilt Broadside NixOS netboot assets to barbary's PXE asset path.
+Sync prebuilt Broadside NixOS netboot assets to barbary's repo-served PXE asset path.
 EOF
 }
 

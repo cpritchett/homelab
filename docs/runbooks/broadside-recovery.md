@@ -196,7 +196,7 @@ Use barbary's existing PXE and Matchbox stack to bootstrap or reinstall broadsid
 ### Procedure
 
 1. Update the broadside PXE selector and asset path on barbary.
-2. Build the Broadside netboot assets from the repo flake on a machine with either local `nix` or Docker available:
+2. Build the Broadside netboot assets from the repo flake on barbary or another machine with either local `nix` or Docker available:
 
 ```bash
 ./scripts/build-broadside-installer-assets.sh
@@ -215,7 +215,9 @@ This build now vendors:
 - the `nixpkgs` flake input
 - rewritten iPXE assets pointing at barbary's local PXE asset path
 
-3. Sync the generated assets to barbary:
+When run from barbary's repo checkout, the default output path already lands under the PXE stack's repo-served assets directory and no manual sync is required.
+
+3. If the build happens on another machine, sync the generated assets to barbary's repo-served PXE path:
 
 ```bash
 ./scripts/sync-broadside-installer-assets.sh

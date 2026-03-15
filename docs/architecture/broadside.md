@@ -137,7 +137,7 @@ These are either too stateful, too heavy, or too central to operate as ad hoc fa
 - broadside stays passive
 - no client cutover is required
 - no service authority moves
-- barbary continues to host the primary PXE path; broadside's installer assets live under that existing PXE stack
+- barbary continues to host the primary PXE path; broadside's installer assets are generated from this repo into the repo-served PXE asset tree
 
 ### If Barbary Is Degraded but Reachable
 
