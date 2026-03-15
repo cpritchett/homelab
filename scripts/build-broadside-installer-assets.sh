@@ -29,13 +29,14 @@ extract_archive_input_path() {
 
   local archive_file
   archive_file="$(mktemp)"
+  # shellcheck disable=SC2064
+  trap "rm -f '$archive_file'" RETURN
   printf '%s\n' "$archive_json" > "$archive_file"
   nix "${NIX_COMMON_ARGS[@]}" eval --impure --raw --expr "
     let
       archive = builtins.fromJSON (builtins.readFile ${archive_file});
     in archive.inputs.${input_name}.path
   "
-  rm -f "$archive_file"
 }
 
 usage() {
