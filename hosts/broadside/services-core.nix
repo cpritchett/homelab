@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 
 let
   repoSnapshotSource = builtins.path {
@@ -81,12 +81,6 @@ in
           "::1 allow"
           "10.0.5.0/24 allow"
           "100.64.0.0/10 allow"
-        ];
-        local-data = [
-          "broadside.in.hypyr.space. IN A 10.0.5.107"
-          "runbooks-broadside.in.hypyr.space. IN A 10.0.5.107"
-          "mirror-broadside.in.hypyr.space. IN A 10.0.5.107"
-          "ca-broadside.in.hypyr.space. IN A 10.0.5.107"
         ];
       };
       forward-zone = [

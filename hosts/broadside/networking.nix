@@ -1,5 +1,8 @@
-{ lib, ... }:
+{ config, lib, ... }:
 
+let
+  recoveryCfg = config.broadside.recovery;
+in
 {
   networking.hostName = "broadside";
   networking.useNetworkd = true;
@@ -63,7 +66,15 @@
     "10.0.5.1"
   ];
 
-  networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [ 22 53 80 443 9000 ];
-  networking.firewall.allowedUDPPorts = [ 53 ];
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts =
+      [ 22 53 80 443 ] ++
+      lib.optionals recoveryCfg.enableStepCa [ 9000 ] ++
+      lib.optionals recoveryCfg.enableUptimeKuma [ 3001 ] ++
+      lib.optionals recoveryCfg.enablePxeHelpers [ 8480 ];
+    allowedUDPPorts =
+      [ 53 ] ++
+      lib.optionals recoveryCfg.enablePxeHelpers [ 67 ];
+  };
 }

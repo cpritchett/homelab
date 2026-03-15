@@ -14,5 +14,6 @@ services:
     mem_limit: 128m
     volumes:
       - ./dnsmasq.conf:/etc/dnsmasq.conf:ro
+      - ./dnsmasq.d:/etc/dnsmasq.d:ro
     environment:
       TZ: America/Chicago

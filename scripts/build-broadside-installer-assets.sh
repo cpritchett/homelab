@@ -109,7 +109,12 @@ fi
 
 mkdir -p "$OUT_DIR"
 
-tar_excludes=(--exclude='.git' --exclude='.tmp' --exclude='result')
+tar_excludes=(
+  --exclude='.git'
+  --exclude='.tmp'
+  --exclude='result'
+  --exclude='stacks/infrastructure/pxe/assets/debian-12'
+)
 if [ "$OUT_DIR" = "$PWD" ]; then
   echo "Refusing to write Broadside assets into the repo root" >&2
   exit 1

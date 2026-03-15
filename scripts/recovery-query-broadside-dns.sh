@@ -13,7 +13,7 @@ EOF
 if command -v dig >/dev/null 2>&1; then
   dig @"$SERVER" "$NAME"
 elif command -v drill >/dev/null 2>&1; then
-  drill "$NAME" "@$SERVER"
+  drill @"$SERVER" "$NAME"
 else
   echo "Neither dig nor drill is installed." >&2
   exit 1

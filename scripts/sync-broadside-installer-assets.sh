@@ -30,6 +30,7 @@ for f in bzImage initrd netboot.ipxe homelab.tar.gz nixpkgs.tar.gz disko.tar.gz;
   fi
 done
 
+ssh "$TARGET_HOST" "mkdir -p '$TARGET_DIR'"
 rsync -av "$SRC_DIR"/ "$TARGET_HOST:$TARGET_DIR/"
 
 echo "Synced Broadside installer assets to $TARGET_HOST:$TARGET_DIR"

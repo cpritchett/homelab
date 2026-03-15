@@ -195,8 +195,31 @@ Use barbary's existing PXE and Matchbox stack to bootstrap or reinstall broadsid
 
 ### Procedure
 
-1. Update the broadside PXE selector and asset path on barbary.
-2. Build the Broadside netboot assets from the repo flake on barbary or another machine with either local `nix` or Docker available:
+1. Ensure the Broadside PXE inventory item exists in 1Password:
+
+```bash
+./scripts/upsert-broadside-pxe-op-item.sh --mac <broadside-pxe-mac> --reserved-ip <broadside-reserved-ip>
+```
+
+This stores the operator inventory at:
+
+- `op://homelab/broadside-pxe/pxe_mac`
+- `op://homelab/broadside-pxe/reserved_ip`
+
+2. Render the Broadside-specific PXE config from 1Password:
+
+```bash
+./scripts/render-broadside-pxe-config.sh
+```
+
+This generates:
+
+- `stacks/infrastructure/pxe/dnsmasq.d/broadside.conf`
+- `stacks/infrastructure/pxe/matchbox/groups/broadside.json`
+
+The render helper prefers a locally signed-in `op` session when run from a workstation and otherwise falls back to barbary's existing 1Password Connect deployment and shared token during PXE validation/deploy.
+
+3. Build the Broadside netboot assets from the repo flake on barbary or another machine with either local `nix` or Docker available:
 
 ```bash
 ./scripts/build-broadside-installer-assets.sh
@@ -217,20 +240,20 @@ This build now vendors:
 
 When run from barbary's repo checkout, the default output path already lands under the PXE stack's repo-served assets directory and no manual sync is required.
 
-3. If the build happens on another machine, sync the generated assets to barbary's repo-served PXE path:
+4. If the build happens on another machine, sync the generated assets to barbary's repo-served PXE path:
 
 ```bash
 ./scripts/sync-broadside-installer-assets.sh
 ```
 
-4. Validate PXE prerequisites with Broadside assets enabled:
+5. Validate PXE prerequisites with Broadside assets enabled:
 
 ```bash
 PXE_ENABLE_BROADSIDE=1 ./scripts/validate-pxe-setup.sh
 ```
 
-5. Boot broadside from the network.
-6. At the installer console, run:
+6. Boot broadside from the network.
+7. At the installer console, run:
 
 ```bash
 /root/install-broadside.sh
@@ -240,12 +263,13 @@ The installer pulls only from barbary's local PXE asset path and does not clone 
 
 The generated asset bundle also carries the flake-locked `nixpkgs` and `disko` sources, so install uses the same pinned inputs that produced the PXE artifacts.
 
-7. After successful install, switch broadside back to local boot.
+8. After successful install, switch broadside back to local boot.
 
 ### Notes
 
 - this is the default bootstrap path
 - broadside uses a dedicated iPXE asset path under the existing barbary PXE stack
+- broadside's PXE MAC and reserved IP are rendered from 1Password, not committed into the repo
 - broadside-hosted PXE remains optional, not primary
 
 ## Scenario 6: PXE Independence Needed Later

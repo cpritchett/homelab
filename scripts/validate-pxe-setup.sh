@@ -22,6 +22,8 @@ ASSETS_PATH="${ASSETS_PATH:-${REPO_ROOT}/stacks/infrastructure/pxe/assets}"
 DEBIAN_MIRROR="https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/debian-installer/amd64"
 BROADSIDE_ASSETS_PATH="${BROADSIDE_ASSETS_PATH:-${ASSETS_PATH}/broadside}"
 PXE_ENABLE_BROADSIDE="${PXE_ENABLE_BROADSIDE:-0}"
+BROADSIDE_DNSMASQ_RENDERED="${REPO_ROOT}/stacks/infrastructure/pxe/dnsmasq.d/broadside.conf"
+BROADSIDE_MATCHBOX_RENDERED="${REPO_ROOT}/stacks/infrastructure/pxe/matchbox/groups/broadside.json"
 
 log() {
     echo "[pxe-validation] $*"
@@ -89,6 +91,17 @@ docker run --rm \
     "
 
 if [ "${PXE_ENABLE_BROADSIDE}" = "1" ]; then
+    log "Rendering Broadside PXE host inventory from 1Password..."
+    (
+        cd "${REPO_ROOT}"
+        ./scripts/render-broadside-pxe-config.sh
+    )
+
+    if [ ! -s "${BROADSIDE_DNSMASQ_RENDERED}" ] || [ ! -s "${BROADSIDE_MATCHBOX_RENDERED}" ]; then
+        log_error "Broadside PXE config render failed."
+        exit 1
+    fi
+
     log "Building Broadside NixOS netboot assets from repo checkout..."
     (
         cd "${REPO_ROOT}"

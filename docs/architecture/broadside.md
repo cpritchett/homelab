@@ -138,6 +138,7 @@ These are either too stateful, too heavy, or too central to operate as ad hoc fa
 - no client cutover is required
 - no service authority moves
 - barbary continues to host the primary PXE path; broadside's installer assets are generated from this repo into the repo-served PXE asset tree
+- broadside's PXE MAC and reserved IP are rendered from `op://homelab/broadside-pxe/*` into generated repo-local files before PXE validation/deploy
 
 ### If Barbary Is Degraded but Reachable
 
