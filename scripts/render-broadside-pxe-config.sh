@@ -3,7 +3,7 @@
 set -eu
 
 REPO_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-DNSMASQ_TEMPLATE="${REPO_ROOT}/stacks/infrastructure/pxe/dnsmasq.d/broadside.conf.template"
+DNSMASQ_TEMPLATE="${REPO_ROOT}/stacks/infrastructure/pxe/templates/dnsmasq-broadside.conf.template"
 DNSMASQ_OUTPUT="${REPO_ROOT}/stacks/infrastructure/pxe/dnsmasq.d/broadside.conf"
 MATCHBOX_TEMPLATE="${REPO_ROOT}/stacks/infrastructure/pxe/matchbox/groups/broadside.json.template"
 MATCHBOX_OUTPUT="${REPO_ROOT}/stacks/infrastructure/pxe/matchbox/groups/broadside.json"
