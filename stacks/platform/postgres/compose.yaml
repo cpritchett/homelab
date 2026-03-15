@@ -42,7 +42,7 @@ services:
 
   # ── PostgreSQL ──────────────────────────────────────────────
   postgresql:
-    image: postgres:17-alpine
+    image: postgres:17-alpine@sha256:6f30057d31f5861b66f3545d4821f987aacf1dd920765f0acadea0c58ff975b1
     deploy:
       replicas: 1
       placement:
@@ -84,7 +84,7 @@ services:
 
   # ── Backup (pg_dump cron) ───────────────────────────────────
   pg-backup:
-    image: postgres:17-alpine
+    image: postgres:17-alpine@sha256:6f30057d31f5861b66f3545d4821f987aacf1dd920765f0acadea0c58ff975b1
     deploy:
       replicas: 1
       placement:
