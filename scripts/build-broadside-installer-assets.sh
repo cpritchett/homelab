@@ -38,6 +38,31 @@ extract_archive_input_path() {
   rm -f "$archive_file"
 }
 
+rewrite_ipxe_asset_paths() {
+  local source_path="$1"
+  local output_path="$2"
+  local kernel_rewritten=0
+  local initrd_rewritten=0
+  local line
+
+  : > "$output_path"
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [ "$kernel_rewritten" -eq 0 ] && [[ "$line" =~ ^([[:space:]]*kernel[[:space:]]+)([^[:space:]]+)(.*)$ ]]; then
+      printf '%s%s%s\n' "${BASH_REMATCH[1]}" "${BASE_URL}/bzImage" "${BASH_REMATCH[3]}" >> "$output_path"
+      kernel_rewritten=1
+      continue
+    fi
+
+    if [ "$initrd_rewritten" -eq 0 ] && [[ "$line" =~ ^([[:space:]]*initrd[[:space:]]+)([^[:space:]]+)(.*)$ ]]; then
+      printf '%s%s%s\n' "${BASH_REMATCH[1]}" "${BASE_URL}/initrd" "${BASH_REMATCH[3]}" >> "$output_path"
+      initrd_rewritten=1
+      continue
+    fi
+
+    printf '%s\n' "$line" >> "$output_path"
+  done < "$source_path"
+}
+
 usage() {
   cat <<EOF
 Usage: $0 [output-dir]
@@ -108,10 +133,7 @@ else
   cp "$initrd_path" "$OUT_DIR/initrd"
 fi
 
-sed \
-  -e "0,/^\([[:space:]]*kernel[[:space:]]\)\([^[:space:]]\+\)\(.*\)$/s##\1${BASE_URL}/bzImage\3#" \
-  -e "0,/^\([[:space:]]*initrd[[:space:]]\)\([^[:space:]]\+\)\(.*\)$/s##\1${BASE_URL}/initrd\3#" \
-  "$ipxe_path" > "$OUT_DIR/netboot.ipxe"
+rewrite_ipxe_asset_paths "$ipxe_path" "$OUT_DIR/netboot.ipxe"
 
 tar --exclude='.git' --exclude='.tmp' --exclude='result' -czf "$OUT_DIR/homelab.tar.gz" .
 tar -C "$nixpkgs_src" -czf "$OUT_DIR/nixpkgs.tar.gz" .
