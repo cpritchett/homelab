@@ -103,19 +103,23 @@ in
   services.caddy = {
     enable = true;
     virtualHosts = {
-      "broadside.in.hypyr.space" = {
+      # Use http:// prefix to disable automatic ACME/TLS acquisition.
+      # Broadside is a recovery node; ACME requires internet access that
+      # may not be available during an outage. The runbook site must be
+      # reachable over plain HTTP without any external dependency.
+      "http://broadside.in.hypyr.space" = {
         extraConfig = ''
           root * ${runbookSite}
           file_server
         '';
       };
-      "runbooks-broadside.in.hypyr.space" = {
+      "http://runbooks-broadside.in.hypyr.space" = {
         extraConfig = ''
           root * ${runbookSite}/runbooks
           file_server browse
         '';
       };
-      "mirror-broadside.in.hypyr.space" = {
+      "http://mirror-broadside.in.hypyr.space" = {
         extraConfig = ''
           root * /srv/recovery/mirror
           file_server browse
