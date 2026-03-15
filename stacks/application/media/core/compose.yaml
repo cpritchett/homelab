@@ -40,7 +40,7 @@ services:
   # ── Plex ─────────────────────────────────────────────────────
   # Pinned to barbary — large metadata DB + iGPU transcoding
   plex:
-    image: lscr.io/linuxserver/plex:latest
+    image: lscr.io/linuxserver/plex:latest@sha256:79dfc89947410ec120a3e34cf68f746f6f154de20772e6f27b9998ca9bd65a5e
     deploy:
       replicas: 1
       placement:
@@ -172,7 +172,7 @@ services:
   # ── Sonarr ───────────────────────────────────────────────────
   # Pinned to barbary — SQLite DB on NFS
   sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
+    image: lscr.io/linuxserver/sonarr:latest@sha256:21c1c3d52248589bb064f5adafec18cad45812d7a01d317472955eef051e619b
     deploy:
       replicas: 1
       placement:
@@ -242,7 +242,7 @@ services:
   # ── Radarr ───────────────────────────────────────────────────
   # Floats freely — state in PostgreSQL
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
+    image: lscr.io/linuxserver/radarr:latest@sha256:ca43905eaf2dd11425efdcfe184892e43806b1ae0a830440c825cecbc2629cfb
     deploy:
       replicas: 1
       restart_policy:
@@ -309,7 +309,7 @@ services:
   # ── Prowlarr ─────────────────────────────────────────────────
   # Floats freely — state in PostgreSQL
   prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
+    image: lscr.io/linuxserver/prowlarr:latest@sha256:9ef5d8bf832edcacb6082f9262cb36087854e78eb7b1c3e1d4375056055b2d82
     deploy:
       replicas: 1
       restart_policy:
