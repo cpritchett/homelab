@@ -109,6 +109,15 @@ fi
 
 mkdir -p "$OUT_DIR"
 
+tar_excludes=(--exclude='.git' --exclude='.tmp' --exclude='result')
+if [ "$OUT_DIR" = "$PWD" ]; then
+  echo "Refusing to write Broadside assets into the repo root" >&2
+  exit 1
+fi
+if [ "${OUT_DIR#"$PWD"/}" != "$OUT_DIR" ]; then
+  tar_excludes+=(--exclude="${OUT_DIR#"$PWD"/}")
+fi
+
 kernel_out="$(nix "${NIX_COMMON_ARGS[@]}" build --no-link --print-out-paths "$FLAKE_REF#nixosConfigurations.broadside-installer.config.system.build.kernel")"
 initrd_out="$(nix "${NIX_COMMON_ARGS[@]}" build --no-link --print-out-paths "$FLAKE_REF#nixosConfigurations.broadside-installer.config.system.build.netbootRamdisk")"
 ipxe_out="$(nix "${NIX_COMMON_ARGS[@]}" build --no-link --print-out-paths "$FLAKE_REF#nixosConfigurations.broadside-installer.config.system.build.netbootIpxeScript")"
@@ -135,7 +144,7 @@ fi
 
 rewrite_ipxe_asset_paths "$ipxe_path" "$OUT_DIR/netboot.ipxe"
 
-tar --exclude='.git' --exclude='.tmp' --exclude='result' -czf "$OUT_DIR/homelab.tar.gz" .
+tar "${tar_excludes[@]}" -czf "$OUT_DIR/homelab.tar.gz" .
 tar -C "$nixpkgs_src" -czf "$OUT_DIR/nixpkgs.tar.gz" .
 tar -C "$disko_src" -czf "$OUT_DIR/disko.tar.gz" .
 
