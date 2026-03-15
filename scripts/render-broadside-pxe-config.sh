@@ -38,6 +38,7 @@ render_with_connect() {
   fi
 
   docker run --rm \
+    --user 0:0 \
     --network op-connect_op-connect \
     -e OP_CONNECT_HOST=http://op-connect-api:8080 \
     -v "${REPO_ROOT}:${REPO_ROOT}" \
