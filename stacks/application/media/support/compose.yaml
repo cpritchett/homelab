@@ -40,7 +40,7 @@ services:
   # ── Recyclarr ────────────────────────────────────────────────
   # Syncs TRaSH Guides quality profiles to Sonarr/Radarr (one-shot per deploy)
   recyclarr:
-    image: ghcr.io/recyclarr/recyclarr:latest
+    image: ghcr.io/recyclarr/recyclarr:latest@sha256:55afe316d3e4e4e3b9120cef7c79436b1b5311f6a18d4ef4b7653e720499c90a
     deploy:
       mode: replicated-job
       restart_policy:
@@ -59,7 +59,7 @@ services:
   # ── Bazarr ───────────────────────────────────────────────────
   # Pinned to barbary — SQLite DB, no postgres support
   bazarr:
-    image: lscr.io/linuxserver/bazarr:latest
+    image: lscr.io/linuxserver/bazarr:latest@sha256:05f9d5b24884f37120453dc1a008a47be244eebec32099ae1bd29032e75b67aa
     deploy:
       replicas: 1
       placement:
@@ -282,7 +282,7 @@ services:
   # Discord bot for media requests via slash commands (/movie, /tv)
   # Stateless — backed by Seerr's Overseerr-compatible API
   doplarr:
-    image: ghcr.io/kiranshila/doplarr:latest
+    image: ghcr.io/kiranshila/doplarr:latest@sha256:8939a0d3f2081eb815abe3a4f8df7d3c7d16046e7931ac88ac841f16a9680179
     deploy:
       replicas: 1
       restart_policy:
@@ -316,7 +316,7 @@ services:
   # Pinned to barbary — SQLite DB
   # User invitation & onboarding for Plex/Jellyfin
   wizarr:
-    image: ghcr.io/wizarrrr/wizarr:latest
+    image: ghcr.io/wizarrrr/wizarr:latest@sha256:855e2a9a98eb18ffee26f321aac5a58712bcb04a537f10c21b95d191f9407588
     deploy:
       replicas: 1
       placement:
@@ -364,7 +364,7 @@ services:
   # ── Tracearr TimescaleDB ─────────────────────────────────────
   # Pinned to barbary — ZFS-backed database
   tracearr-timescaledb:
-    image: timescale/timescaledb:latest-pg17
+    image: timescale/timescaledb:latest-pg17@sha256:ec9366355ee5a42282006095a8677a042f7d3b0567a31777d77a6e7c9d6e0fdf
     deploy:
       replicas: 1
       placement:
@@ -427,7 +427,7 @@ services:
   # Unified monitoring for Plex, Jellyfin, Emby
   # Floats freely — state in TimescaleDB + Redis
   tracearr:
-    image: ghcr.io/connorgallopo/tracearr:latest
+    image: ghcr.io/connorgallopo/tracearr:latest@sha256:6c0027b6923c5c050a2519caef5b211ba8b87f729893d9aa4b42560504daa479
     user: "1001:999"
     deploy:
       replicas: 1
