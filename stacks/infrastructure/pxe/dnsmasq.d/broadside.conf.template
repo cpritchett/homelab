@@ -1,0 +1,3 @@
+# Broadside PXE override rendered from 1Password inventory.
+dhcp-host={{ op://homelab/broadside-pxe/pxe_mac }},set:broadside
+dhcp-boot=tag:ipxe,tag:broadside,http://10.0.5.121:8480/assets/broadside/netboot.ipxe

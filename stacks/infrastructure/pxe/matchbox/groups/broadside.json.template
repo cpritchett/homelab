@@ -1,0 +1,14 @@
+{
+  "id": "broadside",
+  "name": "broadside - NixOS Recovery Node",
+  "profile": "local-disk",
+  "selector": {
+    "mac": "{{ op://homelab/broadside-pxe/pxe_mac }}"
+  },
+  "metadata": {
+    "hostname": "broadside",
+    "reserved_ip": "{{ op://homelab/broadside-pxe/reserved_ip }}",
+    "gateway": "10.0.5.1",
+    "nameserver": "10.0.5.1"
+  }
+}

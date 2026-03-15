@@ -102,3 +102,12 @@ lerna-debug.log*
 
 .continue/
 .playwright-mcp/
+
+# Generated PXE assets (served from repo-local path on barbary)
+stacks/infrastructure/pxe/assets/debian-12/*
+!stacks/infrastructure/pxe/assets/debian-12/.gitkeep
+stacks/infrastructure/pxe/assets/broadside/*
+!stacks/infrastructure/pxe/assets/broadside/.gitkeep
+stacks/infrastructure/pxe/dnsmasq.d/*.conf
+!stacks/infrastructure/pxe/dnsmasq.d/.gitkeep
+stacks/infrastructure/pxe/matchbox/groups/broadside.json

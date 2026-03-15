@@ -18,6 +18,12 @@ Validation checklist for tooling compliance.
 - [ ] `conftest` installed via mise (not brew/curl)
 - [ ] `kyverno` CLI installed via mise (not brew/curl)
 
+### Repo-scoped Nix operations
+- [ ] Flake-backed repo operations use pinned inputs (`flake.lock` present and current)
+- [ ] Repository provides a repo-scoped or containerized Nix path when Nix is required
+- [ ] Generated Nix artifacts are written to ignored paths and not committed
+- [ ] CI validates relevant flake outputs or generated artifacts when Nix-backed areas change
+
 ### Policy tooling
 - [ ] Conftest used for non-Kubernetes policies (repository structure, IaC)
 - [ ] Kyverno used for Kubernetes resource policies

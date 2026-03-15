@@ -50,6 +50,15 @@ This repo uses a standardized tooling stack for automation, dependency managemen
 - **Installed via:** `brew install ytt`
 - **See:** [ADR-0013](../../docs/adr/ADR-0013-ytt-data-values.md)
 
+### Repo-scoped Nix operations
+- **Tool:** [Nix](https://nixos.org) flakes
+- **Purpose:** Deterministic host definitions and generated installer/netboot artifacts
+- **Scope:** Repo-local host configs, pinned flake evaluation, generated recovery/bootstrap assets
+- **Usage:** Prefer repo scripts or containerized wrappers; global installation is optional
+- **CI usage:** GitHub Actions may evaluate flake outputs and build/upload generated artifacts for review
+- **Artifact policy:** Generated Nix outputs MUST stay out of git unless a spec explicitly requires committed artifacts
+- **See:** [ADR-0042](../../docs/adr/ADR-0042-repo-scoped-nix-artifact-builds.md)
+
 ## Installation requirements
 
 ### Minimum (required)
@@ -78,6 +87,8 @@ Agents and developers MUST NOT:
 - Add npm dependencies without Socket.dev scanning
 - Install policy tools (conftest, kyverno) via brew/curl in scripts
 - Use ad-hoc bash for policy enforcement when Conftest/Kyverno appropriate
+- Require system-wide Nix installation for repository participation when a repo-scoped path exists
+- Commit generated Nix build artifacts unless explicitly required by spec
 
 ## Policy tool selection
 
@@ -96,3 +107,4 @@ Standardized tooling reduces friction and "works on my machine" issues. Task pro
 
 See: [ADR-0008: Developer Tooling Stack](../../docs/adr/ADR-0008-developer-tooling-stack.md)
 - See: [ADR-0016: Kube-vip Control-Plane Only](../../docs/adr/ADR-0016-kube-vip-control-plane-only.md)
+- See: [ADR-0042: Repo-Scoped Nix Artifact Builds](../../docs/adr/ADR-0042-repo-scoped-nix-artifact-builds.md)

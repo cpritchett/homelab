@@ -51,7 +51,7 @@ services:
         mode: ingress
     volumes:
       - ./matchbox:/var/lib/matchbox:ro
-      - /mnt/apps01/appdata/pxe/assets:/assets:ro
+      - /mnt/apps01/repos/homelab/stacks/infrastructure/pxe/assets:/assets:ro
     networks:
       - proxy_network
     environment:
